@@ -28,7 +28,7 @@ pyspread settings
 
 from PyQt5.QtCore import QSettings
 
-VERSION = "2.0"
+VERSION = "1.99"
 
 
 class DefaultSettings:
