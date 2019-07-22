@@ -914,7 +914,7 @@ class GridCellDelegate(QStyledItemDelegate):
             size = canvas.size()
             width, height = size.width(), size.height()
             image = QImage(canvas.buffer_rgba(), width, height,
-                           QImage.Format_ARGB32)
+                           QImage.Format_RGBA8888)
             self._render_qimage(painter, option, index, qimage=image)
 
     def __paint(self, painter, option, index):
