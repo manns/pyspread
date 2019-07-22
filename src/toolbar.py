@@ -180,8 +180,8 @@ class WidgetToolbar(QToolBar):
         self.addSeparator()
 
 
-class ChartToolBar(QToolBar):
-    """Toolbar for chart dialog"""
+class ChartTemplatesToolBar(QToolBar):
+    """Toolbar for chart dialog for inserting template chart code"""
 
     def __init__(self, parent):
         super().__init__()
@@ -191,5 +191,7 @@ class ChartToolBar(QToolBar):
     def _create_toolbar(self, actions):
         """Fills the main toolbar with QActions"""
 
-        for action in actions:
-            self.addAction(actions[action])
+        self.addAction(actions["chart_line_1_1"])
+        self.addAction(actions["chart_area_1_1"])
+        self.addAction(actions["chart_column_1_1"])
+        self.addAction(actions["chart_column_1_2"])

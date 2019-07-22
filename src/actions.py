@@ -28,9 +28,6 @@ For actions that alter the grid / model see grid_actions.py.
 
 """
 
-import os
-from pathlib import PurePath
-
 from PyQt5.QtWidgets import QAction, QActionGroup
 
 try:
@@ -40,10 +37,6 @@ except ImportError:
 
 from icons import Icon
 from lib.dependencies import get_enchant_version
-
-PYSPREAD_PATH = \
-    PurePath(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
 
 class Action(QAction):
@@ -795,6 +788,33 @@ class ChartDialogActions(dict):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self._add_chart_template_actions()
 
-        for filepath in os.listdir(MPL_TEMPLATE_PATH):
-            print(filepath)
+    def _add_chart_template_actions(self):
+        """Adds actions for chart dialog toolbar"""
+
+        self["chart_line_1_1"] = \
+            Action(self.parent, "Line chart", self.parent.on_template,
+                   icon=Icon("chart_line_1_1"),
+                   statustip='Insert code for line chart.')
+        self["chart_line_1_1"].setData("chart_line_1_1.py")
+
+        self["chart_area_1_1"] = \
+            Action(self.parent, "Area chart", self.parent.on_template,
+                   icon=Icon("chart_area_1_1"),
+                   statustip='Insert code for area chart.')
+        self["chart_area_1_1"].setData("chart_area_1_1.py")
+
+        self["chart_column_1_1"] = \
+            Action(self.parent, "Grouped column chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_column_1_1"),
+                   statustip='Insert code for grouped column chart.')
+        self["chart_column_1_1"].setData("chart_column_1_1.py")
+
+        self["chart_column_1_2"] = \
+            Action(self.parent, "Stacked column chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_column_1_2"),
+                   statustip='Insert code for stacked column chart.')
+        self["chart_column_1_2"].setData("chart_column_1_2.py")

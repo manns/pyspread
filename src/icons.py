@@ -28,6 +28,8 @@ PYSPREAD_PATH = \
 ICON_PATH = PYSPREAD_PATH / 'share/icons'
 ACTION_PATH = ICON_PATH / 'actions'
 STATUS_PATH = ICON_PATH / 'status'
+CHARTS_PATH = ICON_PATH / 'charts'
+#MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
 
 class Icon(QIcon):
@@ -150,6 +152,12 @@ class Icon(QIcon):
         "tutorial": str(ACTION_PATH / 'help-tutorial.svg'),
         "faq": str(ACTION_PATH / 'help-faq.svg'),
         "dependencies": str(ACTION_PATH / 'help-dependencies.svg'),
+
+        # Chart dialog template icons
+        "chart_line_1_1": str(CHARTS_PATH / 'chart_line_1_1.svg'),
+        "chart_area_1_1": str(CHARTS_PATH / 'chart_area_1_1.svg'),
+        "chart_column_1_1": str(CHARTS_PATH / 'chart_column_1_1.svg'),
+        "chart_column_1_2": str(CHARTS_PATH / 'chart_column_1_2.svg'),
 
     }
 

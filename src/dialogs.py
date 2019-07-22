@@ -51,6 +51,10 @@ except ImportError:
 
 from lib.spelltextedit import SpellTextEdit
 from actions import ChartDialogActions
+from toolbar import ChartTemplatesToolBar
+from icons import PYSPREAD_PATH
+
+MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
 
 class DiscardChangesDialog:
@@ -371,6 +375,11 @@ class ChartDialog(QDialog):
             raise ModuleNotFoundError
 
         super(ChartDialog, self).__init__(parent)
+
+        self.actions = ChartDialogActions(self)
+
+        self.chart_templates_toolbar = ChartTemplatesToolBar(self)
+
         self.setWindowTitle("Chart dialog")
         self.setModal(True)
         self.resize(800, 600)
@@ -379,6 +388,19 @@ class ChartDialog(QDialog):
         self.actions = ChartDialogActions(self)
 
         self.dialog_ui()
+
+    def on_template(self):
+        """Event handler for pressing a template toolbar button"""
+
+        chart_template_name = self.sender().data()
+        chart_template_path = MPL_TEMPLATE_PATH / chart_template_name
+        try:
+            with open(chart_template_path) as template_file:
+                chart_template_code = template_file.read()
+        except OSError:
+            return
+
+        self.editor.insertPlainText(chart_template_code)
 
     def dialog_ui(self):
         """Sets up dialog UI"""
@@ -403,8 +425,11 @@ class ChartDialog(QDialog):
 
         # Layout
         layout = QVBoxLayout(self)
+        layout.addWidget(self.chart_templates_toolbar)
+
         layout.addWidget(self.splitter)
         layout.addWidget(buttonbox)
+
         self.setLayout(layout)
 
     def apply(self):

@@ -44,7 +44,7 @@ from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QImage
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, QPoint
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
 
 try:
@@ -983,12 +983,24 @@ class GridCellDelegate(QStyledItemDelegate):
         self._paint_border_lines(option.rect, painter, index)
 
     def createEditor(self, parent, option, index):
-        """Overloads QStyledItemDelegate to disable editor in frozen cells"""
+        """Overloads QStyledItemDelegate
+
+        Disables editor in frozen cells
+        Switches to chart dialog in chart cells
+
+        """
 
         key = index.row(), index.column(), self.main_window.grid.table
-        if not self.cell_attributes[key]["locked"]:
-            return super(GridCellDelegate, self).createEditor(parent, option,
-                                                              index)
+
+        if self.cell_attributes[key]["locked"]:
+            return
+
+        if self.cell_attributes[key]["renderer"] == "matplotlib":
+            self.main_window.workflows.insert_chart()
+            return
+
+        return super(GridCellDelegate, self).createEditor(parent, option,
+                                                          index)
 
     def setEditorData(self, editor, index):
         row = index.row()
