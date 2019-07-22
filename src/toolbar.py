@@ -195,3 +195,4 @@ class ChartTemplatesToolBar(QToolBar):
         self.addAction(actions["chart_area_1_1"])
         self.addAction(actions["chart_column_1_1"])
         self.addAction(actions["chart_column_1_2"])
+        self.addAction(actions["chart_boxplot_2_2"])

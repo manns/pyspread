@@ -818,3 +818,10 @@ class ChartDialogActions(dict):
                    icon=Icon("chart_column_1_2"),
                    statustip='Insert code for stacked column chart.')
         self["chart_column_1_2"].setData("chart_column_1_2.py")
+
+        self["chart_boxplot_2_2"] = \
+            Action(self.parent, "Stacked column chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_boxplot_2_2"),
+                   statustip='Insert code for boxplot chart.')
+        self["chart_boxplot_2_2"].setData("chart_boxplot_2_2.py")

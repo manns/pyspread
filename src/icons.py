@@ -158,6 +158,7 @@ class Icon(QIcon):
         "chart_area_1_1": str(CHARTS_PATH / 'chart_area_1_1.svg'),
         "chart_column_1_1": str(CHARTS_PATH / 'chart_column_1_1.svg'),
         "chart_column_1_2": str(CHARTS_PATH / 'chart_column_1_2.svg'),
+        "chart_boxplot_2_2": str(CHARTS_PATH / 'chart_boxplot_2_2.svg'),
 
     }
 
