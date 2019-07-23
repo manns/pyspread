@@ -820,8 +820,29 @@ class ChartDialogActions(dict):
         self["chart_column_1_2"].setData("chart_column_1_2.py")
 
         self["chart_boxplot_2_2"] = \
-            Action(self.parent, "Stacked column chart",
+            Action(self.parent, "Boxplot chart",
                    self.parent.on_template,
                    icon=Icon("chart_boxplot_2_2"),
                    statustip='Insert code for boxplot chart.')
         self["chart_boxplot_2_2"].setData("chart_boxplot_2_2.py")
+
+        self["chart_histogram_1_1"] = \
+            Action(self.parent, "Histogram chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_histogram_1_1"),
+                   statustip='Insert code for boxplot chart.')
+        self["chart_histogram_1_1"].setData("chart_histogram_1_1.py")
+
+        self["chart_matrix_1_1"] = \
+            Action(self.parent, "Matrix plot chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_matrix_1_1"),
+                   statustip='Insert code for boxplot chart.')
+        self["chart_matrix_1_1"].setData("chart_matrix_1_1.py")
+
+        self["chart_surface_2_1"] = \
+            Action(self.parent, "Surface plot chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_surface_2_1"),
+                   statustip='Insert code for boxplot chart.')
+        self["chart_surface_2_1"].setData("chart_surface_2_1.py")

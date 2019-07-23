@@ -159,6 +159,9 @@ class Icon(QIcon):
         "chart_column_1_1": str(CHARTS_PATH / 'chart_column_1_1.svg'),
         "chart_column_1_2": str(CHARTS_PATH / 'chart_column_1_2.svg'),
         "chart_boxplot_2_2": str(CHARTS_PATH / 'chart_boxplot_2_2.svg'),
+        "chart_histogram_1_1": str(CHARTS_PATH / 'chart_histogram_1_1.svg'),
+        "chart_matrix_1_1": str(CHARTS_PATH / 'chart_matrix_1_1.svg'),
+        "chart_surface_2_1": str(CHARTS_PATH / 'chart_surface_2_1.svg'),
 
     }
 

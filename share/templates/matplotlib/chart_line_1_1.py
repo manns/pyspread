@@ -7,7 +7,7 @@ s = 1 + numpy.sin(2 * numpy.pi * t)
 
 ax.plot(t, s)
 
-ax.set(xlabel='time (s)', ylabel='voltage (mV)',
+ax.set(xlabel='Time (s)', ylabel='Voltage (mV)',
        title='Line plot')
 ax.grid()
 

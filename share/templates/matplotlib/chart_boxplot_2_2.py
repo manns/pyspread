@@ -21,4 +21,7 @@ data = [data, d2, d2[::2, 0]]
 # Multiple box plots on one Axes
 ax.boxplot(data)
 
+ax.set(xlabel='Data series', ylabel='Value',
+       title='Boxplot')
+
 fig

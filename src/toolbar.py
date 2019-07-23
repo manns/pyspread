@@ -196,3 +196,6 @@ class ChartTemplatesToolBar(QToolBar):
         self.addAction(actions["chart_column_1_1"])
         self.addAction(actions["chart_column_1_2"])
         self.addAction(actions["chart_boxplot_2_2"])
+        self.addAction(actions["chart_histogram_1_1"])
+        self.addAction(actions["chart_matrix_1_1"])
+        self.addAction(actions["chart_surface_2_1"])

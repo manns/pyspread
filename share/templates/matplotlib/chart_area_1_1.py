@@ -11,7 +11,7 @@ ax.fill_between(t, 0, s, facecolor='blue', alpha=0.5)
 ax.set_xlim(0, 2)
 ax.set_ylim(0, None)
 
-ax.set(xlabel='time (s)', ylabel='voltage (mV)',
+ax.set(xlabel='Time (s)', ylabel='Voltage (mV)',
        title='Area plot')
 ax.grid()
 
