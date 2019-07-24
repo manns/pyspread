@@ -4,6 +4,9 @@ ax = fig.add_axes([.2,.2, .7, .7])
 N_points = 100000
 n_bins = 20
 
+# Fixing random state for reproducibility
+numpy.random.seed(19680801)
+
 # Generate a normal distribution
 x = numpy.random.randn(N_points)
 
@@ -11,6 +14,6 @@ x = numpy.random.randn(N_points)
 ax.hist(x, bins=n_bins)
 
 ax.set(xlabel='Value', ylabel='Frequency',
-       title='Histogram')
+       title='Histogram chart')
 
 fig

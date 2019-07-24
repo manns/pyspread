@@ -15,7 +15,7 @@ p2 = ax.bar(ind, womenMeans, width,
              bottom=menMeans, yerr=womenStd)
 
 ax.yaxis.set_label('Scores')
-ax.set_title('Stacked column plot')
+ax.set_title('Stacked column chart')
 ax.set_xticks(ind, ('G1', 'G2', 'G3', 'G4', 'G5'))
 ax.set_yticks(numpy.arange(0, 81, 10))
 ax.legend((p1[0], p2[0]), ('Men', 'Women'))

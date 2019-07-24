@@ -12,7 +12,7 @@ ax.set_xlim(0, 2)
 ax.set_ylim(0, None)
 
 ax.set(xlabel='Time (s)', ylabel='Voltage (mV)',
-       title='Area plot')
+       title='Area chart')
 ax.grid()
 
 fig

@@ -12,6 +12,6 @@ Z = numpy.sin(R)
 
 ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.viridis)
 
-ax.set(xlabel='X', ylabel='Y', zlabel='Z', title='Surface plot')
+ax.set(xlabel='X', ylabel='Y', zlabel='Z', title='Surface chart')
 
 fig

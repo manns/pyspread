@@ -154,12 +154,14 @@ class Icon(QIcon):
         "dependencies": str(ACTION_PATH / 'help-dependencies.svg'),
 
         # Chart dialog template icons
+        "chart_pie_1_1": str(CHARTS_PATH / 'chart_pie_1_1.svg'),
         "chart_line_1_1": str(CHARTS_PATH / 'chart_line_1_1.svg'),
         "chart_area_1_1": str(CHARTS_PATH / 'chart_area_1_1.svg'),
         "chart_column_1_1": str(CHARTS_PATH / 'chart_column_1_1.svg'),
         "chart_column_1_2": str(CHARTS_PATH / 'chart_column_1_2.svg'),
         "chart_boxplot_2_2": str(CHARTS_PATH / 'chart_boxplot_2_2.svg'),
         "chart_histogram_1_1": str(CHARTS_PATH / 'chart_histogram_1_1.svg'),
+        "chart_scatterhist_1_1": str(CHARTS_PATH/'chart_scatterhist_1_1.svg'),
         "chart_matrix_1_1": str(CHARTS_PATH / 'chart_matrix_1_1.svg'),
         "chart_surface_2_1": str(CHARTS_PATH / 'chart_surface_2_1.svg'),
 

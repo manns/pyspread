@@ -191,11 +191,13 @@ class ChartTemplatesToolBar(QToolBar):
     def _create_toolbar(self, actions):
         """Fills the main toolbar with QActions"""
 
+        self.addAction(actions["chart_pie_1_1"])
         self.addAction(actions["chart_line_1_1"])
         self.addAction(actions["chart_area_1_1"])
         self.addAction(actions["chart_column_1_1"])
         self.addAction(actions["chart_column_1_2"])
         self.addAction(actions["chart_boxplot_2_2"])
         self.addAction(actions["chart_histogram_1_1"])
+        self.addAction(actions["chart_scatterhist_1_1"])
         self.addAction(actions["chart_matrix_1_1"])
         self.addAction(actions["chart_surface_2_1"])

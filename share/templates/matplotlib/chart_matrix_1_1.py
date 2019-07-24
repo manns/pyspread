@@ -5,6 +5,9 @@ ax = fig.add_axes([.2,.2, .7, .7])
 N_points = 100000
 n_bins = 20
 
+# Fixing random state for reproducibility
+numpy.random.seed(19680801)
+
 # Generate a normal distribution, center at x=0 and y=5
 x = numpy.random.randn(N_points)
 y = .4 * x + numpy.random.randn(100000) + 5
@@ -14,6 +17,6 @@ y = .4 * x + numpy.random.randn(100000) + 5
 ax.hist2d(x, y, bins=(50,30))
 
 ax.set(xlabel='x value', ylabel='y value',
-       title='Matrix plot')
+       title='Matrix chart')
 
 fig

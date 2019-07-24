@@ -793,6 +793,12 @@ class ChartDialogActions(dict):
     def _add_chart_template_actions(self):
         """Adds actions for chart dialog toolbar"""
 
+        self["chart_pie_1_1"] = \
+            Action(self.parent, "Pie chart", self.parent.on_template,
+                   icon=Icon("chart_pie_1_1"),
+                   statustip='Insert code for pie chart.')
+        self["chart_pie_1_1"].setData("chart_pie_1_1.py")
+
         self["chart_line_1_1"] = \
             Action(self.parent, "Line chart", self.parent.on_template,
                    icon=Icon("chart_line_1_1"),
@@ -833,15 +839,23 @@ class ChartDialogActions(dict):
                    statustip='Insert code for boxplot chart.')
         self["chart_histogram_1_1"].setData("chart_histogram_1_1.py")
 
+        self["chart_scatterhist_1_1"] = \
+            Action(self.parent, "Scatter and histogram chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_scatterhist_1_1"),
+                   statustip='Insert code for a scatter plot with ' +
+                             'histograms for each axis.')
+        self["chart_scatterhist_1_1"].setData("chart_scatterhist_1_1.py")
+
         self["chart_matrix_1_1"] = \
-            Action(self.parent, "Matrix plot chart",
+            Action(self.parent, "Matrix chart",
                    self.parent.on_template,
                    icon=Icon("chart_matrix_1_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_matrix_1_1"].setData("chart_matrix_1_1.py")
 
         self["chart_surface_2_1"] = \
-            Action(self.parent, "Surface plot chart",
+            Action(self.parent, "Surface chart",
                    self.parent.on_template,
                    icon=Icon("chart_surface_2_1"),
                    statustip='Insert code for boxplot chart.')
