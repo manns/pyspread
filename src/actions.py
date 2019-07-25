@@ -799,11 +799,23 @@ class ChartDialogActions(dict):
                    statustip='Insert code for pie chart.')
         self["chart_pie_1_1"].setData("chart_pie_1_1.py")
 
+        self["chart_ring_1_1"] = \
+            Action(self.parent, "Ring chart", self.parent.on_template,
+                   icon=Icon("chart_ring_1_1"),
+                   statustip='Insert code for ring chart.')
+        self["chart_ring_1_1"].setData("chart_ring_1_1.py")
+
         self["chart_line_1_1"] = \
             Action(self.parent, "Line chart", self.parent.on_template,
                    icon=Icon("chart_line_1_1"),
                    statustip='Insert code for line chart.')
         self["chart_line_1_1"].setData("chart_line_1_1.py")
+
+        self["chart_polar_1_1"] = \
+            Action(self.parent, "Polar chart", self.parent.on_template,
+                   icon=Icon("chart_polar_1_1"),
+                   statustip='Insert code for polar coordinates line chart.')
+        self["chart_polar_1_1"].setData("chart_polar_1_1.py")
 
         self["chart_area_1_1"] = \
             Action(self.parent, "Area chart", self.parent.on_template,
@@ -825,6 +837,28 @@ class ChartDialogActions(dict):
                    statustip='Insert code for stacked column chart.')
         self["chart_column_1_2"].setData("chart_column_1_2.py")
 
+        self["chart_bar_1_3"] = \
+            Action(self.parent, "Normalized stacked bar chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_bar_1_3"),
+                   statustip='Insert code for normalized stacked bar chart.')
+        self["chart_bar_1_3"].setData("chart_bar_1_3.py")
+
+        self["chart_scatter_1_1"] = \
+            Action(self.parent, "Scatter chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_scatter_1_1"),
+                   statustip='Insert code for a scatter plot.')
+        self["chart_scatter_1_1"].setData("chart_scatter_1_1.py")
+
+        self["chart_bubble_1_1"] = \
+            Action(self.parent, "Bubble chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_bubble_1_1"),
+                   statustip='Insert code for a bubble plot that is ' +
+                             'a scatter plot with individual point sizes.')
+        self["chart_bubble_1_1"].setData("chart_bubble_1_1.py")
+
         self["chart_boxplot_2_2"] = \
             Action(self.parent, "Boxplot chart",
                    self.parent.on_template,
@@ -838,6 +872,13 @@ class ChartDialogActions(dict):
                    icon=Icon("chart_histogram_1_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_histogram_1_1"].setData("chart_histogram_1_1.py")
+
+        self["chart_histogram_1_4"] = \
+            Action(self.parent, "Multiple histogram charts",
+                   self.parent.on_template,
+                   icon=Icon("chart_histogram_1_4"),
+                   statustip='Insert code for multiple histogram charts.')
+        self["chart_histogram_1_4"].setData("chart_histogram_1_4.py")
 
         self["chart_scatterhist_1_1"] = \
             Action(self.parent, "Scatter and histogram chart",
@@ -853,6 +894,13 @@ class ChartDialogActions(dict):
                    icon=Icon("chart_matrix_1_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_matrix_1_1"].setData("chart_matrix_1_1.py")
+
+        self["chart_contour_1_2"] = \
+            Action(self.parent, "Contour chart",
+                   self.parent.on_template,
+                   icon=Icon("chart_contour_1_2"),
+                   statustip='Insert code for contour chart.')
+        self["chart_contour_1_2"].setData("chart_contour_1_2.py")
 
         self["chart_surface_2_1"] = \
             Action(self.parent, "Surface chart",

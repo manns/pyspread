@@ -20,14 +20,14 @@ ax.set_aspect(1.)
 # The first argument of the new_vertical(new_horizontal) method is
 # the height (width) of the axes to be created in inches.
 divider = make_axes_locatable(ax)
-axHistx = divider.append_axes("bottom", 0.6, pad=0.1, sharex=ax)
+axHistx = divider.append_axes("top", 0.6, pad=0.1, sharex=ax)
 axHisty = divider.append_axes("right", 0.6, pad=0.1, sharey=ax)
 
-# make some labels invisible
+# Make some labels invisible
 axHistx.xaxis.set_tick_params(labelbottom=False)
 axHisty.yaxis.set_tick_params(labelleft=False)
 
-# now determine nice limits by hand:
+# Determine nice limits by hand:
 binwidth = 0.25
 xymax = max(numpy.max(numpy.abs(x)), numpy.max(numpy.abs(y)))
 lim = (int(xymax/binwidth) + 1)*binwidth
@@ -44,6 +44,7 @@ axHistx.set_yticks([0, 50, 100])
 
 axHisty.set_xticks([0, 50, 100])
 
-ax.set(title='Scatter histogram chart')
+ax.set(xlabel="X", ylabel="Y")
+ax.set_title('Scatter histogram chart', pad=70)
 
 fig

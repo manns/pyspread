@@ -430,7 +430,11 @@ class PythonEnchantHighlighter(QSyntaxHighlighter):
             # No; multi-line string
             else:
                 self.setCurrentBlockState(in_state)
-                length = text.length() - start + add
+                try:
+                    text_length = text.length()
+                except AttributeError:
+                    text_length = len(text)
+                length = text_length - start + add
             # Apply formatting
             self.setFormat(start, length, style)
             # Look for the next match

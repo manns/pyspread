@@ -1,4 +1,3 @@
-
 fig = Figure()
 ax = fig.add_axes([.2,.2, .7, .7])
 
@@ -16,7 +15,7 @@ y = .4 * x + numpy.random.randn(100000) + 5
 # We can also define custom numbers of bins for each axis
 ax.hist2d(x, y, bins=(50,30))
 
-ax.set(xlabel='x value', ylabel='y value',
-       title='Matrix chart')
+ax.set(xlabel='X', ylabel='Y')
+ax.set_title('Matrix chart', pad=20)
 
 fig

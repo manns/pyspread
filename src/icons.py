@@ -29,7 +29,6 @@ ICON_PATH = PYSPREAD_PATH / 'share/icons'
 ACTION_PATH = ICON_PATH / 'actions'
 STATUS_PATH = ICON_PATH / 'status'
 CHARTS_PATH = ICON_PATH / 'charts'
-#MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
 
 
 class Icon(QIcon):
@@ -155,14 +154,21 @@ class Icon(QIcon):
 
         # Chart dialog template icons
         "chart_pie_1_1": str(CHARTS_PATH / 'chart_pie_1_1.svg'),
+        "chart_ring_1_1": str(CHARTS_PATH / 'chart_ring_1_1.svg'),
         "chart_line_1_1": str(CHARTS_PATH / 'chart_line_1_1.svg'),
+        "chart_polar_1_1": str(CHARTS_PATH / 'chart_polar_1_1.svg'),
         "chart_area_1_1": str(CHARTS_PATH / 'chart_area_1_1.svg'),
         "chart_column_1_1": str(CHARTS_PATH / 'chart_column_1_1.svg'),
         "chart_column_1_2": str(CHARTS_PATH / 'chart_column_1_2.svg'),
+        "chart_bar_1_3": str(CHARTS_PATH / 'chart_bar_1_3.svg'),
+        "chart_scatter_1_1": str(CHARTS_PATH / 'chart_scatter_1_1.svg'),
+        "chart_bubble_1_1": str(CHARTS_PATH / 'chart_bubble_1_1.svg'),
         "chart_boxplot_2_2": str(CHARTS_PATH / 'chart_boxplot_2_2.svg'),
         "chart_histogram_1_1": str(CHARTS_PATH / 'chart_histogram_1_1.svg'),
+        "chart_histogram_1_4": str(CHARTS_PATH / 'chart_histogram_1_4.svg'),
         "chart_scatterhist_1_1": str(CHARTS_PATH/'chart_scatterhist_1_1.svg'),
         "chart_matrix_1_1": str(CHARTS_PATH / 'chart_matrix_1_1.svg'),
+        "chart_contour_1_2": str(CHARTS_PATH / 'chart_contour_1_2.svg'),
         "chart_surface_2_1": str(CHARTS_PATH / 'chart_surface_2_1.svg'),
 
     }
