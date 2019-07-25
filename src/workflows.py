@@ -337,23 +337,33 @@ class Workflows:
             return  # Cancel pressed
         else:
             filepath = Path(filepath)
+            chosen_filter = image_file_open_dialog.chosen_filter
 
-        with open(filepath, "rb") as imgfile:
-            imgdata = b85encode(imgfile.read())
+        if ".svg" in chosen_filter:
+            raw = True
+            with open(filepath, "r") as svgfile:
+                codelines = svgfile.read().splitlines()
+                codelines[0] = '"""' + codelines[0]
+                codelines[-1] = codelines[-1] + '"""'
+                code = "\n".join(codelines)
+        else:
+            raw = False
+            with open(filepath, "rb") as imgfile:
+                imgdata = b85encode(imgfile.read())
 
-        code = (r'_load_img(base64.b85decode(' +
-                repr(imgdata) +
-                '))'
-                r' if exec("'
-                r'def _load_img(data): qimg = QImage(); '
-                r'QImage.loadFromData(qimg, data); '
-                r'return qimg\n'
-                r'") is None else None')
+            code = (r'_load_img(base64.b85decode(' +
+                    repr(imgdata) +
+                    '))'
+                    r' if exec("'
+                    r'def _load_img(data): qimg = QImage(); '
+                    r'QImage.loadFromData(qimg, data); '
+                    r'return qimg\n'
+                    r'") is None else None')
 
         index = self.main_window.grid.currentIndex()
         self.main_window.grid.on_image_renderer_pressed(True)
         self.main_window.entry_line.setUpdatesEnabled(False)
-        self.main_window.grid.model.setData(index, code, Qt.EditRole)
+        self.main_window.grid.model.setData(index, code, Qt.EditRole, raw=raw)
         self.main_window.entry_line.setUpdatesEnabled(True)
 
     def insert_chart(self):

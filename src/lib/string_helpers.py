@@ -19,6 +19,7 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+import xml.etree.ElementTree as ET
 import textwrap
 
 """
@@ -86,3 +87,17 @@ def wrap_text(text, width=80, maxlen=2000):
     if maxlen is not None and len(text) > maxlen:
         text = text[:maxlen] + "..."
     return "\n".join(textwrap.wrap(text, width=width))
+
+
+def get_svg_aspect(svg_bytes):
+    """Returns width / height ratio"""
+
+    tree = ET.fromstring(svg_bytes)
+    width_str = tree.get("width")
+    height_str = tree.get("height")
+    width = int(float(''.join(n for n in width_str
+                              if n.isdigit() or n == '.')))
+    height = int(float(''.join(n for n in height_str
+                               if n.isdigit() or n == '.')))
+
+    return width / height

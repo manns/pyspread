@@ -35,30 +35,31 @@ Provides
 
 """
 
+import ast
 from contextlib import contextmanager
-from io import StringIO
 
 import numpy
 
 from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate
-from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QImage, QIcon
-from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument, QPainter
+from PyQt5.QtGui import QColor, QBrush, QPen, QFont
+from PyQt5.QtGui import QImage as BasicQImage
+from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
-from PyQt5.QtSvg import QSvgRenderer
 
 try:
     import matplotlib.figure as matplotlib_figure
-    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 except ImportError:
     matplotlib_figure = None
 
 from model.model import CodeArray
 from lib.selection import Selection
-from lib.string_helpers import quote, wrap_text
+from lib.string_helpers import quote, wrap_text, get_svg_aspect
 from lib.qimage2ndarray import array2qimage
+from lib.qimage_svg import QImage
+from lib.typechecks import is_svg
 
 
 class Grid(QTableView):
@@ -660,7 +661,7 @@ class GridItemModel(QAbstractTableModel):
             renderer = self.code_array.cell_attributes[key]["renderer"]
             if renderer == "image":
                 value = self.code_array[key]
-                if isinstance(value, QImage):
+                if isinstance(value, BasicQImage):
                     return value
                 else:
                     try:
@@ -713,11 +714,14 @@ class GridItemModel(QAbstractTableModel):
 
         return QVariant()
 
-    def setData(self, index, value, role):
+    def setData(self, index, value, role, raw=False):
         """Overloaded setData for code_array backend"""
 
         if role == Qt.EditRole:
-            self.code_array[self.current(index)] = "{}".format(value)
+            if raw:
+                self.code_array[self.current(index)] = value
+            else:
+                self.code_array[self.current(index)] = "{}".format(value)
             self.dataChanged.emit(index, index)
 
             return True
@@ -908,41 +912,55 @@ class GridCellDelegate(QStyledItemDelegate):
 
         if qimage is None:
             qimage = index.data(Qt.DecorationRole)
-        if not isinstance(qimage, QImage):
-            return
 
-        rect_x, rect_y = option.rect.x(), option.rect.y()
-        rect_width, rect_height = option.rect.width(), option.rect.height()
+        rect = option.rect
+
+        if isinstance(qimage, BasicQImage):
+            img_width, img_height = qimage.width(), qimage.height()
+        else:
+            key = index.row(), index.column(), self.main_window.grid.table
+            res = self.main_window.grid.code_array[key]
+            if res is None:
+                return
+            try:
+                svg_bytes = bytes(res)
+            except TypeError:
+                svg_bytes = bytes(res, encoding='utf-8')
+
+            if not is_svg(svg_bytes):
+                return
+            else:
+                svg_aspect = get_svg_aspect(svg_bytes)
+                rect_aspect = rect.width() / rect.height()
+                if svg_aspect > rect_aspect:
+                    img_width = rect.width()
+                    img_height = int(rect.width() / svg_aspect)
+                else:
+                    img_width = int(rect.height() * svg_aspect)
+                    img_height = rect.height()
+
+                qimage = QImage(img_width, img_height, QImage.Format_ARGB32)
+                qimage.from_svg_bytes(svg_bytes)
+
+        img_rect = self._get_aligned_image_rect(option, index,
+                                                img_width, img_height)
+        if img_rect is None:
+            return
 
         key = index.row(), index.column(), self.main_window.grid.table
         justification = self.cell_attributes[key]["justification"]
 
         if justification == "justify_fill":
-            qimage = qimage.scaled(rect_width, rect_height,
+            qimage = qimage.scaled(rect.width(), rect.height(),
                                    Qt.IgnoreAspectRatio,
                                    Qt.SmoothTransformation)
-            painter.drawImage(rect_x, rect_y, qimage)
+            painter.drawImage(rect.x(), rect.y(), qimage)
             return
 
-        qimage = qimage.scaled(rect_width, rect_height,
+        qimage = qimage.scaled(rect.width(), rect.height(),
                                Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        image_width = qimage.size().width()
-        image_height = qimage.size().height()
-        vertical_align = self.cell_attributes[key]["vertical_align"]
 
-        image_x, image_y = rect_x, rect_y
-
-        if justification == "justify_center":
-            image_x = rect_x + rect_width / 2 - image_width / 2
-        elif justification == "justify_right":
-            image_x = rect_x + rect_width - image_width
-
-        if vertical_align == "align_center":
-            image_y = rect_y + rect_height / 2 - image_height / 2
-        elif vertical_align == "align_bottom":
-            image_y = rect_y + rect_height - image_height
-
-        painter.drawImage(image_x, image_y, qimage)
+        painter.drawImage(img_rect.x(), img_rect.y(), qimage)
 
     def _render_matplotlib(self, painter, option, index):
         """Matplotlib renderer"""
@@ -954,32 +972,22 @@ class GridCellDelegate(QStyledItemDelegate):
         key = index.row(), index.column(), self.main_window.grid.table
         figure = self.code_array[key]
 
-        dpi = figure.get_dpi()
-        w, h = figure.get_size_inches()
-        w *= dpi
-        h *= dpi
-
         if not isinstance(figure, matplotlib_figure.Figure):
             return
 
-        canvas = FigureCanvasQTAgg(figure)
-        svg_filelike = StringIO()
-        figure.savefig(svg_filelike, format="svg")
-        svg_filelike.seek(0)
-        svg = bytes(svg_filelike.read(), encoding='utf-8')
-        svg_filelike.close()
+        dpi = figure.get_dpi()
+        width, height = figure.get_size_inches()
+        width *= dpi
+        height *= dpi
 
-        rect = self._get_aligned_image_rect(option, index, w, h)
+        rect = self._get_aligned_image_rect(option, index, width, height)
         if rect is None:
             return
 
-        renderer = QSvgRenderer(svg)
-        img = QImage(rect.width(), rect.height(), QImage.Format_RGBA8888)
-        img_painter = QPainter(img)
-        renderer.render(img_painter)
-        img_painter.end()
+        image = QImage(rect.width(), rect.height(), QImage.Format_RGBA8888)
+        image.from_matplotlib(figure)
 
-        painter.drawImage(rect.x(), rect.y(), img)
+        painter.drawImage(rect.x(), rect.y(), image)
 
     def __paint(self, painter, option, index):
         """Calls the overloaded paint function or creates html delegate"""

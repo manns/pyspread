@@ -39,3 +39,28 @@ def isstring(obj):
     """Returns True if obj is instance of str, bytes or bytearray"""
 
     return isinstance(obj, (str, bytes, bytearray))
+
+
+def is_svg(code):
+    """Checks if code is an svg image
+
+    Parameters
+    ----------
+    code: String
+    \tCode to be parsed in order to check svg complaince
+
+    """
+
+    # The SVG file has to refer to its xmlns
+    # Hopefully, it does so wiyhin the first 1000 characters
+
+    if not isinstance(code, bytes):
+        return
+
+    code_start = code[:1000]
+
+
+    if b"http://www.w3.org/2000/svg" in code_start and b"svg" in code_start:
+        return True
+
+    return False
