@@ -36,16 +36,18 @@ Provides
 """
 
 from contextlib import contextmanager
+from io import StringIO
 
 import numpy
 
 from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate
-from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QImage
-from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
+from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QImage, QIcon
+from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument, QPainter
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
+from PyQt5.QtSvg import QSvgRenderer
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -857,6 +859,50 @@ class GridCellDelegate(QStyledItemDelegate):
 
         painter.restore()
 
+    def _get_aligned_image_rect(self, option, index,
+                                image_width, image_height):
+        """Returns image rect dependent on alignment and justification"""
+
+        key = index.row(), index.column(), self.main_window.grid.table
+
+        justification = self.cell_attributes[key]["justification"]
+        vertical_align = self.cell_attributes[key]["vertical_align"]
+
+        if justification == "justify_fill":
+            return option.rect
+
+        rect_x, rect_y = option.rect.x(), option.rect.y()
+        rect_width, rect_height = option.rect.width(), option.rect.height()
+
+        try:
+            1 / rect_width, 1 / rect_height, 1 / image_width, 1 / image_height
+        except ZeroDivisionError:
+            return
+
+        rect_aspect = rect_width / rect_height
+        image_aspect = image_width / image_height
+
+        if rect_aspect < image_aspect:
+            image_width *= rect_width / image_width
+            image_height = image_width / image_aspect
+        else:
+            image_height *= rect_height / image_height
+            image_width = image_height * image_aspect
+
+        image_x, image_y = rect_x, rect_y
+
+        if justification == "justify_center":
+            image_x = rect_x + rect_width / 2 - image_width / 2
+        elif justification == "justify_right":
+            image_x = rect_x + rect_width - image_width
+
+        if vertical_align == "align_center":
+            image_y = rect_y + rect_height / 2 - image_height / 2
+        elif vertical_align == "align_bottom":
+            image_y = rect_y + rect_height - image_height
+
+        return QRect(image_x, image_y, image_width, image_height)
+
     def _render_qimage(self, painter, option, index, qimage=None):
         """QImage renderer"""
 
@@ -908,14 +954,32 @@ class GridCellDelegate(QStyledItemDelegate):
         key = index.row(), index.column(), self.main_window.grid.table
         figure = self.code_array[key]
 
-        if isinstance(figure, matplotlib_figure.Figure):
-            canvas = FigureCanvasQTAgg(figure)
-            canvas.draw()
-            size = canvas.size()
-            width, height = size.width(), size.height()
-            image = QImage(canvas.buffer_rgba(), width, height,
-                           QImage.Format_RGBA8888)
-            self._render_qimage(painter, option, index, qimage=image)
+        dpi = figure.get_dpi()
+        w, h = figure.get_size_inches()
+        w *= dpi
+        h *= dpi
+
+        if not isinstance(figure, matplotlib_figure.Figure):
+            return
+
+        canvas = FigureCanvasQTAgg(figure)
+        svg_filelike = StringIO()
+        figure.savefig(svg_filelike, format="svg")
+        svg_filelike.seek(0)
+        svg = bytes(svg_filelike.read(), encoding='utf-8')
+        svg_filelike.close()
+
+        rect = self._get_aligned_image_rect(option, index, w, h)
+        if rect is None:
+            return
+
+        renderer = QSvgRenderer(svg)
+        img = QImage(rect.width(), rect.height(), QImage.Format_RGBA8888)
+        img_painter = QPainter(img)
+        renderer.render(img_painter)
+        img_painter.end()
+
+        painter.drawImage(rect.x(), rect.y(), img)
 
     def __paint(self, painter, option, index):
         """Calls the overloaded paint function or creates html delegate"""
