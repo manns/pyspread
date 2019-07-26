@@ -6,226 +6,67 @@
 <h1>How to help</h1>
 
 <p class="one_line_heading">
-  Thank you for wanting to help pyspread. Bug reports, translations, icons,
-  deployment to further operation systems, code, ideas etc. are most welcome.
+  Thank you for your interest in improving pyspread.
+  Pyspread is non-commercial. It lives from your contributions.
+  Do not hesitate to help with small things, e.g. stating a feature wish in the 
+  <a href="https://github.com/manns/pyspread/issues">issue tracker</a>.
+</p>
+
+<h1>Bug reports</h1>
+
+<p class="one_line_heading">
+  For bug reports, please use the 
+  <a href="https://github.com/manns/pyspread/issues">issue tracker</a>.
+</p>
+
+<h1>Patches</h1>
+
+<p class="one_line_heading">
+  For patches / code contributions, please
+  <ol class="one_line_heading">
+    <li>fork the master branch and</li>
+    <li>create a merge request that</li>
+    <li>you refer to in an issue.</li>
+  </ol>
 </p>
 
 <p class="one_line_heading">
-  For bug reports, please follow the link in the menu to the <a href="https://github.com/manns/pyspread/issues">pyspread issue tracker</a> on github.
-  For anything else please send an e-mail to the author (see bottom of page).
+  Please try solving only one issue or realize one feature per branch.
 </p>
 
-
-<h1>Localization</h1>
+<h1>roadmap</h1>
 
 <p class="one_line_heading">
-
-  Pyspread is localized via the
-  <a href="https://translationproject.org">Translation project</a>, i.e.
-  the textual content of the user interface is translated into different
-  languages. If you like to localize pyspread, please refer to the
-  <a href="https://translationproject.org/domain/pyspread.html">translators' page</a>
-  for detailed instructions.
-</p>
-
-<p class="one_line_heading" style="color: rgb(0, 153, 0);">
-  Full coverage of user interface (may still need polish):
-  <ul class="one_line_heading"> 
-    <li>Danish (da) by Joe Hansen</li>
-    <li>Ukrainian (uk) by Yuri Chornoivan</li>
-  </ul>
-</p>
-
-<p class="one_line_heading" style="color: rgb(255, 0, 0);">
-  Partially translated user interface:
-  <ul class="one_line_heading"> 
-    <li>Brazilian Portuguese (pt_BR) by Enrico Nicoletto and Rafael Fontenelle</li>
-    <li>Dutch (nl) by Mark Haanen</li>
-    <li>French (fr) by Frédéric Marchal</li>
-    <li>German (de) by Mario Blättermann, Martin Manns, Christian Kirbach and Philipp Thomas</li>
-    <li>Nowegian Bokmaal (nb) by Andreas Noteng</li>
-    <li>Nowegian Nynorsk (nn) by Andreas Noteng</li>
-  </ul>
+  Pyspread 1.x only works with Python 2.x. 
+  Development concentrates on fixing bugs and maintaining compatibility.
+  Its source code currently is located in the 
+  <a href="https://github.com/manns/pyspread/" target="_blank">
+  master branch</a>.
 </p>
 
 <p class="one_line_heading">
-  Details of the user interface localization status can be seen at the
-  <a href="http://translationproject.org/domain/pyspread.html">translation project page</a>.
+  Pyspread 2.x will be Python3 compatible. It is under heavy development and
+  not yet ready for production use.  Its source code currently is located in the
+  <a href="https://github.com/manns/pyspread/tree/python3" target="_blank">
+  python3 branch</a>. New features should be developed against pyspread 2.x. 
 </p>
 
 <p class="one_line_heading">
-  No translations of the user documentation (e.g. the 
-  <a href="https://manns.github.io/pyspread/first_steps.html">First steps document</a>
-  ) are available, yet.
+  The switch to Python3 goes along with changing the GUI toolkit from 
+  <a href="https://www.wxpython.org/" target="_blank">wxPython</a> to 
+  <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">
+  PyQt5</a>. This change requires a major rewrite of the GUI part of pyspread.
+  For an overview of current and future tasks for realizing pyspread 2.0,
+  please refer to the 
+  <a href="https://github.com/manns/pyspread/wiki/Pyspread-development"
+   target="_blank">to do list</a>.
 </p>
 
-<h1>Interfaces</h1>
-
+<h1>Community</h1>
 <p class="one_line_heading">
-  Only basic support for the <a href src="http://opendocumentformat.org">Open Document Format (ODF)</a>
-  for exchanging spreaddheet data with other applications such as LibreOffice, Gnumeric etc. is available.
-  It can be extended by adding features to the source file <code>pyspread/src/interfaces/ods.py</code>.
+  For getting in touch with pyspread developers, please join our 
+  <a href="https://gitter.im/pyspread/community" target="_blank">chat</a>.
 </p>
-
-<h1>Charts</h1>
-
-<p class="one_line_heading">
-  Pyspread provides a graphical dialog to create matplotlib charts.
-  Ideas or patches for additional matplotlib chart types or parameters are
-  greatly appreciated.
-</p>
-
-<p class="one_line_heading">
-Chart overview:
-</p>
-
-<table class="one_line_heading" style=" text-align: left;"
-       border="0" cellpadding="2" cellspacing="8">
-  <tbody>
-    <tr>
-      <td style="vertical-align: top; font-weight: bold;">Icon<br>
-      </td>
-      <td style="vertical-align: top; font-weight: bold;">Chart
-        type<br>
-      </td>
-      <td style="vertical-align: top; font-weight: bold;">Matplotlib
-        name<br>
-      </td>
-      <td style="vertical-align: top; font-weight: bold;">Proposed
-        by</td>
-      <td style="vertical-align: top; font-weight: bold;">Target
-        version</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Line plot"
-          src="images/chart_line.png"><br>
-      </td>
-      <td style="vertical-align: top;">Line / scatter plot<br>
-      </td>
-      <td style="vertical-align: top;">plot<br>
-      </td>
-      <td style="vertical-align: top;">Martin Manns</td>
-      <td style="vertical-align: top;">0.2.3<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Bar plot"
-          src="images/chart_column.png"><br>
-      </td>
-      <td style="vertical-align: top;">Bar plot<br>
-      </td>
-      <td style="vertical-align: top;">bar<br>
-      </td>
-      <td style="vertical-align: top;">Martin Manns</td>
-      <td style="vertical-align: top;">0.2.3<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Histogram"
-          src="images/chart_histogram.png"><br>
-      </td>
-      <td style="vertical-align: top;">Histogram<br>
-      </td>
-      <td style="vertical-align: top;">hist</td>
-      <td style="vertical-align: top;">Martin Manns</td>
-      <td style="vertical-align: top;">0.2.4<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Box plot"
-          src="images/chart_boxplot.png"><br>
-      </td>
-      <td style="vertical-align: top;">Box plot<br>
-      </td>
-      <td style="vertical-align: top;">boxplot</td>
-      <td style="vertical-align: top;">Martin Manns</td>
-      <td style="vertical-align: top;">0.2.4<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Pie chart"
-          src="images/chart_pie.png"><br>
-      </td>
-      <td style="vertical-align: top;">Pie chart<br>
-      </td>
-      <td style="vertical-align: top;">pie<br>
-      </td>
-      <td style="vertical-align: top;">Martin Manns</td>
-      <td style="vertical-align: top;">0.2.4</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Annotation text"
-          src="images/chart_annotate.png"><br>
-      </td>
-      <td style="vertical-align: top;">Annotation text<br>
-      </td>
-      <td style="vertical-align: top;">annotate<br>
-      </td>
-      <td style="vertical-align: top;">Martin Manns</td>
-      <td style="vertical-align: top;">0.2.4</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Contour chart"
-          src="images/chart_contour.png"><br>
-      </td>
-      <td style="vertical-align: top;">Contour chart<br>
-      </td>
-      <td style="vertical-align: top;">contour<br>
-      </td>
-      <td style="vertical-align: top;">Kris<br>
-      </td>
-      <td style="vertical-align: top;">0.2.6<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><img style=" width:
-          24px; height: 24px;" alt="Sankey diagram"
-          src="images/chart_sankey.png"><br>
-      </td>
-      <td style="vertical-align: top;">Sankey diagram<br>
-      </td>
-      <td style="vertical-align: top;">Sankey<br>
-      </td>
-      <td style="vertical-align: top;">Kris<br>
-      </td>
-      <td style="vertical-align: top;">0.2.6<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;"><br>
-      </td>
-      <td style="vertical-align: top;"><span
-          style="font-style: italic;">Your chart could go
-          here</span>.<br>
-      </td>
-      <td style="vertical-align: top;"><br>
-      </td>
-      <td style="vertical-align: top;"><br>
-      </td>
-      <td style="vertical-align: top;"><br>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-
-<h1>Submitting code</h1>
-
-<ol class="one_line_heading">
-  <li>Get a github account.</li>
-  <li>Fork the branch that you would like to work with (see
-    <a href="https://help.github.com/fork-a-repo/"
-      target="_blank">github help</a>).<br>
-  </li>
-  <li>Issue a pull request when ready.</li>
-</ol>
 
 <p class="impressum">
   Author:
@@ -233,5 +74,5 @@ Chart overview:
     Martin Manns (mmanns &lt; at &gt; gmx &lt; dot &gt; net)
   </a>
   <br> <br>
-  Last changed: 18. June 2017</span>
+  Last changed: 26. July 2019</span>
 </p>
