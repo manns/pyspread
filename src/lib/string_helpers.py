@@ -19,9 +19,6 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
-import xml.etree.ElementTree as ET
-import textwrap
-
 """
 
 string_helpers
@@ -34,6 +31,9 @@ Provides
  * wrap_text
 
 """
+
+import xml.etree.ElementTree as ET
+import textwrap
 
 
 def quote(code):

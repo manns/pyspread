@@ -28,6 +28,9 @@ typechecks.py contains functions for checking type likeness.
 
 """
 
+from io import BytesIO
+import xml.etree.ElementTree as ET
+
 
 def isslice(obj):
     """Returns True if obj is insatnce of slice"""
@@ -41,7 +44,7 @@ def isstring(obj):
     return isinstance(obj, (str, bytes, bytearray))
 
 
-def is_svg(code):
+def is_svg(svg_bytes):
     """Checks if code is an svg image
 
     Parameters
@@ -51,16 +54,17 @@ def is_svg(code):
 
     """
 
-    # The SVG file has to refer to its xmlns
-    # Hopefully, it does so wiyhin the first 1000 characters
+    tag = None
 
-    if not isinstance(code, bytes):
-        return
+    svg = BytesIO(svg_bytes)
 
-    code_start = code[:1000]
+    try:
+        for event, el in ET.iterparse(svg, ('start',)):
+            tag = el.tag
+            break
+    except ET.ParseError:
+        pass
 
+    svg.close()
 
-    if b"http://www.w3.org/2000/svg" in code_start and b"svg" in code_start:
-        return True
-
-    return False
+    return tag == '{http://www.w3.org/2000/svg}svg'

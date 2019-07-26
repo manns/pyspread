@@ -35,7 +35,6 @@ Provides
 
 """
 
-import ast
 from contextlib import contextmanager
 
 import numpy
@@ -867,6 +866,37 @@ class GridCellDelegate(QStyledItemDelegate):
                                 image_width, image_height):
         """Returns image rect dependent on alignment and justification"""
 
+        def scale_size(inner_width, inner_height, outer_width, outer_height):
+            """Scales up inner_rect to fit in outer_rect
+
+            Returns width, height tuple that maintains aspect ratio.
+
+            Parameters
+            ----------
+
+             * inner_width: int or float
+             \tWidth of the inner rect that is scaled up to the outer rect
+             * inner_height: int or float
+             \tHeight of the inner rect that is scaled up to the outer rect
+             * outer_width: int or float
+             \tWidth of the outer rect
+             * outer_height: int or float
+             \tHeight of the outer rect
+
+            """
+
+            inner_aspect = inner_width / inner_height
+            outer_aspect = outer_width / outer_height
+
+            if outer_aspect < inner_aspect:
+                inner_width *= outer_width / inner_width
+                inner_height = inner_width / inner_aspect
+            else:
+                inner_height *= outer_height / inner_height
+                inner_width = inner_height * inner_aspect
+
+            return inner_width, inner_height
+
         key = index.row(), index.column(), self.main_window.grid.table
 
         justification = self.cell_attributes[key]["justification"]
@@ -878,21 +908,8 @@ class GridCellDelegate(QStyledItemDelegate):
         rect_x, rect_y = option.rect.x(), option.rect.y()
         rect_width, rect_height = option.rect.width(), option.rect.height()
 
-        try:
-            1 / rect_width, 1 / rect_height, 1 / image_width, 1 / image_height
-        except ZeroDivisionError:
-            return
-
-        rect_aspect = rect_width / rect_height
-        image_aspect = image_width / image_height
-
-        if rect_aspect < image_aspect:
-            image_width *= rect_width / image_width
-            image_height = image_width / image_aspect
-        else:
-            image_height *= rect_height / image_height
-            image_width = image_height * image_aspect
-
+        image_width, image_height = scale_size(image_width, image_height,
+                                               rect_width, rect_height)
         image_x, image_y = rect_x, rect_y
 
         if justification == "justify_center":
