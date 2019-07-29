@@ -1,4 +1,6 @@
-markdown: rdiscount
-highlighter: rouge
-permalink: /:title
+# Site settings
+title: pyspread
+url: "https://manns.github.io/pyspread"
 
+# Build settings
+markdown: kramdown
