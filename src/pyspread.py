@@ -42,6 +42,7 @@ import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
+from PyQt5.QtWidgets import QDockWidget
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QColor, QFont
 
@@ -55,7 +56,7 @@ from toolbar import WidgetToolbar
 from actions import MainWindowActions
 from workflows import Workflows
 from widgets import Widgets
-from dialogs import ApproveWarningDialog, PreferencesDialog
+from dialogs import ApproveWarningDialog, PreferencesDialog, MacroPanel
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
@@ -147,6 +148,7 @@ class MainWindow(QMainWindow):
 
         self.entry_line = Entryline(self)
         self.grid = Grid(self)
+        self.macro_panel = MacroPanel(self)
 
         main_splitter = QSplitter(Qt.Vertical, self)
         self.setCentralWidget(main_splitter)
@@ -155,6 +157,10 @@ class MainWindow(QMainWindow):
         main_splitter.addWidget(self.grid)
         main_splitter.addWidget(self.grid.table_choice)
         main_splitter.setSizes([self.entry_line.minimumHeight(), 9999, 20])
+
+        self.macro_dock = QDockWidget("Macros", self)
+        self.macro_dock.setWidget(self.macro_panel)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 
         self.gui_update.connect(self.on_gui_update)
 
