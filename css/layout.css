@@ -1,0 +1,118 @@
+body
+{
+    font-family: Arial,Helvetica,sans-serif;
+    background-color:#ffffff;
+}
+
+h1, h2, h3, h4, p, ul, ol, table {
+    font-size:12pt;
+    padding: 0px 12px 0px 0px;
+}
+
+
+h1 {
+    font-family: Arial,Helvetica,sans-serif;
+    padding: 6px 12px 0px 12px;
+    font-weight: bold;
+    text-transform: lowercase;
+    text-decoration: overline;
+}
+
+h1.title {
+    font-size:16pt;
+    text-transform: lowercase;
+    text-decoration: none;
+}
+
+h2 {
+    font-weight: bold;
+}
+
+p, h0, h2, h3, h4, pre {
+    text-align:justify;
+    position: relative;
+}
+
+h0.title {
+    font-size:28pt;
+    font-weight: bold;
+    text-transform: lowercase;
+}
+
+ul, ol {
+    text-align:justify;
+    position: relative;
+}
+
+p.impressum {
+    font-size:9pt;
+    font-weight: lighter;
+    text-align:left;
+}
+
+h2: {
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 14pt;
+    font-weight: bold;
+}
+h3, h4, h5 {
+    font-family: Arial,Helvetica,sans-serif;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: none;
+    text-align: left;
+    font-size: 12pt;
+}
+h4, h5 {
+    font-weight: normal;
+    text-decoration: underline;
+}
+
+h5 {
+    color:#777777;
+}
+
+a:link, a:visited, a:active, a:hover
+{
+    text-decoration:underline;
+    font-weight:bold;
+    color:#777777;
+}
+a:active, a:hover
+{
+    color:#000000;
+}
+a.menu:link, a.menu:visited
+{
+    color:#777777;
+}
+a.menu:active, a.menu:hover
+{
+    color:#000000;
+}
+
+/* Title box */
+#title {
+font-family: Arial,Helvetica,sans-serif;
+font-size:22pt;
+font-weight:bold;
+height:22pt;
+}
+
+/* Menu */
+#menu {
+font-family: Arial,Helvetica,sans-serif;
+font-size:12pt;
+padding: 16px 16px;
+color:#000000;
+border-top:1px solid #999999;
+border-bottom:1px solid #999999;
+font-weight:bold;
+}
+
+/* Content */
+#content {
+border:1px solid #000000;
+background-color:#f2f2f2;
+color:#000000;
+}
