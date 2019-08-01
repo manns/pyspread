@@ -34,7 +34,6 @@ Modal dialogs for pyspread
  * FileSaveDialog
  * ImageFileOpenDialog
  * ChartDialog
- * MacroPanel
 
 """
 
@@ -42,7 +41,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
 from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
-from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtGui import QIntValidator, QImageWriter
 
 try:
@@ -469,36 +467,3 @@ class ChartDialog(QDialog):
         button_box.rejected.connect(self.reject)
         button_box.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
         return button_box
-
-
-class MacroPanel(QDialog):
-    """The macro panel"""
-
-    def __init__(self, parent):
-        super().__init__()
-
-        self._init_widgets()
-        self._layout()
-
-    def _init_widgets(self):
-        """Inititialize widgets"""
-
-        self.macro_editor = SpellTextEdit(self)
-        self.result_viewer = QPlainTextEdit(self)
-        self.result_viewer.setReadOnly(True)
-
-        self.splitter = QSplitter(Qt.Vertical, self)
-
-        self.splitter.addWidget(self.macro_editor)
-        self.splitter.addWidget(self.result_viewer)
-
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Apply)
-
-    def _layout(self):
-        """Layout dialog widgets"""
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.splitter)
-        layout.addWidget(self.button_box)
-
-        self.setLayout(layout)

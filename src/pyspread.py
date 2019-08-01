@@ -56,7 +56,8 @@ from toolbar import WidgetToolbar
 from actions import MainWindowActions
 from workflows import Workflows
 from widgets import Widgets
-from dialogs import ApproveWarningDialog, PreferencesDialog, MacroPanel
+from dialogs import ApproveWarningDialog, PreferencesDialog
+from panels import MacroPanel
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
@@ -148,7 +149,7 @@ class MainWindow(QMainWindow):
 
         self.entry_line = Entryline(self)
         self.grid = Grid(self)
-        self.macro_panel = MacroPanel(self)
+        self.macro_panel = MacroPanel(self, self.grid.code_array.macros)
 
         main_splitter = QSplitter(Qt.Vertical, self)
         self.setCentralWidget(main_splitter)
@@ -210,6 +211,11 @@ class MainWindow(QMainWindow):
             self.grid.code_array.result_cache.clear()
             # Execute macros
             self.grid.code_array.execute_macros()
+
+    def execute_macros(self):
+        """Executes macros"""
+
+        return self.grid.code_array.execute_macros()
 
     def on_nothing(self):
         """Dummy action that does nothing"""

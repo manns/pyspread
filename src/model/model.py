@@ -1410,7 +1410,6 @@ class CodeArray(DataArray):
 
         # Reset frozen cache
         self.frozen_cache.clear()
-
         return results, errs
 
     def _sorted_keys(self, keys, startkey, reverse=False):
