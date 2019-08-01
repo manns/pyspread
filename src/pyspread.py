@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
 
         self.entry_line = Entryline(self)
         self.grid = Grid(self)
-        self.macro_panel = MacroPanel(self, self.grid.code_array.macros)
+        self.macro_panel = MacroPanel(self, self.grid.code_array)
 
         main_splitter = QSplitter(Qt.Vertical, self)
         self.setCentralWidget(main_splitter)
@@ -211,11 +211,6 @@ class MainWindow(QMainWindow):
             self.grid.code_array.result_cache.clear()
             # Execute macros
             self.grid.code_array.execute_macros()
-
-    def execute_macros(self):
-        """Executes macros"""
-
-        return self.grid.code_array.execute_macros()
 
     def on_nothing(self):
         """Dummy action that does nothing"""

@@ -1391,7 +1391,7 @@ class CodeArray(DataArray):
             # (Because of how the globals are handled during execution
             # we must import modules here)
             from traceback import print_exception
-            from src.lib.exception_handling import get_user_codeframe
+            from lib.exception_handling import get_user_codeframe
             exc_info = sys.exc_info()
             user_tb = get_user_codeframe(exc_info[2]) or exc_info[2]
             print_exception(exc_info[0], exc_info[1], user_tb, None, err_msg)

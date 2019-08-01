@@ -47,16 +47,16 @@ from lib.exception_handling import get_user_codeframe
 class MacroPanel(QDialog):
     """The macro panel"""
 
-    def __init__(self, parent, macros):
+    def __init__(self, parent, code_array):
         super().__init__()
 
         self.parent = parent
-        self.macros = macros
+        self.code_array = code_array
 
         self._init_widgets()
         self._layout()
 
-        self.macro_editor.setPlainText(self.macros)
+        self.macro_editor.setPlainText(self.code_array.macros)
 
         self.default_text_color = self.result_viewer.textColor()
         self.error_text_color = QColor("red")
@@ -96,9 +96,9 @@ class MacroPanel(QDialog):
         """
 
         try:
-            ast.parse(self.macros)
+            ast.parse(self.code_array.macros)
 
-        except Exception():
+        except:
             # Grab the traceback and return it
             stringio = StringIO()
             excinfo = exc_info()
@@ -113,11 +113,13 @@ class MacroPanel(QDialog):
     def on_apply(self):
         """Event handler for Apply button"""
 
+        self.code_array.macros = self.macro_editor.toPlainText()
+
         err = self._is_invalid_code()
         if err:
             self.update_result_viewer(err=err)
         else:
-            self.update_result_viewer(*self.parent.execute_macros())
+            self.update_result_viewer(*self.code_array.execute_macros())
 
     def update_result_viewer(self, result="", err=""):
         """Update event result following execution by main window"""
@@ -126,7 +128,7 @@ class MacroPanel(QDialog):
         print(result)
 
         if result:
-            self.result_viewer.append(repr(result))
+            self.result_viewer.append(result)
         if err:
             self.result_viewer.setTextColor(self.error_text_color)
             self.result_viewer.append(err)
