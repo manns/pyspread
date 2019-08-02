@@ -125,20 +125,25 @@ class MainWindow(QMainWindow):
         self.setMenuBar(MenuBar(self))
 
         self.setGeometry(100, 100, 1000, 700)
-        geom = self.settings.qsettings.value('MainWindow.geometry')
-        if geom:
-            self.restoreGeometry(geom)
+        geometry = self.settings.qsettings.value('geometry')
+        if geometry:
+            self.restoreGeometry(geometry)
+        window_state = self.settings.qsettings.value('windowState')
+        if window_state:
+            self.restoreState(window_state)
 
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)
         if self._loading:
             return
-        self.settings.qsettings.setValue('MainWindow.geometry',
-                                         self.saveGeometry())
-        self.settings.qsettings.sync()
 
     def closeEvent(self, event):
         """Overloaded close event, allows saving changes or canceling close"""
+
+        self.settings.qsettings.setValue('geometry', self.saveGeometry())
+        self.settings.qsettings.setValue('windowState', self.saveState())
+        self.settings.qsettings.sync()
+
         self.workflows.file_quit()
         event.ignore()
 
@@ -160,6 +165,7 @@ class MainWindow(QMainWindow):
         main_splitter.setSizes([self.entry_line.minimumHeight(), 9999, 20])
 
         self.macro_dock = QDockWidget("Macros", self)
+        self.macro_dock.setObjectName("Macro panel")
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 

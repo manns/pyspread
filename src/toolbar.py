@@ -36,6 +36,7 @@ class MainToolBar(QToolBar):
     def __init__(self, main_window):
         super().__init__()
 
+        self.setObjectName("Main toolbar")
         self._create_toolbar(main_window.actions)
 
     def _create_toolbar(self, actions):
@@ -72,6 +73,7 @@ class FindToolbar(QToolBar):
     def __init__(self, main_window):
         super().__init__()
 
+        self.setObjectName("Find toolbar")
         self._create_toolbar(main_window.actions)
 
     def _create_toolbar(self, actions):
@@ -86,6 +88,7 @@ class AttributesToolbar(QToolBar):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
+        self.setObjectName("Attributes toolbar")
         self._create_toolbar(main_window.actions)
 
     def _create_toolbar(self, actions):
@@ -155,6 +158,7 @@ class MacroToolbar(QToolBar):
     def __init__(self, main_window):
         super().__init__()
 
+        self.setObjectName("Macro toolbar")
         self._create_toolbar(main_window.actions)
 
     def _create_toolbar(self, actions):
@@ -172,6 +176,7 @@ class WidgetToolbar(QToolBar):
     def __init__(self, main_window):
         super().__init__()
 
+        self.setObjectName("Widget toolbar")
         self._create_toolbar(main_window.actions)
 
     def _create_toolbar(self, actions):
@@ -186,6 +191,7 @@ class ChartTemplatesToolBar(QToolBar):
     def __init__(self, parent):
         super().__init__()
 
+        self.setObjectName("Chart templates toolbar")
         self._create_toolbar(parent.actions)
 
     def _create_toolbar(self, actions):

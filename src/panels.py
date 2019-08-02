@@ -125,7 +125,6 @@ class MacroPanel(QDialog):
         """Update event result following execution by main window"""
 
         self.result_viewer.clear()
-        print(result)
 
         if result:
             self.result_viewer.append(result)
