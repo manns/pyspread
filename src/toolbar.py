@@ -82,17 +82,17 @@ class FindToolbar(QToolBar):
         self.addSeparator()
 
 
-class AttributesToolbar(QToolBar):
-    """The attributes toolbar for pyspread"""
+class FormatToolbar(QToolBar):
+    """The format toolbar for pyspread"""
 
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
-        self.setObjectName("Attributes toolbar")
+        self.setObjectName("Format toolbar")
         self._create_toolbar(main_window.actions)
 
     def _create_toolbar(self, actions):
-        """Fills the attributes toolbar with QActions"""
+        """Fills the format toolbar with QActions"""
 
         self.addWidget(self.main_window.widgets.font_combo)
         self.addWidget(self.main_window.widgets.font_size_combo)

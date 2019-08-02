@@ -1214,7 +1214,6 @@ class CodeArray(DataArray):
 
         if hasattr(last_body, "targets"):
             for target in last_body.targets:
-                print(target.id, type(res))
                 _globals[target.id] = res
 
         globals().update(_globals)

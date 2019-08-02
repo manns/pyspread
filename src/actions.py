@@ -284,46 +284,47 @@ class MainWindowActions(dict):
                                     statustip='Show grid in fullscreen mode '
                                               '(press <F11> to leave)')
 
-        self["toggle_main_toolbar"] = Action(self.parent, "Main toolbar",
-                                             self.parent.on_nothing,
-                                             checkable=True,
-                                             statustip='Show/hide the main '
-                                                       'toolbar')
+        self["toggle_main_toolbar"] = \
+            Action(self.parent, "Main toolbar",
+                   self.parent.on_toggle_main_toolbar,
+                   checkable=True,
+                   statustip='Show/hide the main toolbar')
 
-        self["toggle_macro_toolbar"] = Action(self.parent, "Macro toolbar",
-                                              self.parent.on_nothing,
-                                              checkable=True,
-                                              statustip='Show/hide the macro '
-                                                        'toolbar')
+        self["toggle_macro_toolbar"] = \
+            Action(self.parent, "Macro toolbar",
+                   self.parent.on_toggle_macro_toolbar,
+                   checkable=True,
+                   statustip='Show/hide the macro toolbar')
 
-        self["toggle_widget_toolbar"] = Action(self.parent, "Widget toolbar",
-                                               self.parent.on_nothing,
-                                               checkable=True,
-                                               statustip='Show/hide the '
-                                                         'widget toolbar')
+        self["toggle_widget_toolbar"] = \
+            Action(self.parent, "Widget toolbar",
+                   self.parent.on_toggle_widget_toolbar,
+                   checkable=True,
+                   statustip='Show/hide the widget toolbar')
 
-        self["toggle_format_toolbar"] = Action(self.parent, "Format toolbar",
-                                               self.parent.on_nothing,
-                                               checkable=True,
-                                               statustip='Show/hide the '
-                                                         'format toolbar')
+        self["toggle_format_toolbar"] = \
+            Action(self.parent, "Format toolbar",
+                   self.parent.on_toggle_format_toolbar,
+                   checkable=True,
+                   statustip='Show/hide the format toolbar')
 
-        self["toggle_find_toolbar"] = Action(self.parent, "Find toolbar",
-                                             self.parent.on_nothing,
-                                             checkable=True,
-                                             statustip='Show/hide the find '
-                                                       'toolbar')
+        self["toggle_find_toolbar"] = \
+            Action(self.parent, "Find toolbar",
+                   self.parent.on_toggle_find_toolbar,
+                   checkable=True,
+                   statustip='Show/hide the find toolbar')
 
-        self["toggle_entryline"] = Action(self.parent, "Entry line",
-                                          self.parent.on_nothing,
-                                          checkable=True,
-                                          statustip='Show/hide the entry line')
+        self["toggle_entry_line"] = \
+            Action(self.parent, "Entry line",
+                   self.parent.on_toggle_entry_line,
+                   checkable=True,
+                   statustip='Show/hide the entry line')
 
-        self["toggle_macropanel"] = Action(self.parent, "Macro panel",
-                                           self.parent.on_nothing,
-                                           checkable=True,
-                                           statustip='Show/hide the macro '
-                                                     'panel')
+        self["toggle_macro_panel"] = \
+            Action(self.parent, "Macro panel",
+                   self.parent.on_toggle_macro_panel,
+                   checkable=True, shortcut='F4',
+                   statustip='Show/hide the macro panel')
 
         self["goto_cell"] = Action(self.parent, "Go to cell",
                                    self.parent.on_nothing,

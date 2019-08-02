@@ -40,7 +40,7 @@ Provides
 from pathlib import Path
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget
 from PyQt5.QtSvg import QSvgWidget
@@ -51,7 +51,7 @@ from icons import Icon
 from grid import Grid
 from entryline import Entryline
 from menubar import MenuBar
-from toolbar import MainToolBar, FindToolbar, AttributesToolbar, MacroToolbar
+from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
 from toolbar import WidgetToolbar
 from actions import MainWindowActions
 from workflows import Workflows
@@ -65,12 +65,20 @@ LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 class ApplicationStates:
     """Holds all global application states"""
 
+    # Names of widgets with persistant states
+    widget_names = ['main_window', "main_toolbar", "find_toolbar",
+                    "format_toolbar", "macro_toolbar", "widget_toolbar"]
+
     # Note that safe_mode is not listed here but inside model.DataArray
 
     changed_since_save = False  # If True then File actions trigger a dialog
     last_file_input_path = Path.home()  # Initial path for opening files
     last_file_output_path = Path.home()  # Initial path for saving files
     border_choice = "All borders"  # The state of the border choice button
+
+    def __init__(self, parent):
+        super().__setattr__("parent", parent)
+        super().__setattr__("settings", parent.settings)
 
     def __setattr__(self, key, value):
         if not hasattr(self, key):
@@ -84,6 +92,49 @@ class ApplicationStates:
         for cls_attr in cls_attrs:
             setattr(self, cls_attr, getattr(ApplicationStates, cls_attr))
 
+    def save_gui_states(self):
+        """Saves GUI states to QSettings"""
+
+        for widget_name in self.widget_names:
+            geometry_name = widget_name + '/geometry'
+            widget_state_name = widget_name + '/windowState'
+
+            if widget_name == "main_window":
+                widget = self.parent
+            else:
+                widget = getattr(self.parent, widget_name)
+            try:
+                self.settings.qsettings.setValue(geometry_name,
+                                                 widget.saveGeometry())
+            except AttributeError:
+                pass
+            try:
+                self.settings.qsettings.setValue(widget_state_name,
+                                                 widget.saveState())
+            except AttributeError:
+                pass
+
+        self.settings.qsettings.sync()
+
+    def restore_gui_states(self):
+        """Restores GUI states from QSettings"""
+
+        for widget_name in self.widget_names:
+            geometry_name = widget_name + '/geometry'
+            widget_state_name = widget_name + '/windowState'
+
+            if widget_name == "main_window":
+                widget = self.parent
+            else:
+                widget = getattr(self.parent, widget_name)
+
+            geometry = self.settings.qsettings.value(geometry_name)
+            if geometry:
+                widget.restoreGeometry(geometry)
+            widget_state = self.settings.qsettings.value(widget_state_name)
+            if widget_state:
+                widget.restoreState(widget_state)
+
 
 class MainWindow(QMainWindow):
     """Pyspread main window"""
@@ -96,7 +147,7 @@ class MainWindow(QMainWindow):
         self._loading = True
         self.application = application
         self.settings = Settings()
-        self.application_states = ApplicationStates()
+        self.application_states = ApplicationStates(self)
         self.workflows = Workflows(self)
 
         self._init_widgets()
@@ -106,7 +157,11 @@ class MainWindow(QMainWindow):
         self._init_window()
         self._init_toolbars()
 
+        self.application_states.restore_gui_states()
+
         self.show()
+        self._update_action_toggles()
+
         self._loading = False
         self._previous_window_state = self.windowState()
 
@@ -124,14 +179,6 @@ class MainWindow(QMainWindow):
 
         self.setMenuBar(MenuBar(self))
 
-        self.setGeometry(100, 100, 1000, 700)
-        geometry = self.settings.qsettings.value('geometry')
-        if geometry:
-            self.restoreGeometry(geometry)
-        window_state = self.settings.qsettings.value('windowState')
-        if window_state:
-            self.restoreState(window_state)
-
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)
         if self._loading:
@@ -140,9 +187,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         """Overloaded close event, allows saving changes or canceling close"""
 
-        self.settings.qsettings.setValue('geometry', self.saveGeometry())
-        self.settings.qsettings.setValue('windowState', self.saveState())
-        self.settings.qsettings.sync()
+        self.application_states.save_gui_states()
 
         self.workflows.file_quit()
         event.ignore()
@@ -169,23 +214,62 @@ class MainWindow(QMainWindow):
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 
+        self.macro_dock.installEventFilter(self)
+
         self.gui_update.connect(self.on_gui_update)
+
+    def eventFilter(self, source, event):
+        """Event filter for handling QDockWidget close events
+
+        Updates the menu if the macro panel is closed.
+
+        """
+
+        if event.type() == QEvent.Close \
+           and isinstance(source, QDockWidget) \
+           and source.windowTitle() == "Macros":
+            self.actions["toggle_macro_panel"].setChecked(False)
+        return super().eventFilter(source, event)
 
     def _init_toolbars(self):
         """Initialize the main window toolbars"""
 
         self.main_toolbar = MainToolBar(self)
         self.find_toolbar = FindToolbar(self)
-        self.attributes_toolbar = AttributesToolbar(self)
+        self.format_toolbar = FormatToolbar(self)
         self.macro_toolbar = MacroToolbar(self)
-        self.widgets_toolbar = WidgetToolbar(self)
+        self.widget_toolbar = WidgetToolbar(self)
 
         self.addToolBar(self.main_toolbar)
         self.addToolBar(self.find_toolbar)
         self.addToolBarBreak()
-        self.addToolBar(self.attributes_toolbar)
+        self.addToolBar(self.format_toolbar)
         self.addToolBar(self.macro_toolbar)
-        self.addToolBar(self.widgets_toolbar)
+        self.addToolBar(self.widget_toolbar)
+
+    def _update_action_toggles(self):
+        """Updates the toggle menu check states"""
+
+        self.actions["toggle_main_toolbar"].setChecked(
+                self.main_toolbar.isVisible())
+
+        self.actions["toggle_macro_toolbar"].setChecked(
+                self.macro_toolbar.isVisible())
+
+        self.actions["toggle_widget_toolbar"].setChecked(
+                self.widget_toolbar.isVisible())
+
+        self.actions["toggle_format_toolbar"].setChecked(
+                self.format_toolbar.isVisible())
+
+        self.actions["toggle_find_toolbar"].setChecked(
+                self.find_toolbar.isVisible())
+
+        self.actions["toggle_entry_line"].setChecked(
+                self.entry_line.isVisible())
+
+        self.actions["toggle_macro_panel"].setChecked(
+                self.macro_dock.isVisible())
 
     @property
     def safe_mode(self):
@@ -223,6 +307,8 @@ class MainWindow(QMainWindow):
         pass
 
     def on_fullscreen(self):
+        """Fullscreen toggle event handler"""
+
         if self.windowState() == Qt.WindowFullScreen:
             self.setWindowState(self._previous_window_state)
         else:
@@ -243,6 +329,51 @@ class MainWindow(QMainWindow):
             # Dialog has not been approved --> Store data to settings
             for key in data:
                 self.settings.__setattr__(key, data[key])
+
+    def _toggle_widget(self, widget, action_name):
+        """Toggles widget visibility and updates toggle actions"""
+
+        if widget.isVisible():
+            widget.hide()
+        else:
+            widget.show()
+
+        self.actions[action_name].setChecked(widget.isVisible())
+
+    def on_toggle_main_toolbar(self):
+        """Main toolbar toggle event handler"""
+
+        self._toggle_widget(self.main_toolbar, "toggle_main_toolbar")
+
+    def on_toggle_macro_toolbar(self):
+        """Macro toolbar toggle event handler"""
+
+        self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar")
+
+    def on_toggle_widget_toolbar(self):
+        """Wwidget toolbar toggle event handler"""
+
+        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar")
+
+    def on_toggle_format_toolbar(self):
+        """Format toolbar toggle event handler"""
+
+        self._toggle_widget(self.format_toolbar, "toggle_format_toolbar")
+
+    def on_toggle_find_toolbar(self):
+        """Find toolbar toggle event handler"""
+
+        self._toggle_widget(self.find_toolbar, "toggle_find_toolbar")
+
+    def on_toggle_entry_line(self):
+        """Entryline toggle event handler"""
+
+        self._toggle_widget(self.entry_line, "toggle_entry_line")
+
+    def on_toggle_macro_panel(self):
+        """Macro panel toggle event handler"""
+
+        self._toggle_widget(self.macro_dock, "toggle_macro_panel")
 
     def on_about(self):
         """Show about message box"""
@@ -307,13 +438,13 @@ class MainWindow(QMainWindow):
         if border_action is not None:
             icon = border_action.icon()
             self.menuBar().border_submenu.setIcon(icon)
-            self.attributes_toolbar.border_menu_button.setIcon(icon)
+            self.format_toolbar.border_menu_button.setIcon(icon)
 
         border_width_action = self.actions.border_width_group.checkedAction()
         if border_width_action is not None:
             icon = border_width_action.icon()
             self.menuBar().line_width_submenu.setIcon(icon)
-            self.attributes_toolbar.line_width_button.setIcon(icon)
+            self.format_toolbar.line_width_button.setIcon(icon)
 
         widgets.text_color_button.color = QColor(*attributes["textcolor"])
         widgets.background_color_button.color = QColor(*attributes["bgcolor"])

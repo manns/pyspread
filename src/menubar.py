@@ -143,8 +143,8 @@ class MenuBar(QMenuBar):
         toolbar_submenu.addAction(self.actions["toggle_format_toolbar"])
         toolbar_submenu.addAction(self.actions["toggle_find_toolbar"])
 
-        view_menu.addAction(self.actions["toggle_entryline"])
-        view_menu.addAction(self.actions["toggle_macropanel"])
+        view_menu.addAction(self.actions["toggle_entry_line"])
+        view_menu.addAction(self.actions["toggle_macro_panel"])
         view_menu.addSeparator()
         view_menu.addAction(self.actions["goto_cell"])
         view_menu.addSeparator()

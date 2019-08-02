@@ -312,7 +312,8 @@ class FontSizeCombo(QComboBox):
         for size in main_window.settings.font_default_sizes:
             self.addItem(str(size))
 
-        idx = self.findText(str(main_window.settings.font_default_size))
+        idx = self.findText(str(
+                main_window.settings.font_default_size))
         if idx >= 0:
             self.setCurrentIndex(idx)
 
