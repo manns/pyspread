@@ -51,12 +51,12 @@ The following optional dependencies improve user experience:
 The following Linux distributions provide pyspread as a package:
 
 | ![Arch logo]({{site.baseurl}}/images/arch-logo-small.png) | Arch | [pyspread v1.1.3](https://aur.archlinux.org/packages/pyspread/)
-| ![Debian logo]({{site.baseurl}}/images/debian-logo-small.png) | Debian | [pyspread v1.1.1](https://packages.debian.org/de/sid/pyspread)
+| ![Debian logo]({{site.baseurl}}/images/debian-logo-small.png) | Debian | [pyspread v1.1.3](https://packages.debian.org/de/sid/pyspread)
 | ![Fedora logo]({{site.baseurl}}/images/fedora-logo-small.png) | Fedora | [pyspread v1.1.2](https://fedora.pkgs.org/28/rpm-sphere/pyspread-1.1.2-4.1.noarch.rpm.html)
 | ![Mageia logo]({{site.baseurl}}/images/mageia-logo-small.png) | Mageia | [pyspread v1.1](https://madb.mageia.org/package/show/name/pyspread)
 | ![NixOS logo]({{site.baseurl}}/images/nixos-hex.png) | NixOS | [pyspread v1.1.3](https://nixos.org/nixos/packages.html#pyspread)
 | ![Slackware logo]({{site.baseurl}}/images/slackware-logo-small.png) | Slackware | [pyspread v1.1.3](https://slackbuilds.org/repository/14.2/office/pyspread/)
-| ![Ubuntu logo]({{site.baseurl}}/images/ubuntu-logo-small.png) | Ubuntu | [pyspread v1.1.1](https://packages.ubuntu.com/disco/pyspread)
+| ![Ubuntu logo]({{site.baseurl}}/images/ubuntu-logo-small.png) | Ubuntu | [pyspread v1.1.3](https://packages.ubuntu.com/eoan/pyspread)
 
 For these distributions, the easiest way is to install
 pyspread from the repositories. The source distribution can
