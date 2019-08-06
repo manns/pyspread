@@ -726,7 +726,7 @@ class GridItemModel(QAbstractTableModel):
             return True
 
         if role == Qt.DecorationRole or role == Qt.TextAlignmentRole:
-            self.code_array.cell_attributes.undoable_append(value)
+            self.code_array.cell_attributes.append(value)
             # We have a selection and no single cell
             for idx in index:
                 self.dataChanged.emit(idx, idx)

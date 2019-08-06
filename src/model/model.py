@@ -60,7 +60,7 @@ from settings import Settings
 from lib.typechecks import isslice, isstring
 from lib.selection import Selection
 
-from .unredo import UnRedo
+from src.lib.undo import undoable
 
 
 class CellAttributes(list):
@@ -72,9 +72,6 @@ class CellAttributes(list):
 
     The class provides attribute read access to single cells via __getitem__
     Otherwise it behaves similar to a list.
-
-    Note that for the method undoable_append to work, unredo has to be
-    defined as class attribute.
 
     """
 
@@ -112,21 +109,19 @@ class CellAttributes(list):
     _attr_cache = {}
     _table_cache = {}
 
-    def undoable_append(self, value, mark_unredo=True):
-        """Appends item to list and provides undo and redo functionality"""
-
-        undo_operation = (self.pop, [])
-        redo_operation = (self.undoable_append, [value, mark_unredo])
-
-        self.unredo.append(undo_operation, redo_operation)
-
-        if mark_unredo:
-            self.unredo.mark()
-
-        self.append(value)
+    @undoable
+    def append(self, value):
+        super().append(value)
         self._attr_cache.clear()
+        self._table_cache.clear()
 
-        sel, tab, val = value
+        yield "append"
+
+        # Undo actions
+
+        super().pop()
+        self._attr_cache.clear()
+        self._table_cache.clear()
 
     def __getitem__(self, key):
         """Returns attribute dict for a single key"""
@@ -159,6 +154,30 @@ class CellAttributes(list):
         self._attr_cache[key] = (len(self), result_dict)
 
         return result_dict
+
+    @undoable
+    def __setitem__(self, key, value):
+        """Undoable version of list.__setitem__"""
+
+        try:
+            old_value = list.__getitem__(self, key)
+        except IndexError:
+            old_value = None
+
+        super().__setitem__(key, value)
+
+        self._attr_cache.clear()
+        self._table_cache.clear()
+
+        yield "__setitem__"
+
+        if old_value is None:
+            self.pop(key)
+        else:
+            super().__setitem__(key, old_value)
+
+        self._attr_cache.clear()
+        self._table_cache.clear()
 
     def _len_table_cache(self):
         """Returns the length of the table cache"""
@@ -202,14 +221,57 @@ class CellAttributes(list):
         if merge_area:
             return merge_area[0], merge_area[1], tab
 
-    # Allow getting and setting elements in list
-    get_item = list.__getitem__
-    set_item = list.__setitem__
-
 # End of class CellAttributes
 
 
-class DictGrid(dict):
+class KeyValueStore(dict):
+    """Key-Value store in memory. Currently a dict with default value None.
+
+    This class represents layer 0 of the model.
+
+    The following methods mave been made undoable:
+    * __setitem__
+    * pop
+
+    """
+
+    def __init__(self, default_value=None):
+        super().__init__()
+        self.default_value = default_value
+
+    def __missing__(self, value):
+        """Returns the default value None"""
+
+        return self.default_value
+
+    @undoable
+    def __setitem__(self, key, value):
+        old_value = self[key]
+        dict.__setitem__(self, key, value)
+
+        yield "__setitem__"
+        # Undo actions
+        if old_value is None:
+            dict.pop(self, key)
+        else:
+            dict.__setitem__(self, key, old_value)
+
+    @undoable
+    def pop(self, key, *args):
+        res = dict.pop(self, key, *args)
+
+        yield "pop", res
+
+        # Undo actions
+        if res is not None:
+            dict.__setitem__(self, key, res)
+
+# End of class KeyValueStore
+
+# -----------------------------------------------------------------------------
+
+
+class DictGrid(KeyValueStore):
     """The core data class with all information that is stored in a pys file.
 
     Besides grid code access via standard dict operations, it provides
@@ -282,10 +344,6 @@ class DataArray(object):
 
     def __init__(self, shape):
         self.dict_grid = DictGrid(shape)
-
-        # Undo and redo management
-        self.unredo = UnRedo()
-        self.dict_grid.cell_attributes.unredo = self.unredo
 
         # Safe mode
         self.safe_mode = False
@@ -434,54 +492,49 @@ class DataArray(object):
 
         self.dict_grid.macros = macros
 
-    @property
-    def shape(self):
+    def _get_shape(self):
         """Returns dict_grid shape"""
 
         return self.dict_grid.shape
 
-    def _set_shape(self, shape, mark_unredo=True):
+    @undoable
+    def _set_shape(self, shape):
         """Deletes all cells beyond new shape and sets dict_grid shape
 
         Parameters
         ----------
         shape: 3-tuple of Integer
         \tTarget shape for grid
-        mark_unredo: Boolean, defaults to True
-        \tIf True then an unredo marker is set after the operation
 
         """
 
         # Delete each cell that is beyond new borders
 
         old_shape = self.shape
+        deleted_cells = {}
 
         if any(new_axis < old_axis
                for new_axis, old_axis in zip(shape, old_shape)):
             for key in list(self.dict_grid.keys()):
                 if any(key_ele >= new_axis
                        for key_ele, new_axis in zip(key, shape)):
-                    self.pop(key)
+                    deleted_cells[key] = self.pop(key)
 
         # Set dict_grid shape attribute
-
         self.dict_grid.shape = shape
 
-        # UnRedo support
+        self._adjust_rowcol(0, 0, 0)
+        self._adjust_cell_attributes(0, 0, 0)
 
-        undo_operation = (self._set_shape, [old_shape, mark_unredo])
-        redo_operation = (self._set_shape, [shape, mark_unredo])
+        # Undo actions
 
-        self.unredo.append(undo_operation, redo_operation)
+        yield "_set_shape"
 
-        if mark_unredo:
-            self.unredo.mark()
+        self.shape = old_shape
 
-        # End UnRedo support
+        self.update(deleted_cells)
 
-    @shape.setter
-    def shape(self, shape):
-        self._set_shape(shape)
+    shape = property(_get_shape, _set_shape)
 
     def __iter__(self):
         """Returns iterator over self.dict_grid"""
@@ -521,7 +574,7 @@ class DataArray(object):
 
         return self.dict_grid[key]
 
-    def __setitem__(self, key, value, mark_unredo=True):
+    def __setitem__(self, key, value):
         """Accepts index and slice keys
 
         Parameters
@@ -530,8 +583,6 @@ class DataArray(object):
         \tCell key(s) that shall be set
         value: Object (should be Unicode or similar)
         \tCode for cell(s) to be set
-        mark_unredo: Boolean, defaults to True
-        \tIf True then an unredo marker is set after the operation
 
         """
 
@@ -557,35 +608,8 @@ class DataArray(object):
 
         single_keys = product(*single_keys_per_dim)
 
-        unredo_mark = False
-
         for single_key in single_keys:
             if value:
-                # UnRedo support
-
-                old_value = self(key)
-
-                try:
-                    old_value = str(old_value, encoding="utf-8")
-                except TypeError:
-                    pass
-
-                # We seem to have double calls on __setitem__
-                # This hack catches them
-
-                if old_value != value:
-
-                    unredo_mark = True
-
-                    undo_operation = (self.__setitem__,
-                                      [key, old_value, mark_unredo])
-                    redo_operation = (self.__setitem__,
-                                      [key, value, mark_unredo])
-
-                    self.unredo.append(undo_operation, redo_operation)
-
-                    # End UnRedo support
-
                 # Never change merged cells
                 merging_cell = \
                     self.cell_attributes.get_merging_cell(single_key)
@@ -598,9 +622,6 @@ class DataArray(object):
 
                 except (KeyError, TypeError):
                     pass
-
-        if mark_unredo and unredo_mark:
-            self.unredo.mark()
 
     # Pickle support
 
@@ -636,36 +657,17 @@ class DataArray(object):
 
         return list(self.dict_grid.keys())
 
-    def pop(self, key, mark_unredo=True):
+    def pop(self, key):
         """Pops dict_grid with undo and redo support
 
         Parameters
         ----------
         key: 3-tuple of Integer
         \tCell key that shall be popped
-        mark_unredo: Boolean, defaults to True
-        \tIf True then an unredo marker is set after the operation
 
         """
 
-        result = self.dict_grid.pop(key)
-
-        # UnRedo support
-
-        if mark_unredo:
-            self.unredo.mark()
-
-        undo_operation = (self.__setitem__, [key, result, mark_unredo])
-        redo_operation = (self.pop, [key, mark_unredo])
-
-        self.unredo.append(undo_operation, redo_operation)
-
-        if mark_unredo:
-            self.unredo.mark()
-
-        # End UnRedo support
-
-        return result
+        return self.dict_grid.pop(key)
 
     def get_last_filled_cell(self, table=None):
         """Returns key for the bottommost rightmost cell with content
@@ -721,11 +723,8 @@ class DataArray(object):
 
                 break
 
-    def _shift_rowcol(self, insertion_point, no_to_insert, mark_unredo):
+    def _shift_rowcol(self, insertion_point, no_to_insert):
         """Shifts row and column sizes when a table is inserted or deleted"""
-
-        if mark_unredo:
-            self.unredo.mark()
 
         # Shift row heights
 
@@ -739,12 +738,11 @@ class DataArray(object):
                 del_row_heights.append((row, tab))
 
         for row, tab in new_row_heights:
-            self.set_row_height(row, tab, new_row_heights[(row, tab)],
-                                mark_unredo=False)
+            self.set_row_height(row, tab, new_row_heights[(row, tab)])
 
         for row, tab in del_row_heights:
             if (row, tab) not in new_row_heights:
-                self.set_row_height(row, tab, None, mark_unredo=False)
+                self.set_row_height(row, tab, None)
 
         # Shift column widths
 
@@ -758,28 +756,20 @@ class DataArray(object):
                 del_col_widths.append((col, tab))
 
         for col, tab in new_col_widths:
-            self.set_col_width(col, tab, new_col_widths[(col, tab)],
-                               mark_unredo=False)
+            self.set_col_width(col, tab, new_col_widths[(col, tab)])
 
         for col, tab in del_col_widths:
             if (col, tab) not in new_col_widths:
-                self.set_col_width(col, tab, None, mark_unredo=False)
+                self.set_col_width(col, tab, None)
 
-        if mark_unredo:
-            self.unredo.mark()
-
-    def _adjust_rowcol(self, insertion_point, no_to_insert, axis, tab=None,
-                       mark_unredo=True):
+    def _adjust_rowcol(self, insertion_point, no_to_insert, axis, tab=None):
         """Adjusts row and column sizes on insertion/deletion"""
 
         if axis == 2:
-            self._shift_rowcol(insertion_point, no_to_insert, mark_unredo)
+            self._shift_rowcol(insertion_point, no_to_insert)
             return
 
         assert axis in (0, 1)
-
-        if mark_unredo:
-            self.unredo.mark()
 
         cell_sizes = self.col_widths if axis else self.row_heights
         set_cell_size = self.set_col_width if axis else self.set_row_height
@@ -795,15 +785,11 @@ class DataArray(object):
                 del_sizes.append((pos, table))
 
         for pos, table in new_sizes:
-            set_cell_size(pos, table, new_sizes[(pos, table)],
-                          mark_unredo=False)
+            set_cell_size(pos, table, new_sizes[(pos, table)])
 
         for pos, table in del_sizes:
             if (pos, table) not in new_sizes:
-                set_cell_size(pos, table, None, mark_unredo=False)
-
-        if mark_unredo:
-            self.unredo.mark()
+                set_cell_size(pos, table, None)
 
     def _adjust_merge_area(self, attrs, insertion_point, no_to_insert, axis):
         """Returns an updated merge area
@@ -841,7 +827,7 @@ class DataArray(object):
             attrs["merge_area"] = __top, __left, __bottom, __right
 
     def _adjust_cell_attributes(self, insertion_point, no_to_insert, axis,
-                                tab=None, cell_attrs=None, mark_unredo=True):
+                                tab=None, cell_attrs=None):
         """Adjusts cell attributes on insertion/deletion
 
         Parameters
@@ -856,15 +842,31 @@ class DataArray(object):
         \tIf given then insertion is limited to this tab for axis < 2
         cell_attrs: List, defaults to []
         \tIf not empty then the given cell attributes replace the existing ones
-        mark_unredo: Boolean, defaults to True
-        \tIf True then an unredo marker is set after the operation
 
         """
 
         def replace_cell_attributes_table(index, new_table):
+            """Replaces table in cell_attributes item"""
+
             ca = list(self.cell_attributes.get_item(index))
             ca[1] = new_table
             self.cell_attributes.set_item(index, tuple(ca))
+
+
+        def get_ca_with_updated_ma(attrs, merge_area):
+            """Returns cell attributes with updated merge area"""
+
+            new_attrs = copy(attrs)
+
+            if merge_area is None:
+                try:
+                    new_attrs.pop("merge_area")
+                except KeyError:
+                    pass
+            else:
+                new_attrs["merge_area"] = merge_area
+
+            return new_attrs
 
         if axis not in list(range(3)):
             raise ValueError("Axis must be in [0, 1, 2]")
@@ -874,21 +876,29 @@ class DataArray(object):
         if cell_attrs is None:
             cell_attrs = []
 
-        # Store existing cell attributes for creating undo operation
-        old_cell_attrs = self.cell_attributes[:]
-
         if cell_attrs:
             self.cell_attributes[:] = cell_attrs
 
         elif axis < 2:
             # Adjust selections on given table
 
-            for selection, table, attrs in self.cell_attributes:
+            ca_updates = {}
+            for i, (selection, table, attrs) in enumerate(
+                                                    self.cell_attributes):
+                selection = copy(selection)
                 if tab is None or tab == table:
                     selection.insert(insertion_point, no_to_insert, axis)
                     # Update merge area if present
-                    self._adjust_merge_area(attrs, insertion_point,
-                                            no_to_insert, axis)
+                    merge_area = self._get_adjusted_merge_area(attrs,
+                                                               insertion_point,
+                                                               no_to_insert,
+                                                               axis)
+                    new_attrs = get_ca_with_updated_ma(attrs, merge_area)
+
+                    ca_updates[i] = selection, table, new_attrs
+
+            for idx in ca_updates:
+                self.cell_attributes[idx] = ca_updates[idx]
 
         elif axis == 2:
             # Adjust tabs
@@ -915,18 +925,6 @@ class DataArray(object):
         self.cell_attributes._attr_cache.clear()
         self.cell_attributes._update_table_cache()
 
-        undo_operation = (self._adjust_cell_attributes,
-                          [insertion_point, -no_to_insert, axis, tab,
-                           old_cell_attrs, mark_unredo])
-        redo_operation = (self._adjust_cell_attributes,
-                          [insertion_point, no_to_insert, axis, tab,
-                           cell_attrs, mark_unredo])
-
-        self.unredo.append(undo_operation, redo_operation)
-
-        if mark_unredo:
-            self.unredo.mark()
-
     def insert(self, insertion_point, no_to_insert, axis, tab=None):
         """Inserts no_to_insert rows/cols/tabs/... before insertion_point
 
@@ -943,8 +941,6 @@ class DataArray(object):
         \tIf given then insertion is limited to this tab for axis < 2
 
         """
-
-        self.unredo.mark()
 
         if not 0 <= axis <= len(self.shape):
             raise ValueError("Axis not in grid dimensions")
@@ -968,17 +964,13 @@ class DataArray(object):
 
         for key in del_keys:
             if key not in new_keys and self(key) is not None:
-                self.pop(key, mark_unredo=False)
+                self.pop(key)
 
-        self._adjust_rowcol(insertion_point, no_to_insert, axis, tab=tab,
-                            mark_unredo=False)
-        self._adjust_cell_attributes(insertion_point, no_to_insert, axis,
-                                     tab, mark_unredo=False)
+        self._adjust_rowcol(insertion_point, no_to_insert, axis, tab=tab)
+        self._adjust_cell_attributes(insertion_point, no_to_insert, axis, tab)
 
         for key in new_keys:
-            self.__setitem__(key, new_keys[key], mark_unredo=False)
-
-        self.unredo.mark()
+            self.__setitem__(key, new_keys[key])
 
     def delete(self, deletion_point, no_to_delete, axis, tab=None):
         """Deletes no_to_delete rows/cols/... starting with deletion_point
@@ -986,8 +978,6 @@ class DataArray(object):
         Axis specifies number of dimension, i.e. 0 == row, 1 == col, 2 == tab
 
         """
-
-        self.unredo.mark()
 
         if not 0 <= axis < len(self.shape):
             raise ValueError("Axis not in grid dimensions")
@@ -1021,70 +1011,36 @@ class DataArray(object):
         # Now re-insert moved keys
 
         for key in new_keys:
-            self.__setitem__(key, new_keys[key], mark_unredo=False)
+            self.__setitem__(key, new_keys[key])
 
         for key in del_keys:
             if key not in new_keys and self(key) is not None:
-                self.pop(key, mark_unredo=False)
+                self.pop(key)
 
-        self._adjust_rowcol(deletion_point, -no_to_delete, axis, tab=tab,
-                            mark_unredo=False)
-        self._adjust_cell_attributes(deletion_point, -no_to_delete, axis,
-                                     tab, mark_unredo=False)
+        self._adjust_rowcol(deletion_point, -no_to_delete, axis, tab=tab)
+        self._adjust_cell_attributes(deletion_point, -no_to_delete, axis, tab)
 
-        self.unredo.mark()
-
-    def set_row_height(self, row, tab, height, mark_unredo=True):
+    def set_row_height(self, row, tab, height):
         """Sets row height"""
 
-        if mark_unredo:
-            self.unredo.mark()
-
         try:
-            old_height = self.row_heights.pop((row, tab))
-
+            self.row_heights.pop((row, tab))
         except KeyError:
-            old_height = None
+            pass
 
         if height is not None:
             self.row_heights[(row, tab)] = float(height)
 
-        # Make undoable
-
-        undo_operation = (self.set_row_height,
-                          [row, tab, old_height, mark_unredo])
-        redo_operation = (self.set_row_height, [row, tab, height, mark_unredo])
-
-        self.unredo.append(undo_operation, redo_operation)
-
-        if mark_unredo:
-            self.unredo.mark()
-
-    def set_col_width(self, col, tab, width, mark_unredo=True):
+    def set_col_width(self, col, tab, width):
         """Sets column width"""
 
-        if mark_unredo:
-            self.unredo.mark()
-
         try:
-            old_width = self.col_widths.pop((col, tab))
-
+            self.col_widths.pop((col, tab))
         except KeyError:
-            old_width = None
+            pass
 
         if width is not None:
             self.col_widths[(col, tab)] = float(width)
-
-        # Make undoable
-
-        undo_operation = (self.set_col_width,
-                          [col, tab, old_width, mark_unredo])
-        redo_operation = (self.set_col_width, [col, tab, width, mark_unredo])
-
-        self.unredo.append(undo_operation, redo_operation)
-
-        if mark_unredo:
-            self.unredo.mark()
 
     # Element access via call
 
@@ -1113,7 +1069,7 @@ class CodeArray(DataArray):
     # Custom font storage
     custom_fonts = {}
 
-    def __setitem__(self, key, value, mark_unredo=True):
+    def __setitem__(self, key, value):
         """Sets cell code and resets result cache"""
 
         # Prevent unchanged cells from being recalculated on cursor movement
@@ -1125,7 +1081,7 @@ class CodeArray(DataArray):
                     ((value is None or value == "") and
                      repr_key not in self.result_cache)
 
-        DataArray.__setitem__(self, key, value, mark_unredo=mark_unredo)
+        super().__setitem__(key, value)
 
         if not unchanged:
             # Reset result cache
@@ -1292,15 +1248,13 @@ class CodeArray(DataArray):
 
         return result
 
-    def pop(self, key, mark_unredo=True):
+    def pop(self, key):
         """Pops dict_grid with undo and redo support
 
         Parameters
         ----------
         key: 3-tuple of Integer
         \tCell key that shall be popped
-        mark_unredo: Boolean, defaults to True
-        \tIf True then an unredo marker is set after the operation
 
         """
 
@@ -1310,7 +1264,7 @@ class CodeArray(DataArray):
         except KeyError:
             pass
 
-        return DataArray.pop(self, key, mark_unredo=mark_unredo)
+        return super().pop(key)
 
     def reload_modules(self):
         """Reloads modules that are available in cells"""
