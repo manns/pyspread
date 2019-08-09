@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -43,7 +43,6 @@ from builtins import object
 import ast
 import base64
 import bz2
-from matplotlib.figure import Figure
 from collections import defaultdict
 from copy import copy
 import datetime
@@ -889,10 +888,9 @@ class DataArray(object):
                 if tab is None or tab == table:
                     selection.insert(insertion_point, no_to_insert, axis)
                     # Update merge area if present
-                    merge_area = self._get_adjusted_merge_area(attrs,
-                                                               insertion_point,
-                                                               no_to_insert,
-                                                               axis)
+                    merge_area = self._adjust_merge_area(attrs,
+                                                         insertion_point,
+                                                         no_to_insert, axis)
                     new_attrs = get_ca_with_updated_ma(attrs, merge_area)
 
                     ca_updates[i] = selection, table, new_attrs
@@ -1190,7 +1188,7 @@ class CodeArray(DataArray):
                 return numpy.array([_f for _f in val if _f])
 
         # Set up environment for evaluation
-
+        from matplotlib.figure import Figure  # Needs to be imported here
         env_dict = {'X': key[0], 'Y': key[1], 'Z': key[2], 'bz2': bz2,
                     'base64': base64, 'nn': nn, 'Figure': Figure,
                     'R': key[0], 'C': key[1], 'T': key[2], 'S': self}

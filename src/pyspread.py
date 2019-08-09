@@ -88,7 +88,9 @@ class ApplicationStates:
 
     def reset(self):
         cls_attrs = (attr for attr in dir(self)
-                     if not attr.startswith("__") and attr != "reset")
+                     if not attr.startswith("__") and attr not in ("reset",
+                                                                   "parent",
+                                                                   "settings"))
         for cls_attr in cls_attrs:
             setattr(self, cls_attr, getattr(ApplicationStates, cls_attr))
 

@@ -59,6 +59,7 @@ from lib.string_helpers import quote, wrap_text, get_svg_aspect
 from lib.qimage2ndarray import array2qimage
 from lib.qimage_svg import QImage
 from lib.typechecks import is_svg
+from lib.undo import stack
 
 
 class Grid(QTableView):
@@ -741,7 +742,7 @@ class GridItemModel(QAbstractTableModel):
             return str(idx)
 
     def reset(self):
-        """Deletes all grid data including unredo data"""
+        """Deletes all grid data including undo data"""
 
         with self.model_reset():
             # Clear cells
@@ -758,7 +759,7 @@ class GridItemModel(QAbstractTableModel):
             self.code_array.macros = ""
 
             # Clear caches
-            self.code_array.unredo.reset()
+            stack().clear()
             self.code_array.result_cache.clear()
 
             # Clear globals
