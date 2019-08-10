@@ -439,7 +439,7 @@ class ChartDialog(QDialog):
         key = self.parent.grid.current
         code = self.editor.toPlainText()
 
-        figure = self.parent.grid.code_array._eval_cell(key, code)
+        figure = self.parent.grid.model.code_array._eval_cell(key, code)
 
         if isinstance(figure, Figure):
             canvas = FigureCanvasQTAgg(figure)

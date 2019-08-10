@@ -79,8 +79,7 @@ class Grid(QTableView):
 
         self.setGeometry(*window_position, *window_size)
 
-        self.code_array = CodeArray(dimensions)
-        self.model = GridItemModel(main_window, self.code_array)
+        self.model = GridItemModel(main_window, dimensions)
         self.setModel(self.model)
 
         self.table_choice = TableChoice(self, dimensions[2])
@@ -104,7 +103,7 @@ class Grid(QTableView):
 
         self.setShowGrid(False)
 
-        delegate = GridCellDelegate(main_window, self.code_array)
+        delegate = GridCellDelegate(main_window, self.model.code_array)
         self.setItemDelegate(delegate)
 
         # Select upper left cell because initial selection behaves strange
@@ -247,7 +246,7 @@ class Grid(QTableView):
     def gui_update(self):
         """Emits gui update signal"""
 
-        attributes = self.code_array.cell_attributes[self.current]
+        attributes = self.model.code_array.cell_attributes[self.current]
         self.main_window.gui_update.emit(attributes)
 
     # Event handlers
@@ -255,7 +254,7 @@ class Grid(QTableView):
     def on_data_changed(self):
         """Event handler for data changes"""
 
-        code = self.code_array(self.current)
+        code = self.model.code_array(self.current)
         self.main_window.entry_line.setPlainText(code)
 
         if not self.main_window.application_states.changed_since_save:
@@ -266,7 +265,7 @@ class Grid(QTableView):
     def on_current_changed(self, current, previous):
         """Event handler for change of current cell"""
 
-        code = self.code_array(self.current)
+        code = self.model.code_array(self.current)
         self.main_window.entry_line.setPlainText(code)
         self.gui_update()
 
@@ -578,20 +577,20 @@ class Grid(QTableView):
         __table = self.table
         selection = self.selection
 
-        for row, column, table in self.code_array.dict_grid.keys():
+        for row, column, table in self.model.code_array.dict_grid.keys():
             if table == __table and (row, column) in selection:
-                code = self.code_array((row, column, table))
+                code = self.model.code_array((row, column, table))
                 quoted_code = quote(code)
                 index = self.model.index(row, column, QModelIndex())
                 self.model.setData(index, quoted_code, Qt.EditRole)
 
 
 class GridItemModel(QAbstractTableModel):
-    def __init__(self, main_window, code_array):
+    def __init__(self, main_window, dimensions):
         super().__init__()
 
         self.main_window = main_window
-        self.code_array = code_array
+        self.code_array = CodeArray(dimensions)
 
     @contextmanager
     def model_reset(self):
@@ -942,7 +941,7 @@ class GridCellDelegate(QStyledItemDelegate):
             img_width, img_height = qimage.width(), qimage.height()
         else:
             key = index.row(), index.column(), self.main_window.grid.table
-            res = self.main_window.grid.code_array[key]
+            res = self.code_array[key]
             if res is None:
                 return
             try:

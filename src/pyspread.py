@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
 
         self.entry_line = Entryline(self)
         self.grid = Grid(self)
-        self.macro_panel = MacroPanel(self, self.grid.code_array)
+        self.macro_panel = MacroPanel(self, self.grid.model.code_array)
 
         main_splitter = QSplitter(Qt.Vertical, self)
         self.setCentralWidget(main_splitter)
@@ -279,7 +279,7 @@ class MainWindow(QMainWindow):
     def safe_mode(self):
         """Returns safe_mode state. In safe_mode cells are not evaluated."""
 
-        return self.grid.code_array.safe_mode
+        return self.grid.model.code_array.safe_mode
 
     @safe_mode.setter
     def safe_mode(self, value):
@@ -292,19 +292,19 @@ class MainWindow(QMainWindow):
 
         """
 
-        if self.grid.code_array.safe_mode == bool(value):
+        if self.grid.model.code_array.safe_mode == bool(value):
             return
 
-        self.grid.code_array.safe_mode = bool(value)
+        self.grid.model.code_array.safe_mode = bool(value)
 
         if value:  # Safe mode entered
             self.safe_mode_widget.show()
         else:  # Safe_mode disabled
             self.safe_mode_widget.hide()
             # Clear result cache
-            self.grid.code_array.result_cache.clear()
+            self.grid.model.code_array.result_cache.clear()
             # Execute macros
-            self.grid.code_array.execute_macros()
+            self.grid.model.code_array.execute_macros()
 
     def on_nothing(self):
         """Dummy action that does nothing"""

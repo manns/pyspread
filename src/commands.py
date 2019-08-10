@@ -45,3 +45,19 @@ class CommandSetModelData(QUndoCommand):
 
     def undo(self):
         self.model.setData(self.index, self.old_code, Qt.EditRole, raw=True)
+
+
+class CommandSetMacros(QUndoCommand):
+    """Updates macro code"""
+
+    def __init__(self, grid, code, description):
+        super().__init__(description)
+
+        self.old_macros = model.code(index)
+        self.new_macros = new_code
+
+    def redo(self):
+        self.model.setData(self.index, self.new_code, Qt.EditRole, raw=True)
+
+    def undo(self):
+        self.model.setData(self.index, self.old_code, Qt.EditRole, raw=True)

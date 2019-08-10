@@ -40,10 +40,11 @@ from tempfile import NamedTemporaryFile
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QProgressDialog, QMessageBox
 
-from dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
-from dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
-from interfaces.pys import PysReader, PysWriter
-from lib.hashing import sign, verify
+from src.commands import CommandSetModelData
+from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
+from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
+from src.interfaces.pys import PysReader, PysWriter
+from src.lib.hashing import sign, verify
 
 
 class Workflows:
@@ -114,7 +115,7 @@ class Workflows:
         """File new workflow"""
 
         # Get grid shape from user
-        old_shape = self.main_window.grid.code_array.shape
+        old_shape = self.main_window.grid.model.code_array.shape
         shape = GridShapeDialog(self.main_window, old_shape).shape
         if shape is None:
             # Abort changes because the dialog has been canceled
@@ -139,7 +140,7 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
-        code_array = self.main_window.grid.code_array
+        code_array = self.main_window.grid.model.code_array
 
         # Get filepath from user
         file_open_dialog = FileOpenDialog(self.main_window)
@@ -187,7 +188,7 @@ class Workflows:
                         break
 
         # Explicitly set the grid shape
-        shape = self.main_window.grid.code_array.shape
+        shape = self.main_window.grid.model.code_array.shape
         self.main_window.grid.model.shape = shape
 
         # Update the cell spans because this is unsupported by the model
@@ -205,7 +206,7 @@ class Workflows:
     def sign_file(self, filepath):
         """Signs filepath if gnupg present and pyspread not in safe mode"""
 
-        if self.main_window.grid.code_array.safe_mode:
+        if self.main_window.grid.model.code_array.safe_mode:
             msg = "File saved but not signed because it is unapproved."
             self.main_window.statusBar().showMessage(msg)
             return
@@ -241,7 +242,7 @@ class Workflows:
 
         """
 
-        code_array = self.main_window.grid.code_array
+        code_array = self.main_window.grid.model.code_array
 
         # Process events before showing the modal progress dialog
         self.main_window.application.processEvents()
@@ -363,13 +364,18 @@ class Workflows:
         index = self.main_window.grid.currentIndex()
         self.main_window.grid.on_image_renderer_pressed(True)
         self.main_window.entry_line.setUpdatesEnabled(False)
-        self.main_window.grid.model.setData(index, code, Qt.EditRole, raw=raw)
+
+        model = self.main_window.grid.model
+        description = "Set code for cell {}".format(index)
+        command = CommandSetModelData(code, model, index, description)
+        self.main_window.undo_stack.push(command)
+
         self.main_window.entry_line.setUpdatesEnabled(True)
 
     def insert_chart(self):
         """Insert chart workflow"""
 
-        code_array = self.main_window.grid.code_array
+        code_array = self.main_window.grid.model.code_array
         code = code_array(self.main_window.grid.current)
 
         chart_dialog = ChartDialog(self.main_window)
@@ -380,4 +386,8 @@ class Workflows:
             code = chart_dialog.editor.toPlainText()
             index = self.main_window.grid.currentIndex()
             self.main_window.grid.on_matplotlib_renderer_pressed(True)
-            self.main_window.grid.model.setData(index, code, Qt.EditRole)
+
+            model = self.main_window.grid.model
+            description = "Set code for cell {}".format(index)
+            command = CommandSetModelData(code, model, index, description)
+            self.main_window.undo_stack.push(command)
