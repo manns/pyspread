@@ -121,6 +121,8 @@ class MacroPanel(QDialog):
         else:
             self.update_result_viewer(*self.code_array.execute_macros())
 
+        self.parent.grid.gui_update()
+
     def update_result_viewer(self, result="", err=""):
         """Update event result following execution by main window"""
 

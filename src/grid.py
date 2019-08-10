@@ -53,7 +53,7 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from src.commands import CommandSetCellCode
+from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -285,19 +285,25 @@ class Grid(QTableView):
         """Font change event handler"""
 
         font = self.main_window.widgets.font_combo.font
-
         attr = self.selection, self.table, {"textfont": font}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.gui_update()
+        selected_idx = self.selected_idx
+        description = "Set font {} for indices {}".format(font, selected_idx)
+
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_font_size(self):
         """Font size change event handler"""
 
         size = self.main_window.widgets.font_size_combo.size
-
         attr = self.selection, self.table, {"pointsize": size}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.gui_update()
+        selected_idx = self.selected_idx
+        description = "Set font size {} for cells {}".format(size,
+                                                             selected_idx)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_bold_pressed(self, toggled):
         """Bold button pressed event handler"""

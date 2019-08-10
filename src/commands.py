@@ -45,3 +45,23 @@ class CommandSetCellCode(QUndoCommand):
 
     def undo(self):
         self.model.setData(self.index, self.old_code, Qt.EditRole, raw=True)
+
+
+class CommandSetCellFormat(QUndoCommand):
+    """Stores cell format in grid"""
+
+    def __init__(self, attr, model, index, selected_idx, description):
+        super().__init__(description)
+
+        self.attr = attr
+        self.model = model
+        self.index = index
+        self.selected_idx = selected_idx
+
+    def redo(self):
+        self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
+        self.model.dataChanged.emit(self.index, self.index)
+
+    def undo(self):
+        self.model.code_array.cell_attributes.pop()
+        self.model.dataChanged.emit(self.index, self.index)
