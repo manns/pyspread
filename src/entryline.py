@@ -23,7 +23,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QTextOption
 
-from lib.spelltextedit import SpellTextEdit
+from src.commands import CommandSetModelData
+from src.lib.spelltextedit import SpellTextEdit
 
 
 class Entryline(SpellTextEdit):
@@ -55,8 +56,12 @@ class Entryline(SpellTextEdit):
         """Stores current entry line data in grid model"""
 
         index = self.main_window.grid.currentIndex()
-        self.main_window.grid.model.setData(index, self.toPlainText(),
-                                            Qt.EditRole)
+        model = self.main_window.grid.model
+
+        description = "Set code for cell {}".format(index)
+        command = CommandSetModelData(self.toPlainText(), model, index,
+                                      description)
+        self.main_window.undo_stack.push(command)
 
     def on_toggle_spell_check(self, signal):
         """Spell check toggle event handler"""
