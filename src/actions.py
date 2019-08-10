@@ -156,12 +156,12 @@ class MainWindowActions(dict):
     def _add_edit_actions(self):
         """Adds actions for Edit menu"""
 
-        self["undo"] = Action(self.parent, "&Undo", self.parent.on_nothing,
+        self["undo"] = Action(self.parent, "&Undo", self.parent.on_undo,
                               icon=Icon("undo"),
                               shortcut='Ctrl+z',
                               statustip='Undo last step')
 
-        self["redo"] = Action(self.parent, "&Redo", self.parent.on_nothing,
+        self["redo"] = Action(self.parent, "&Redo", self.parent.on_redo,
                               icon=Icon("redo"),
                               shortcut='Shift+Ctrl+z',
                               statustip='Redo last undone step')

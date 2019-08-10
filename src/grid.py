@@ -53,13 +53,12 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from model.model import CodeArray
-from lib.selection import Selection
-from lib.string_helpers import quote, wrap_text, get_svg_aspect
-from lib.qimage2ndarray import array2qimage
-from lib.qimage_svg import QImage
-from lib.typechecks import is_svg
-from lib.undo import stack
+from src.model.model import CodeArray
+from src.lib.selection import Selection
+from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
+from src.lib.qimage2ndarray import array2qimage
+from src.lib.qimage_svg import QImage
+from src.lib.typechecks import is_svg
 
 
 class Grid(QTableView):
@@ -759,7 +758,7 @@ class GridItemModel(QAbstractTableModel):
             self.code_array.macros = ""
 
             # Clear caches
-            stack().clear()
+            # self.main_window.undo_stack.clear()
             self.code_array.result_cache.clear()
 
             # Clear globals
@@ -1099,12 +1098,9 @@ class GridCellDelegate(QStyledItemDelegate):
 
         value = self.code_array((row, column, table))
         editor.setText(value)
-#
-#    def setModelData(self, spinBox, model, index):
-#        spinBox.interpretText()
-#        value = spinBox.value()
-#
-#        model.setData(index, value, Qt.EditRole)
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, editor.text(), Qt.EditRole)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)

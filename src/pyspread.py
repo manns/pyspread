@@ -40,24 +40,25 @@ Provides
 from pathlib import Path
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QModelIndex
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QColor, QFont
 
-from settings import Settings, VERSION
-from icons import Icon
-from grid import Grid
-from entryline import Entryline
-from menubar import MenuBar
-from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
-from toolbar import WidgetToolbar
-from actions import MainWindowActions
-from workflows import Workflows
-from widgets import Widgets
-from dialogs import ApproveWarningDialog, PreferencesDialog
-from panels import MacroPanel
+from src.settings import Settings, VERSION
+from src.icons import Icon
+from src.grid import Grid
+from src.entryline import Entryline
+from src.menubar import MenuBar
+from src.toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
+from src.toolbar import WidgetToolbar
+from src.actions import MainWindowActions
+from src.workflows import Workflows
+from src.widgets import Widgets
+from src.dialogs import ApproveWarningDialog, PreferencesDialog
+from src.panels import MacroPanel
+
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
@@ -331,6 +332,16 @@ class MainWindow(QMainWindow):
             # Dialog has not been approved --> Store data to settings
             for key in data:
                 self.settings.__setattr__(key, data[key])
+
+    def on_undo(self):
+        """Undo event handler"""
+
+        pass
+
+    def on_redo(self):
+        """Undo event handler"""
+
+        pass
 
     def _toggle_widget(self, widget, action_name):
         """Toggles widget visibility and updates toggle actions"""

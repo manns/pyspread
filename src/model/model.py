@@ -59,8 +59,6 @@ from settings import Settings
 from lib.typechecks import isslice, isstring
 from lib.selection import Selection
 
-from src.lib.undo import undoable
-
 
 class CellAttributes(list):
     """Stores cell formatting attributes in a list of 3 - tuples
@@ -108,17 +106,10 @@ class CellAttributes(list):
     _attr_cache = {}
     _table_cache = {}
 
-    @undoable
     def append(self, value):
+        """append that clears caches"""
+
         super().append(value)
-        self._attr_cache.clear()
-        self._table_cache.clear()
-
-        yield "append"
-
-        # Undo actions
-
-        super().pop()
         self._attr_cache.clear()
         self._table_cache.clear()
 
@@ -154,26 +145,10 @@ class CellAttributes(list):
 
         return result_dict
 
-    @undoable
     def __setitem__(self, key, value):
-        """Undoable version of list.__setitem__"""
-
-        try:
-            old_value = list.__getitem__(self, key)
-        except IndexError:
-            old_value = None
+        """__setitem__ that clears caches"""
 
         super().__setitem__(key, value)
-
-        self._attr_cache.clear()
-        self._table_cache.clear()
-
-        yield "__setitem__"
-
-        if old_value is None:
-            self.pop(key)
-        else:
-            super().__setitem__(key, old_value)
 
         self._attr_cache.clear()
         self._table_cache.clear()
@@ -228,10 +203,6 @@ class KeyValueStore(dict):
 
     This class represents layer 0 of the model.
 
-    The following methods mave been made undoable:
-    * __setitem__
-    * pop
-
     """
 
     def __init__(self, default_value=None):
@@ -242,28 +213,6 @@ class KeyValueStore(dict):
         """Returns the default value None"""
 
         return self.default_value
-
-    @undoable
-    def __setitem__(self, key, value):
-        old_value = self[key]
-        dict.__setitem__(self, key, value)
-
-        yield "__setitem__"
-        # Undo actions
-        if old_value is None:
-            dict.pop(self, key)
-        else:
-            dict.__setitem__(self, key, old_value)
-
-    @undoable
-    def pop(self, key, *args):
-        res = dict.pop(self, key, *args)
-
-        yield "pop", res
-
-        # Undo actions
-        if res is not None:
-            dict.__setitem__(self, key, res)
 
 # End of class KeyValueStore
 
@@ -328,7 +277,6 @@ class DataArray(object):
     Enhancements comprise:
      * Slicing
      * Multi-dimensional operations such as insertion and deletion along 1 axis
-     * Undo/redo operations
 
     This class represents layer 2 of the model.
 
@@ -491,14 +439,17 @@ class DataArray(object):
 
         self.dict_grid.macros = macros
 
-    def _get_shape(self):
+    @property
+    def shape(self):
         """Returns dict_grid shape"""
 
         return self.dict_grid.shape
 
-    @undoable
-    def _set_shape(self, shape):
+    @shape.setter
+    def shape(self, shape):
         """Deletes all cells beyond new shape and sets dict_grid shape
+
+        Returns a dict of the deleted cells' contents
 
         Parameters
         ----------
@@ -525,15 +476,7 @@ class DataArray(object):
         self._adjust_rowcol(0, 0, 0)
         self._adjust_cell_attributes(0, 0, 0)
 
-        # Undo actions
-
-        yield "_set_shape"
-
-        self.shape = old_shape
-
-        self.update(deleted_cells)
-
-    shape = property(_get_shape, _set_shape)
+        return deleted_cells
 
     def __iter__(self):
         """Returns iterator over self.dict_grid"""
@@ -657,14 +600,7 @@ class DataArray(object):
         return list(self.dict_grid.keys())
 
     def pop(self, key):
-        """Pops dict_grid with undo and redo support
-
-        Parameters
-        ----------
-        key: 3-tuple of Integer
-        \tCell key that shall be popped
-
-        """
+        """dict_grid pop wrapper"""
 
         return self.dict_grid.pop(key)
 
@@ -850,7 +786,6 @@ class DataArray(object):
             ca = list(self.cell_attributes.get_item(index))
             ca[1] = new_table
             self.cell_attributes.set_item(index, tuple(ca))
-
 
         def get_ca_with_updated_ma(attrs, merge_area):
             """Returns cell attributes with updated merge area"""
@@ -1247,7 +1182,7 @@ class CodeArray(DataArray):
         return result
 
     def pop(self, key):
-        """Pops dict_grid with undo and redo support
+        """pop with cache support
 
         Parameters
         ----------
