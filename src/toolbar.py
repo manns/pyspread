@@ -20,7 +20,8 @@
 # --------------------------------------------------------------------
 
 
-from PyQt5.QtWidgets import QToolBar, QToolButton
+from PyQt5.QtWidgets import QToolBar, QToolButton, QUndoView, QMenu
+from PyQt5.QtWidgets import QHBoxLayout
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -30,10 +31,25 @@ except ImportError:
 from icons import Icon
 
 
+def add_toolbutton_widget(button, widget, minsize=(300, 200),
+                          popup_mode=QToolButton.MenuButtonPopup):
+    """Adds a widget as menu to a tool_button"""
+
+    button.setPopupMode(popup_mode)
+    menu = QMenu(button)
+    menu.setMinimumSize(*minsize)
+    button.setMenu(menu)
+    menu_layout = QHBoxLayout()
+    menu_layout.addWidget(widget)
+    menu.setLayout(menu_layout)
+    menu.layout()
+
+
 class MainToolBar(QToolBar):
     """The main toolbar for pyspread"""
 
     def __init__(self, main_window):
+        self.main_window = main_window
         super().__init__()
 
         self.setObjectName("Main toolbar")
@@ -65,6 +81,10 @@ class MainToolBar(QToolBar):
         self.addAction(actions["sort_descending"])
         self.addSeparator()
         self.addAction(actions["print"])
+
+        undo_button = self.widgetForAction(actions["undo"])
+        undo_view = QUndoView(self.main_window.undo_stack)
+        add_toolbutton_widget(undo_button, undo_view)
 
 
 class FindToolbar(QToolBar):

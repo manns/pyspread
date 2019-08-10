@@ -53,6 +53,7 @@ try:
 except ImportError:
     matplotlib_figure = None
 
+from src.commands import CommandSetModelData
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -619,6 +620,11 @@ class GridItemModel(QAbstractTableModel):
 
         return index.row(), index.column(), self.main_window.grid.table
 
+    def code(self, index):
+        """Code in index"""
+
+        return self.code_array(self.current(index))
+
     def rowCount(self, parent=QModelIndex()):
         """Overloaded rowCount for code_array backend"""
 
@@ -1100,7 +1106,9 @@ class GridCellDelegate(QStyledItemDelegate):
         editor.setText(value)
 
     def setModelData(self, editor, model, index):
-        model.setData(index, editor.text(), Qt.EditRole)
+        description = "Set code for cell {}".format(model.current(index))
+        command = CommandSetModelData(editor.text(), model, index, description)
+        self.main_window.undo_stack.push(command)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)

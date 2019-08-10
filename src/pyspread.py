@@ -40,9 +40,9 @@ Provides
 from pathlib import Path
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QModelIndex
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
-from PyQt5.QtWidgets import QDockWidget
+from PyQt5.QtWidgets import QDockWidget, QUndoStack
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QColor, QFont
 
@@ -152,6 +152,7 @@ class MainWindow(QMainWindow):
         self.settings = Settings()
         self.application_states = ApplicationStates(self)
         self.workflows = Workflows(self)
+        self.undo_stack = QUndoStack(self)
 
         self._init_widgets()
 
@@ -336,12 +337,12 @@ class MainWindow(QMainWindow):
     def on_undo(self):
         """Undo event handler"""
 
-        pass
+        self.undo_stack.undo()
 
     def on_redo(self):
         """Undo event handler"""
 
-        pass
+        self.undo_stack.redo()
 
     def _toggle_widget(self, widget, action_name):
         """Toggles widget visibility and updates toggle actions"""
