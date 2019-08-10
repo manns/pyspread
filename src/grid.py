@@ -309,31 +309,48 @@ class Grid(QTableView):
         """Bold button pressed event handler"""
 
         fontweight = QFont.Bold if toggled else QFont.Normal
-
         attr = self.selection, self.table, {"fontweight": fontweight}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.gui_update()
+        selected_idx = self.selected_idx
+        description = "Set font weight {} for cells {}".format(fontweight,
+                                                               selected_idx)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_italics_pressed(self, toggled):
         """Italics button pressed event handler"""
 
         fontstyle = QFont.StyleItalic if toggled else QFont.StyleNormal
-
         attr = self.selection, self.table, {"fontstyle": fontstyle}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.gui_update()
+        selected_idx = self.selected_idx
+        description = "Set font style {} for cells {}".format(fontstyle,
+                                                              selected_idx)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_underline_pressed(self, toggled):
         """Underline button pressed event handler"""
 
         attr = self.selection, self.table, {"underline": toggled}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.gui_update()
+        selected_idx = self.selected_idx
+        description = "Set font underline {} for cells {}".format(toggled,
+                                                                  selected_idx)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_strikethrough_pressed(self, toggled):
         """Strikethrough button pressed event handler"""
 
         attr = self.selection, self.table, {"strikethrough": toggled}
+        selected_idx = self.selected_idx
+        description_tpl = "Set font strikethrough {} for cells {}"
+        description = description_tpl.format(toggled, selected_idx)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       selected_idx, description)
+        self.main_window.undo_stack.push(command)
+
         self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
         self.gui_update()
 
