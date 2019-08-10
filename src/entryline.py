@@ -23,7 +23,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QTextOption
 
-from src.commands import CommandSetModelData
+from src.commands import CommandSetCellCode
 from src.lib.spelltextedit import SpellTextEdit
 
 
@@ -59,8 +59,8 @@ class Entryline(SpellTextEdit):
         model = self.main_window.grid.model
 
         description = "Set code for cell {}".format(index)
-        command = CommandSetModelData(self.toPlainText(), model, index,
-                                      description)
+        command = CommandSetCellCode(self.toPlainText(), model, index,
+                                     description)
         self.main_window.undo_stack.push(command)
 
     def on_toggle_spell_check(self, signal):

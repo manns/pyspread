@@ -50,7 +50,7 @@ class MainToolBar(QToolBar):
 
     def __init__(self, main_window):
         self.main_window = main_window
-        super().__init__()
+        super().__init__("Main toolbar", main_window)
 
         self.setObjectName("Main toolbar")
         self._create_toolbar(main_window.actions)
@@ -91,7 +91,7 @@ class FindToolbar(QToolBar):
     """The find toolbar for pyspread"""
 
     def __init__(self, main_window):
-        super().__init__()
+        super().__init__("Find toolbar", main_window)
 
         self.setObjectName("Find toolbar")
         self._create_toolbar(main_window.actions)
@@ -106,7 +106,8 @@ class FormatToolbar(QToolBar):
     """The format toolbar for pyspread"""
 
     def __init__(self, main_window):
-        super().__init__()
+        super().__init__("Format toolbar", main_window)
+
         self.main_window = main_window
         self.setObjectName("Format toolbar")
         self._create_toolbar(main_window.actions)
@@ -176,7 +177,7 @@ class MacroToolbar(QToolBar):
     """The macro toolbar for pyspread"""
 
     def __init__(self, main_window):
-        super().__init__()
+        super().__init__("Macro toolbar", main_window)
 
         self.setObjectName("Macro toolbar")
         self._create_toolbar(main_window.actions)
@@ -194,7 +195,7 @@ class WidgetToolbar(QToolBar):
     """The widget toolbar for pyspread"""
 
     def __init__(self, main_window):
-        super().__init__()
+        super().__init__("Widget toolbar", main_window)
 
         self.setObjectName("Widget toolbar")
         self._create_toolbar(main_window.actions)
@@ -209,7 +210,7 @@ class ChartTemplatesToolBar(QToolBar):
     """Toolbar for chart dialog for inserting template chart code"""
 
     def __init__(self, parent):
-        super().__init__()
+        super().__init__("Chart templates toolbar", parent)
 
         self.setObjectName("Chart templates toolbar")
         self._create_toolbar(parent.actions)

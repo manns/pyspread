@@ -29,32 +29,16 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QUndoCommand
 
 
-class CommandSetModelData(QUndoCommand):
+class CommandSetCellCode(QUndoCommand):
     """Stores cell code in grid"""
 
-    def __init__(self, new_code, model, index, description):
+    def __init__(self, code, model, index, description):
         super().__init__(description)
 
         self.model = model
         self.index = index
         self.old_code = model.code(index)
-        self.new_code = new_code
-
-    def redo(self):
-        self.model.setData(self.index, self.new_code, Qt.EditRole, raw=True)
-
-    def undo(self):
-        self.model.setData(self.index, self.old_code, Qt.EditRole, raw=True)
-
-
-class CommandSetMacros(QUndoCommand):
-    """Updates macro code"""
-
-    def __init__(self, grid, code, description):
-        super().__init__(description)
-
-        self.old_macros = model.code(index)
-        self.new_macros = new_code
+        self.new_code = code
 
     def redo(self):
         self.model.setData(self.index, self.new_code, Qt.EditRole, raw=True)

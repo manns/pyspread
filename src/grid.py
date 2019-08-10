@@ -53,7 +53,7 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from src.commands import CommandSetModelData
+from src.commands import CommandSetCellCode
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -1106,7 +1106,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         description = "Set code for cell {}".format(model.current(index))
-        command = CommandSetModelData(editor.text(), model, index, description)
+        command = CommandSetCellCode(editor.text(), model, index, description)
         self.main_window.undo_stack.push(command)
 
     def updateEditorGeometry(self, editor, option, index):

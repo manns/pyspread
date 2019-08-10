@@ -40,7 +40,7 @@ from tempfile import NamedTemporaryFile
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QProgressDialog, QMessageBox
 
-from src.commands import CommandSetModelData
+from src.commands import CommandSetCellCode
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.interfaces.pys import PysReader, PysWriter
@@ -366,8 +366,8 @@ class Workflows:
         self.main_window.entry_line.setUpdatesEnabled(False)
 
         model = self.main_window.grid.model
-        description = "Set code for cell {}".format(index)
-        command = CommandSetModelData(code, model, index, description)
+        description = "Insert image into cell {}".format(index)
+        command = CommandSetCellCode(code, model, index, description)
         self.main_window.undo_stack.push(command)
 
         self.main_window.entry_line.setUpdatesEnabled(True)
@@ -388,6 +388,6 @@ class Workflows:
             self.main_window.grid.on_matplotlib_renderer_pressed(True)
 
             model = self.main_window.grid.model
-            description = "Set code for cell {}".format(index)
-            command = CommandSetModelData(code, model, index, description)
+            description = "Insert chart into cell {}".format(index)
+            command = CommandSetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
