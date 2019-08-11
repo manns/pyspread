@@ -54,6 +54,7 @@ except ImportError:
     matplotlib_figure = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
+from src.commands import CommandSetCellRenderer
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -249,6 +250,11 @@ class Grid(QTableView):
         attributes = self.model.code_array.cell_attributes[self.current]
         self.main_window.gui_update.emit(attributes)
 
+    def _selected_idx_to_str(self, selected_idx):
+        """Converts selected_idx to string wirh cell indices"""
+
+        return ", ".join(str(self.model.current(idx)) for idx in selected_idx)
+
     # Event handlers
 
     def on_data_changed(self):
@@ -286,11 +292,10 @@ class Grid(QTableView):
 
         font = self.main_window.widgets.font_combo.font
         attr = self.selection, self.table, {"textfont": font}
-        selected_idx = self.selected_idx
-        description = "Set font {} for indices {}".format(font, selected_idx)
-
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set font {} for indices {}".format(font, idx_string)
         command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       selected_idx, description)
+                                       self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_font_size(self):
@@ -298,11 +303,10 @@ class Grid(QTableView):
 
         size = self.main_window.widgets.font_size_combo.size
         attr = self.selection, self.table, {"pointsize": size}
-        selected_idx = self.selected_idx
-        description = "Set font size {} for cells {}".format(size,
-                                                             selected_idx)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set font size {} for cells {}".format(size, idx_string)
         command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       selected_idx, description)
+                                       self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_bold_pressed(self, toggled):
@@ -310,11 +314,11 @@ class Grid(QTableView):
 
         fontweight = QFont.Bold if toggled else QFont.Normal
         attr = self.selection, self.table, {"fontweight": fontweight}
-        selected_idx = self.selected_idx
+        idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font weight {} for cells {}".format(fontweight,
-                                                               selected_idx)
+                                                               idx_string)
         command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       selected_idx, description)
+                                       self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_italics_pressed(self, toggled):
@@ -322,72 +326,85 @@ class Grid(QTableView):
 
         fontstyle = QFont.StyleItalic if toggled else QFont.StyleNormal
         attr = self.selection, self.table, {"fontstyle": fontstyle}
-        selected_idx = self.selected_idx
+        idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font style {} for cells {}".format(fontstyle,
-                                                              selected_idx)
+                                                              idx_string)
         command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       selected_idx, description)
+                                       self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_underline_pressed(self, toggled):
         """Underline button pressed event handler"""
 
         attr = self.selection, self.table, {"underline": toggled}
-        selected_idx = self.selected_idx
+        idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set font underline {} for cells {}".format(toggled,
-                                                                  selected_idx)
+                                                                  idx_string)
         command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       selected_idx, description)
+                                       self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
     def on_strikethrough_pressed(self, toggled):
         """Strikethrough button pressed event handler"""
 
         attr = self.selection, self.table, {"strikethrough": toggled}
-        selected_idx = self.selected_idx
+        idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set font strikethrough {} for cells {}"
-        description = description_tpl.format(toggled, selected_idx)
+        description = description_tpl.format(toggled, idx_string)
         command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
-                                       selected_idx, description)
+                                       self.selected_idx, description)
         self.main_window.undo_stack.push(command)
-
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.gui_update()
 
     def on_text_renderer_pressed(self, toggled):
         """Text renderer button pressed event handler"""
 
         attr = self.selection, self.table, {"renderer": "text"}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set text renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
-        entry_line.highlighter.setDocument(entry_line.document())
-        self.gui_update()
+        command = CommandSetCellRenderer(attr, self.model, entry_line,
+                                         entry_line.document(),
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_image_renderer_pressed(self, toggled):
         """Image renderer button pressed event handler"""
 
         attr = self.selection, self.table, {"renderer": "image"}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.main_window.entry_line.highlighter.setDocument(None)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set image renderer for cells {}".format(idx_string)
+        entry_line = self.main_window.entry_line
+        command = CommandSetCellRenderer(attr, self.model, entry_line, None,
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_markup_renderer_pressed(self, toggled):
         """Markup renderer button pressed event handler"""
 
         attr = self.selection, self.table, {"renderer": "markup"}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set markup renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
-        entry_line.highlighter.setDocument(entry_line.document())
-        self.gui_update()
+        command = CommandSetCellRenderer(attr, self.model, entry_line,
+                                         entry_line.document(),
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_matplotlib_renderer_pressed(self, toggled):
         """Matplotlib renderer button pressed event handler"""
 
         attr = self.selection, self.table, {"renderer": "matplotlib"}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set matplotlib renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
-        entry_line.highlighter.setDocument(entry_line.document())
-        self.gui_update()
+        command = CommandSetCellRenderer(attr, self.model, entry_line,
+                                         entry_line.document(),
+                                         self.currentIndex(),
+                                         self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_lock_pressed(self, toggled):
         """Lock button pressed event handler"""

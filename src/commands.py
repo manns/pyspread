@@ -30,7 +30,7 @@ from PyQt5.QtWidgets import QUndoCommand
 
 
 class CommandSetCellCode(QUndoCommand):
-    """Stores cell code in grid"""
+    """Sets cell code in grid"""
 
     def __init__(self, code, model, index, description):
         super().__init__(description)
@@ -48,7 +48,7 @@ class CommandSetCellCode(QUndoCommand):
 
 
 class CommandSetCellFormat(QUndoCommand):
-    """Stores cell format in grid"""
+    """Sets cell format in grid"""
 
     def __init__(self, attr, model, index, selected_idx, description):
         super().__init__(description)
@@ -64,4 +64,30 @@ class CommandSetCellFormat(QUndoCommand):
 
     def undo(self):
         self.model.code_array.cell_attributes.pop()
+        self.model.dataChanged.emit(self.index, self.index)
+
+
+class CommandSetCellRenderer(QUndoCommand):
+    """Sets cell renderer in grid"""
+
+    def __init__(self, attr, model, entry_line, highlighter_document,
+                 index, selected_idx, description):
+        super().__init__(description)
+
+        self.attr = attr
+        self.model = model
+        self.entry_line = entry_line
+        self.new_highlighter_document = highlighter_document
+        self.old_highlighter_document = self.entry_line.highlighter.document()
+        self.index = index
+        self.selected_idx = selected_idx
+
+    def redo(self):
+        self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
+        self.entry_line.highlighter.setDocument(self.new_highlighter_document)
+        self.model.dataChanged.emit(self.index, self.index)
+
+    def undo(self):
+        self.model.code_array.cell_attributes.pop()
+        self.entry_line.highlighter.setDocument(self.old_highlighter_document)
         self.model.dataChanged.emit(self.index, self.index)
