@@ -59,21 +59,68 @@ class CommandSetRowHeight(QUndoCommand):
         self.old_height = old_height
         self.new_height = new_height
 
+    def id(self):
+        return 1  # Enable command merging
+
+    def mergeWith(self, other):
+        if self.row != other.row:
+            return False
+        self.new_height = other.new_height
+        return True
+
     def redo(self):
         if self.grid.rowHeight(self.row) != self.new_height:
-            self.grid.resizing_row = True
+            self.grid.undo_resizing_row = True
             self.grid.setRowHeight(self.row, self.new_height)
             self.grid.model.code_array.row_heights[(self.row, self.table)] = \
                 self.new_height
-            self.grid.resizing_row = False
+            self.grid.undo_resizing_row = False
 
     def undo(self):
         if self.grid.rowHeight(self.row) != self.old_height:
-            self.grid.resizing_row = True
+            self.grid.undo_resizing_row = True
             self.grid.setRowHeight(self.row, self.old_height)
             self.grid.model.code_array.row_heights[(self.row, self.table)] = \
                 self.old_height
-            self.grid.resizing_row = False
+            self.grid.undo_resizing_row = False
+
+
+class CommandSetColumnWidth(QUndoCommand):
+    """Sets column width in grid"""
+
+    def __init__(self, grid, column, table, old_width, new_width, description):
+        super().__init__(description)
+
+        self.grid = grid
+        self.column = column
+        self.table = table
+        self.old_width = old_width
+        self.new_width = new_width
+
+    def id(self):
+        return 2  # Enable command merging
+
+    def mergeWith(self, other):
+        if self.column != other.column:
+            return False
+        self.new_width = other.new_width
+        return True
+
+    def redo(self):
+        if self.grid.columnWidth(self.column) != self.new_width:
+            self.grid.undo_resizing_column = True
+            self.grid.setColumnWidth(self.column, self.new_width)
+            self.grid.model.code_array.col_widths[(self.column, self.table)] =\
+                self.new_width
+            self.grid.undo_resizing_column = False
+
+    def undo(self):
+        if self.grid.columnWidth(self.column) != self.old_width:
+            self.grid.undo_resizing_column = True
+            self.grid.setColumnWidth(self.column, self.old_width)
+            self.grid.model.code_array.col_widths[(self.column, self.table)] =\
+                self.old_width
+            self.grid.undo_resizing_column = False
 
 
 class CommandSetCellFormat(QUndoCommand):

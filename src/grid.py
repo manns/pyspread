@@ -55,6 +55,7 @@ except ImportError:
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandSetCellRenderer, CommandSetRowHeight
+from src.commands import CommandSetColumnWidth
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -110,7 +111,9 @@ class Grid(QTableView):
         # Select upper left cell because initial selection behaves strange
         self.reset_selection()
 
-        self.resizing_row = False
+        # Locking states for operations by undo and redo operations
+        self.undo_resizing_row = False
+        self.undo_resizing_column = False
 
     # Properties
 
@@ -280,7 +283,7 @@ class Grid(QTableView):
     def on_row_resized(self, row, old_height, new_height):
         """Row resized event handler"""
 
-        if self.resizing_row:  # Resize from Redo command
+        if self.undo_resizing_row:  # Resize from undo or redo command
             return
         description = "Resize row {} to {}".format(row, new_height)
         command = CommandSetRowHeight(self, row, self.table, old_height,
@@ -288,10 +291,14 @@ class Grid(QTableView):
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
-        """Row resized event handler"""
+        """Column resized event handler"""
 
-        self.model.code_array.col_widths[(column, self.table)] = new_width
-        self.gui_update()
+        if self.undo_resizing_column:  # Resize from undo or redo command
+            return
+        description = "Resize column {} to {}".format(column, new_width)
+        command = CommandSetColumnWidth(self, column, self.table, old_width,
+                                        new_width, description)
+        self.main_window.undo_stack.push(command)
 
     def on_font(self):
         """Font change event handler"""
