@@ -47,6 +47,35 @@ class CommandSetCellCode(QUndoCommand):
         self.model.setData(self.index, self.old_code, Qt.EditRole, raw=True)
 
 
+class CommandSetRowHeight(QUndoCommand):
+    """Sets row height in grid"""
+
+    def __init__(self, grid, row, table, old_height, new_height, description):
+        super().__init__(description)
+
+        self.grid = grid
+        self.row = row
+        self.table = table
+        self.old_height = old_height
+        self.new_height = new_height
+
+    def redo(self):
+        if self.grid.rowHeight(self.row) != self.new_height:
+            self.grid.resizing_row = True
+            self.grid.setRowHeight(self.row, self.new_height)
+            self.grid.model.code_array.row_heights[(self.row, self.table)] = \
+                self.new_height
+            self.grid.resizing_row = False
+
+    def undo(self):
+        if self.grid.rowHeight(self.row) != self.old_height:
+            self.grid.resizing_row = True
+            self.grid.setRowHeight(self.row, self.old_height)
+            self.grid.model.code_array.row_heights[(self.row, self.table)] = \
+                self.old_height
+            self.grid.resizing_row = False
+
+
 class CommandSetCellFormat(QUndoCommand):
     """Sets cell format in grid"""
 

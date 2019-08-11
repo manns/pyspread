@@ -54,7 +54,7 @@ except ImportError:
     matplotlib_figure = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
-from src.commands import CommandSetCellRenderer
+from src.commands import CommandSetCellRenderer, CommandSetRowHeight
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -109,6 +109,8 @@ class Grid(QTableView):
 
         # Select upper left cell because initial selection behaves strange
         self.reset_selection()
+
+        self.resizing_row = False
 
     # Properties
 
@@ -278,8 +280,12 @@ class Grid(QTableView):
     def on_row_resized(self, row, old_height, new_height):
         """Row resized event handler"""
 
-        self.model.code_array.row_heights[(row, self.table)] = new_height
-        self.gui_update()
+        if self.resizing_row:  # Resize from Redo command
+            return
+        description = "Resize row {} to {}".format(row, new_height)
+        command = CommandSetRowHeight(self, row, self.table, old_height,
+                                      new_height, description)
+        self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
         """Row resized event handler"""
