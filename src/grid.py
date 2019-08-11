@@ -1073,7 +1073,7 @@ class GridCellDelegate(QStyledItemDelegate):
         """Overloads SizeHint"""
 
         key = index.row(), index.column(), self.main_window.grid.table
-        if not self.cell_attributes[key]["markup"]:
+        if not self.cell_attributes[key]["renderer"] == "markup":
             return super(GridCellDelegate, self).sizeHint(option, index)
 
         # HTML
