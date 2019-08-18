@@ -55,7 +55,7 @@ except ImportError:
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandSetCellRenderer, CommandSetRowHeight
-from src.commands import CommandSetColumnWidth
+from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
@@ -423,84 +423,140 @@ class Grid(QTableView):
         """Lock button pressed event handler"""
 
         attr = self.selection, self.table, {"locked": toggled}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set locked state to {} for cells {}".format(toggled,
+                                                                   idx_string)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_rotate_0(self, toggled):
-        """Rotate by 0° left button pressed event handler"""
+        """Set cell rotation to 0° left button pressed event handler"""
 
         attr = self.selection, self.table, {"angle": 0.0}
         self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
         self.gui_update()
 
+        attr = self.selection, self.table, {"angle": 0.0}
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set cell rotation to 0° for cells {}".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
+
     def on_rotate_90(self, toggled):
-        """Rotate by 0° left button pressed event handler"""
+        """Set cell rotation to 90° left button pressed event handler"""
 
         attr = self.selection, self.table, {"angle": 90.0}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set cell rotation to 90° for cells {}".format(
+                idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_rotate_180(self, toggled):
-        """Rotate by 0° left button pressed event handler"""
+        """Set cell rotation to 180° left button pressed event handler"""
 
         attr = self.selection, self.table, {"angle": 180.0}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set cell rotation to 180° for cells {}".format(
+                idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_rotate_270(self, toggled):
-        """Rotate by 0° left button pressed event handler"""
+        """Set cell rotation to 270° left button pressed event handler"""
 
         attr = self.selection, self.table, {"angle": 270.0}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Set cell rotation to 270° for cells {}".format(
+                idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_justify_left(self, toggled):
         """Justify left button pressed event handler"""
 
         attr = self.selection, self.table, {"justification": "justify_left"}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Justify cells {} left".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_justify_fill(self, toggled):
         """Justify fill button pressed event handler"""
 
         attr = self.selection, self.table, {"justification": "justify_fill"}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Justify cells {} filled".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_justify_center(self, toggled):
         """Justify center button pressed event handler"""
 
         attr = self.selection, self.table, {"justification": "justify_center"}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Justify cells {} centered".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_justify_right(self, toggled):
         """Justify right button pressed event handler"""
 
         attr = self.selection, self.table, {"justification": "justify_right"}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Justify cells {} right".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_align_top(self, toggled):
         """Align top button pressed event handler"""
 
         attr = self.selection, self.table, {"vertical_align": "align_top"}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Align cells {} to top".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_align_middle(self, toggled):
-        """Justify left button pressed event handler"""
+        """Align centere button pressed event handler"""
 
         attr = self.selection, self.table, {"vertical_align": "align_center"}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Align cells {} to center".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_align_bottom(self, toggled):
-        """Justify left button pressed event handler"""
+        """Align bottom button pressed event handler"""
 
         attr = self.selection, self.table, {"vertical_align": "align_bottom"}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description = "Align cells {} to bottom".format(idx_string)
+        command = CommandSetCellTextAlignment(attr, self.model,
+                                              self.currentIndex(),
+                                              self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_border_choice(self, event):
         """Border choice style event handler"""

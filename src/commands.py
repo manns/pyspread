@@ -140,6 +140,16 @@ class CommandSetCellFormat(QUndoCommand):
 
     def undo(self):
         self.model.code_array.cell_attributes.pop()
+        for idx in self.selected_idx:
+            self.model.dataChanged.emit(idx, idx)
+        self.model.dataChanged.emit(self.index, self.index)
+
+
+class CommandSetCellTextAlignment(CommandSetCellFormat):
+    """Sets cell text alignment in grid"""
+
+    def redo(self):
+        self.model.setData(self.selected_idx, self.attr, Qt.TextAlignmentRole)
         self.model.dataChanged.emit(self.index, self.index)
 
 
