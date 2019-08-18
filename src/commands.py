@@ -134,15 +134,31 @@ class CommandSetCellFormat(QUndoCommand):
         self.index = index
         self.selected_idx = selected_idx
 
+    def _update_cells(self):
+        """Emits cell updates for all affected cells"""
+
+        for idx in self.selected_idx:
+            self.model.dataChanged.emit(idx, idx)
+
+        border_attr_keys = ("bordercolor_bottom", "bordercolor_right",
+                            "borderwidth_bottom", "borderwidth_right")
+        if any(attr in self.attr[2] for attr in border_attr_keys):
+            (top, left), (bottom, right) = self.attr[0].get_bbox()
+            for row in range(top, bottom + 1):
+                idx = idx.sibling(row, left)
+                self.model.dataChanged.emit(idx, idx)
+            for column in range(left, right + 1):
+                idx = idx.sibling(top, column)
+                self.model.dataChanged.emit(idx, idx)
+        self.model.dataChanged.emit(self.index, self.index)
+
     def redo(self):
         self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
-        self.model.dataChanged.emit(self.index, self.index)
+        self._update_cells()
 
     def undo(self):
         self.model.code_array.cell_attributes.pop()
-        for idx in self.selected_idx:
-            self.model.dataChanged.emit(idx, idx)
-        self.model.dataChanged.emit(self.index, self.index)
+        self._update_cells()
 
 
 class CommandSetCellTextAlignment(CommandSetCellFormat):

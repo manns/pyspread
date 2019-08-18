@@ -570,10 +570,13 @@ class Grid(QTableView):
 
         text_color = self.main_window.widgets.text_color_button.color
         text_color_rgb = text_color.getRgb()
-        self.gui_update()
-
         attr = self.selection, self.table, {"textcolor": text_color_rgb}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description_tpl = "Set text color to {} for cells {}"
+        description = description_tpl.format(text_color_rgb, idx_string)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_line_color(self):
         """Line color change event handler"""
@@ -586,17 +589,23 @@ class Grid(QTableView):
 
         line_color = self.main_window.widgets.line_color_button.color
         line_color_rgb = line_color.getRgb()
-        self.gui_update()
 
-        attr = (bottom_selection,
-                self.table,
-                {"bordercolor_bottom": line_color_rgb})
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        attr_bottom = bottom_selection, self.table, {"bordercolor_bottom":
+                                                     line_color_rgb}
+        attr_right = right_selection, self.table, {"bordercolor_right":
+                                                   line_color_rgb}
 
-        attr = (right_selection,
-                self.table,
-                {"bordercolor_right": line_color_rgb})
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description_tpl = "Set line color {} for cells {}"
+        description = description_tpl.format(line_color_rgb, idx_string)
+        command = CommandSetCellFormat(attr_bottom, self.model,
+                                       self.currentIndex(),
+                                       self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
+        command = CommandSetCellFormat(attr_right, self.model,
+                                       self.currentIndex(),
+                                       self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_background_color(self):
         """Background color change event handler"""
