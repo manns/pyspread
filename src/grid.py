@@ -613,15 +613,18 @@ class Grid(QTableView):
         bg_color = self.main_window.widgets.background_color_button.color
         bg_color_rgb = bg_color.getRgb()
         self.gui_update()
-
         attr = self.selection, self.table, {"bgcolor": bg_color_rgb}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description_tpl = "Set cell background color to {} for cells {}"
+        description = description_tpl.format(bg_color_rgb, idx_string)
+        command = CommandSetCellFormat(attr, self.model, self.currentIndex(),
+                                       self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def on_borderwidth(self):
         """Border width change event handler"""
 
         width = int(self.sender().text().split()[-1])
-        self.gui_update()
 
         border_choice = self.main_window.application_states.border_choice
         bottom_selection = \
@@ -629,11 +632,22 @@ class Grid(QTableView):
         right_selection = \
             self.selection.get_right_borders_selection(border_choice)
 
-        attr = bottom_selection, self.table, {"borderwidth_bottom": width}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        attr_bottom = bottom_selection, self.table, {"borderwidth_bottom":
+                                                     width}
+        attr_right = right_selection, self.table, {"borderwidth_right":
+                                                   width}
 
-        attr = right_selection, self.table, {"borderwidth_right": width}
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
+        idx_string = self._selected_idx_to_str(self.selected_idx)
+        description_tpl = "Set border width to {} for cells {}"
+        description = description_tpl.format(width, idx_string)
+        command = CommandSetCellFormat(attr_bottom, self.model,
+                                       self.currentIndex(),
+                                       self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
+        command = CommandSetCellFormat(attr_right, self.model,
+                                       self.currentIndex(),
+                                       self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
 
     def update_cell_spans(self):
         """Update cell spans from model data"""

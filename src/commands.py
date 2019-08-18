@@ -144,11 +144,13 @@ class CommandSetCellFormat(QUndoCommand):
                             "borderwidth_bottom", "borderwidth_right")
         if any(attr in self.attr[2] for attr in border_attr_keys):
             (top, left), (bottom, right) = self.attr[0].get_bbox()
-            for row in range(top, bottom + 1):
-                idx = idx.sibling(row, left)
-                self.model.dataChanged.emit(idx, idx)
-            for column in range(left, right + 1):
-                idx = idx.sibling(top, column)
+            rowcols = []
+            for row in range(top, bottom + 2):
+                rowcols += [(row, left), (row, right+1), (row, left-1)]
+            for column in range(left, right + 2):
+                rowcols += [(top, column), (bottom+1, column)]
+            for row, column in rowcols:
+                idx = idx.sibling(row, column)
                 self.model.dataChanged.emit(idx, idx)
         self.model.dataChanged.emit(self.index, self.index)
 
