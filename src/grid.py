@@ -708,18 +708,26 @@ class Grid(QTableView):
 
         self.current = top, left
 
+    def selected_cells(self, selection):
+        """Generator of (row, column, table) tuples for a selection object"""
+
+        for row, column, table in self.model.code_array.dict_grid.keys():
+            if table == self.table and (row, column) in selection:
+                yield row, column, table
+
     def on_quote(self):
         """Quote cells event handler"""
 
-        __table = self.table
-        selection = self.selection
+        description_tpl = "Quote code for cell selection {}"
+        description = description_tpl.format(id(self.selection))
 
-        for row, column, table in self.model.code_array.dict_grid.keys():
-            if table == __table and (row, column) in selection:
-                code = self.model.code_array((row, column, table))
-                quoted_code = quote(code)
-                index = self.model.index(row, column, QModelIndex())
-                self.model.setData(index, quoted_code, Qt.EditRole)
+        for row, column, table in self.selected_cells(self.selection):
+            code = self.model.code_array((row, column, table))
+            quoted_code = quote(code)
+            index = self.model.index(row, column, QModelIndex())
+            command = CommandSetCellCode(quoted_code, self.model, index,
+                                         description)
+            self.main_window.undo_stack.push(command)
 
 
 class GridItemModel(QAbstractTableModel):

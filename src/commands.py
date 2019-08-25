@@ -35,16 +35,30 @@ class CommandSetCellCode(QUndoCommand):
     def __init__(self, code, model, index, description):
         super().__init__(description)
 
+        self.description = description
         self.model = model
-        self.index = index
-        self.old_code = model.code(index)
-        self.new_code = code
+        self.indices = [index]
+        self.old_codes = [model.code(index)]
+        self.new_codes = [code]
+
+    def id(self):
+        return 1  # Enable command merging
+
+    def mergeWith(self, other):
+        if self.description != other.description:
+            return False
+        self.new_codes += other.new_codes
+        self.old_codes += other.old_codes
+        self.indices += other.indices
+        return True
 
     def redo(self):
-        self.model.setData(self.index, self.new_code, Qt.EditRole, raw=True)
+        for index, new_code in zip(self.indices, self.new_codes):
+            self.model.setData(index, new_code, Qt.EditRole, raw=True)
 
     def undo(self):
-        self.model.setData(self.index, self.old_code, Qt.EditRole, raw=True)
+        for index, old_code in zip(self.indices, self.old_codes):
+            self.model.setData(index, old_code, Qt.EditRole, raw=True)
 
 
 class CommandSetRowHeight(QUndoCommand):
@@ -60,7 +74,7 @@ class CommandSetRowHeight(QUndoCommand):
         self.new_height = new_height
 
     def id(self):
-        return 1  # Enable command merging
+        return 2  # Enable command merging
 
     def mergeWith(self, other):
         if self.row != other.row:
@@ -98,7 +112,7 @@ class CommandSetColumnWidth(QUndoCommand):
         self.new_width = new_width
 
     def id(self):
-        return 2  # Enable command merging
+        return 3  # Enable command merging
 
     def mergeWith(self, other):
         if self.column != other.column:
@@ -135,7 +149,7 @@ class CommandSetCellFormat(QUndoCommand):
         self.selected_idx = selected_idx
 
     def _update_cells(self):
-        """Emits cell updates for all affected cells"""
+        """Emits cell cell change event"""
 
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -152,7 +166,7 @@ class CommandSetCellMerge(CommandSetCellFormat):
     """Sets cell merges in grid"""
 
     def _update_cells(self):
-        """Emits cell updates for all affected cells"""
+        """Updates cell spands and emits cell change event"""
 
         self.model.main_window.grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
