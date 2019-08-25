@@ -25,7 +25,7 @@ Pyspread undoable commands
 
 """
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QUndoCommand
 
 
@@ -137,22 +137,7 @@ class CommandSetCellFormat(QUndoCommand):
     def _update_cells(self):
         """Emits cell updates for all affected cells"""
 
-        for idx in self.selected_idx:
-            self.model.dataChanged.emit(idx, idx)
-
-        border_attr_keys = ("bordercolor_bottom", "bordercolor_right",
-                            "borderwidth_bottom", "borderwidth_right")
-        if any(attr in self.attr[2] for attr in border_attr_keys):
-            (top, left), (bottom, right) = self.attr[0].get_bbox()
-            rowcols = []
-            for row in range(top, bottom + 2):
-                rowcols += [(row, left), (row, right+1), (row, left-1)]
-            for column in range(left, right + 2):
-                rowcols += [(top, column), (bottom+1, column)]
-            for row, column in rowcols:
-                idx = idx.sibling(row, column)
-                self.model.dataChanged.emit(idx, idx)
-        self.model.dataChanged.emit(self.index, self.index)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def redo(self):
         self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
@@ -163,12 +148,22 @@ class CommandSetCellFormat(QUndoCommand):
         self._update_cells()
 
 
+class CommandSetCellMerge(CommandSetCellFormat):
+    """Sets cell merges in grid"""
+
+    def _update_cells(self):
+        """Emits cell updates for all affected cells"""
+
+        self.model.main_window.grid.update_cell_spans()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+
 class CommandSetCellTextAlignment(CommandSetCellFormat):
     """Sets cell text alignment in grid"""
 
     def redo(self):
         self.model.setData(self.selected_idx, self.attr, Qt.TextAlignmentRole)
-        self.model.dataChanged.emit(self.index, self.index)
+        self._update_cells()
 
 
 class CommandSetCellRenderer(QUndoCommand):

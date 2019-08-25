@@ -54,6 +54,7 @@ except ImportError:
     matplotlib_figure = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
+from src.commands import CommandSetCellMerge
 from src.commands import CommandSetCellRenderer, CommandSetRowHeight
 from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
 from src.model.model import CodeArray
@@ -699,8 +700,12 @@ class Grid(QTableView):
             attr = merging_selection, self.table, {"merge_area":
                                                    (top, left, bottom, right)}
 
-        self.model.setData(self.selected_idx, attr, Qt.DecorationRole)
-        self.update_cell_spans()
+        description_tpl = "Merge cells with top-left cell {}"
+        description = description_tpl.format((top, left))
+        command = CommandSetCellMerge(attr, self.model, self.currentIndex(),
+                                      self.selected_idx, description)
+        self.main_window.undo_stack.push(command)
+
         self.current = top, left
 
     def on_quote(self):
