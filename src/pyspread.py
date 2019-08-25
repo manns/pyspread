@@ -62,6 +62,9 @@ from src.panels import MacroPanel
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
+QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
 
 class ApplicationStates:
     """Holds all global application states"""
