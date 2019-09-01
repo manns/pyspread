@@ -38,6 +38,7 @@ Provides
 """
 
 from pathlib import Path
+import os
 import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent
@@ -62,6 +63,7 @@ from src.panels import MacroPanel
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
