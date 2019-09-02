@@ -405,6 +405,18 @@ class MainWindow(QMainWindow):
 
         self._toggle_widget(self.macro_dock, "toggle_macro_panel")
 
+    def on_zoom_in(self):
+        """Zoom in event handler"""
+
+        self.application_states.zoom *= 1.1
+        self.grid.zoom(self.application_states.zoom)
+
+    def on_zoom_out(self):
+        """Zoom out event handler"""
+
+        self.application_states.zoom /= 1.1
+        self.grid.zoom(self.application_states.zoom)
+
     def on_about(self):
         """Show about message box"""
 

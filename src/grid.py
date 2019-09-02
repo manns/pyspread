@@ -1270,7 +1270,6 @@ class GridCellDelegate(QStyledItemDelegate):
         """Overloads QStyledItemDelegate to add cell border painting"""
 
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
-        #painter.setRenderHint(QPainter.Antialiasing)
 
         zoom = self.main_window.application_states.zoom
         rect = option.rect

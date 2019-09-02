@@ -341,13 +341,13 @@ class MainWindowActions(dict):
                    statustip='Turn the spell checker in the entry line on/off')
 
         self["zoom_in"] = Action(self.parent, "Zoom in",
-                                 self.parent.on_nothing,
+                                 self.parent.on_zoom_in,
                                  icon=Icon("zoom_in"),
                                  shortcut='Ctrl++',
                                  statustip='Zoom in the grid')
 
         self["zoom_out"] = Action(self.parent, "Zoom out",
-                                  self.parent.on_nothing,
+                                  self.parent.on_zoom_out,
                                   icon=Icon("zoom_out"),
                                   shortcut='Ctrl+-',
                                   statustip='Zoom out the grid')
