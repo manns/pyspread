@@ -41,7 +41,7 @@ import numpy
 
 from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
-from PyQt5.QtWidgets import QAbstractItemDelegate
+from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont
 from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
@@ -69,7 +69,7 @@ class Grid(QTableView):
     """The main grid of pyspread"""
 
     def __init__(self, main_window):
-        super().__init__(main_window)
+        super().__init__()
 
         self.main_window = main_window
 
@@ -101,8 +101,16 @@ class Grid(QTableView):
         self.main_window.widgets.font_size_combo.fontSizeChanged.connect(
                 self.on_font_size)
 
+        self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
+        self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
+
+        self.zoom(main_window.application_states.zoom)
+
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
+
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.setShowGrid(False)
 
@@ -256,10 +264,30 @@ class Grid(QTableView):
         attributes = self.model.code_array.cell_attributes[self.current]
         self.main_window.gui_update.emit(attributes)
 
+    def adjust_size(self):
+        """Adjusts size to header maxima"""
+
+        w = self.horizontalHeader().length() + self.verticalHeader().width()
+        h = self.verticalHeader().length() + self.horizontalHeader().height()
+        self.resize(w, h)
+
     def _selected_idx_to_str(self, selected_idx):
         """Converts selected_idx to string wirh cell indices"""
 
         return ", ".join(str(self.model.current(idx)) for idx in selected_idx)
+
+    def zoom(self, zoom):
+        """Sets the zoom level to the zoom factor zoom
+
+        Parameters
+        ----------
+        * zoom: float
+        \tZoom factor
+
+        """
+
+        self.verticalHeader().zoom(zoom)
+        self.horizontalHeader().zoom(zoom)
 
     # Event handlers
 
@@ -728,6 +756,34 @@ class Grid(QTableView):
             command = CommandSetCellCode(quoted_code, self.model, index,
                                          description)
             self.main_window.undo_stack.push(command)
+
+
+class GridHeaderView(QHeaderView):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.default_section_size = self.defaultSectionSize()
+        self.__zoom = 1.0
+
+    def zoom(self, zoom):
+        """Zooms the section sizes"""
+
+        self.__zoom = zoom
+        self.setDefaultSectionSize(self.default_section_size * zoom)
+
+    def sizeHint(self):
+        unzoomed_size = super().sizeHint()
+        return QSize(unzoomed_size.width() * self.__zoom,
+                     unzoomed_size.height() * self.__zoom)
+
+    def paintSection(self, painter, rect, logicalIndex):
+        zoom = self.__zoom
+        unzoomed_rect = QRect(rect.x()/zoom, rect.y()/zoom,
+                              rect.width()/zoom, rect.height()/zoom)
+        painter.save()
+        painter.scale(zoom, zoom)
+        super().paintSection(painter, unzoomed_rect, logicalIndex)
+        painter.restore()
 
 
 class GridItemModel(QAbstractTableModel):

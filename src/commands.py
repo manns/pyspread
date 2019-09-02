@@ -86,6 +86,7 @@ class CommandSetRowHeight(QUndoCommand):
         if self.grid.rowHeight(self.row) != self.new_height:
             self.grid.undo_resizing_row = True
             self.grid.setRowHeight(self.row, self.new_height)
+            self.grid.adjust_size()
             self.grid.model.code_array.row_heights[(self.row, self.table)] = \
                 self.new_height
             self.grid.undo_resizing_row = False
@@ -94,6 +95,7 @@ class CommandSetRowHeight(QUndoCommand):
         if self.grid.rowHeight(self.row) != self.old_height:
             self.grid.undo_resizing_row = True
             self.grid.setRowHeight(self.row, self.old_height)
+            self.grid.adjust_size()
             self.grid.model.code_array.row_heights[(self.row, self.table)] = \
                 self.old_height
             self.grid.undo_resizing_row = False
@@ -124,6 +126,7 @@ class CommandSetColumnWidth(QUndoCommand):
         if self.grid.columnWidth(self.column) != self.new_width:
             self.grid.undo_resizing_column = True
             self.grid.setColumnWidth(self.column, self.new_width)
+            self.grid.adjust_size()
             self.grid.model.code_array.col_widths[(self.column, self.table)] =\
                 self.new_width
             self.grid.undo_resizing_column = False
@@ -132,6 +135,7 @@ class CommandSetColumnWidth(QUndoCommand):
         if self.grid.columnWidth(self.column) != self.old_width:
             self.grid.undo_resizing_column = True
             self.grid.setColumnWidth(self.column, self.old_width)
+            self.grid.adjust_size()
             self.grid.model.code_array.col_widths[(self.column, self.table)] =\
                 self.old_width
             self.grid.undo_resizing_column = False
