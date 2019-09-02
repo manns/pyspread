@@ -104,13 +104,12 @@ class Grid(QTableView):
         self.setHorizontalHeader(GridHeaderView(Qt.Horizontal, self))
         self.setVerticalHeader(GridHeaderView(Qt.Vertical, self))
 
+        self.setCornerButtonEnabled(False)
+
         self.zoom(main_window.application_states.zoom)
 
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
-
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.setShowGrid(False)
 
