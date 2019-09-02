@@ -43,7 +43,7 @@ from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont
-from PyQt5.QtGui import QImage as BasicQImage
+from PyQt5.QtGui import QImage as BasicQImage, QPainter
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
@@ -758,6 +758,7 @@ class Grid(QTableView):
 
 
 class GridHeaderView(QHeaderView):
+    """QHeaderView with zoom support"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -983,6 +984,8 @@ class GridCellDelegate(QStyledItemDelegate):
     def _paint_bl_border_lines(self, x, y, width, height, painter, key):
         """Paint the bottom and the left border line of the cell"""
 
+        zoom = self.main_window.application_states.zoom
+
         border_bottom = (x, y + height, x + width, y + height)
         border_right = (x + width, y, x + width, y + height)
 
@@ -993,11 +996,11 @@ class GridCellDelegate(QStyledItemDelegate):
         borderwidth_right = self.cell_attributes[key]["borderwidth_right"]
 
         painter.setPen(QPen(QBrush(QColor(*bordercolor_bottom)),
-                            borderwidth_bottom))
+                            borderwidth_bottom * zoom))
         painter.drawLine(*border_bottom)
 
         painter.setPen(QPen(QBrush(QColor(*bordercolor_right)),
-                            borderwidth_right))
+                            borderwidth_right * zoom))
         painter.drawLine(*border_right)
 
     def _paint_border_lines(self, rect, painter, index):
@@ -1266,6 +1269,18 @@ class GridCellDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         """Overloads QStyledItemDelegate to add cell border painting"""
 
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        #painter.setRenderHint(QPainter.Antialiasing)
+
+        zoom = self.main_window.application_states.zoom
+        rect = option.rect
+        unzoomed_rect = QRect(rect.x() / zoom, rect.y() / zoom,
+                              rect.width() / zoom,
+                              rect.height() / zoom)
+        option.rect = unzoomed_rect
+        painter.save()
+        painter.scale(zoom, zoom)
+
         key = index.row(), index.column(), self.main_window.grid.table
         angle = self.cell_attributes[key]["angle"]
         if abs(angle) < 0.001:
@@ -1275,6 +1290,8 @@ class GridCellDelegate(QStyledItemDelegate):
             self._rotated_paint(painter, option, index, angle)
 
         self._paint_border_lines(option.rect, painter, index)
+
+        painter.restore()
 
     def createEditor(self, parent, option, index):
         """Overloads QStyledItemDelegate

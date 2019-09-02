@@ -81,7 +81,7 @@ class ApplicationStates:
     last_file_input_path = Path.home()  # Initial path for opening files
     last_file_output_path = Path.home()  # Initial path for saving files
     border_choice = "All borders"  # The state of the border choice button
-    zoom = 0.5  # Main grid zoom factor
+    zoom = 1.0  # Main grid zoom factor
 
     def __init__(self, parent):
         super().__setattr__("parent", parent)
@@ -95,9 +95,10 @@ class ApplicationStates:
 
     def reset(self):
         cls_attrs = (attr for attr in dir(self)
-                     if not attr.startswith("__") and attr not in ("reset",
-                                                                   "parent",
-                                                                   "settings"))
+                     if (not attr.startswith("__")
+                         and attr not in ("reset", "parent", "settings",
+                                          "save_gui_states",
+                                          "restore_gui_states")))
         for cls_attr in cls_attrs:
             setattr(self, cls_attr, getattr(ApplicationStates, cls_attr))
 
