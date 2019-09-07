@@ -353,7 +353,7 @@ class MainWindowActions(dict):
                                   statustip='Zoom out the grid')
 
         self["zoom_1"] = Action(self.parent, "Original size",
-                                self.parent.on_nothing,
+                                self.parent.grid.on_zoom_1,
                                 icon=Icon("zoom_1"),
                                 shortcut='Ctrl+0',
                                 statustip='Show grid on standard zoom level')

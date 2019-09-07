@@ -114,6 +114,7 @@ class Grid(QTableView):
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
 
+
         self.setShowGrid(False)
 
         delegate = GridCellDelegate(main_window, self.model.code_array)
@@ -282,6 +283,18 @@ class Grid(QTableView):
         else:
             super().keyPressEvent(event)
 
+    def wheelEvent(self, event):
+        """Overrides mouse wheel event handler"""
+
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ControlModifier:
+            if event.angleDelta().y() > 0:
+                self.on_zoom_in()
+            else:
+                self.on_zoom_out()
+        else:
+            super().wheelEvent(event)
+
     # Helpers
 
     def reset_selection(self):
@@ -366,6 +379,11 @@ class Grid(QTableView):
         smaller_zoom_levels = [zl for zl in self.zoom_levels if zl < self.zoom]
         if smaller_zoom_levels:
             self.zoom = max(smaller_zoom_levels)
+
+    def on_zoom_1(self):
+        """Sets zoom level ot 1.0"""
+
+        self.zoom = 1.0
 
     def on_font(self):
         """Font change event handler"""
