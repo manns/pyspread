@@ -1404,4 +1404,5 @@ class TableChoice(QTabBar):
         """Event handler for table changes"""
 
         self.grid.update_cell_spans()
+        self.grid.zoom(self.grid.main_window.application_states.zoom)
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
