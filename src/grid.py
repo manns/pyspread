@@ -68,6 +68,9 @@ from src.lib.typechecks import is_svg
 class Grid(QTableView):
     """The main grid of pyspread"""
 
+    zoom_levels = [0.5, 0.6, 0.7, 0.8, 1.0,
+                   1.25, 1.5, 1.75, 2.0, 3.0, 4.0, 6.0, 8.0]
+
     def __init__(self, main_window):
         super().__init__()
 
@@ -106,7 +109,7 @@ class Grid(QTableView):
 
         self.setCornerButtonEnabled(False)
 
-        self.zoom(main_window.application_states.zoom)
+        self._zoom = 1.0  # Initial zoom level for the grid
 
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
@@ -217,6 +220,19 @@ class Grid(QTableView):
 
         return self.selectionModel().selectedIndexes()
 
+    @property
+    def zoom(self):
+        """Returns zoom level"""
+
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self, zoom):
+        """Updates _zoom property and zoom visualization of the grid"""
+
+        self._zoom = zoom
+        self.update_zoom()
+
     # Overrides
 
     def closeEditor(self, editor, hint):
@@ -275,15 +291,8 @@ class Grid(QTableView):
 
         return ", ".join(str(self.model.current(idx)) for idx in selected_idx)
 
-    def zoom(self, zoom):
-        """Sets the zoom level to the zoom factor zoom
-
-        Parameters
-        ----------
-        * zoom: float
-        \tZoom factor
-
-        """
+    def update_zoom(self):
+        """Updates the zoom level visualization to the current zoom factor"""
 
         row_heights = self.model.code_array.row_heights
         col_widths = self.model.code_array.col_widths
@@ -292,8 +301,8 @@ class Grid(QTableView):
         cw = [(col, col_widths[col, tab]) for col, tab in col_widths
               if tab == self.table]
 
-        self.verticalHeader().zoom(zoom, rh)
-        self.horizontalHeader().zoom(zoom, cw)
+        self.verticalHeader().zoom(self._zoom, rh)
+        self.horizontalHeader().zoom(self._zoom, cw)
 
     # Event handlers
 
@@ -321,9 +330,8 @@ class Grid(QTableView):
         if self.undo_resizing_row:  # Resize from undo or redo command
             return
         description = "Resize row {} to {}".format(row, new_height)
-        zoom = self.main_window.application_states.zoom
         command = CommandSetRowHeight(self, row, self.table, old_height,
-                                      new_height, zoom, description)
+                                      new_height, self.zoom, description)
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
@@ -332,10 +340,19 @@ class Grid(QTableView):
         if self.undo_resizing_column:  # Resize from undo or redo command
             return
         description = "Resize column {} to {}".format(column, new_width)
-        zoom = self.main_window.application_states.zoom
         command = CommandSetColumnWidth(self, column, self.table, old_width,
-                                        new_width, zoom, description)
+                                        new_width, self.zoom, description)
         self.main_window.undo_stack.push(command)
+
+    def on_zoom_in(self):
+        """Zoom in event handler"""
+
+        self.zoom *= 1.1
+
+    def on_zoom_out(self):
+        """Zoom out event handler"""
+
+        self.zoom /= 1.1
 
     def on_font(self):
         """Font change event handler"""
@@ -822,6 +839,10 @@ class GridTableModel(QAbstractTableModel):
         self.main_window = main_window
         self.code_array = CodeArray(dimensions)
 
+    @property
+    def grid(self):
+        return self.main_window.grid
+
     @contextmanager
     def model_reset(self):
         """Context manager for handle changing/resetting model data"""
@@ -842,12 +863,12 @@ class GridTableModel(QAbstractTableModel):
 
         with self.model_reset():
             self.code_array.shape = value
-            self.main_window.grid.table_choice.no_tables = value[2]
+            self.grid.table_choice.no_tables = value[2]
 
     def current(self, index):
         """Tuple of row, column, table of given index"""
 
-        return index.row(), index.column(), self.main_window.grid.table
+        return index.row(), index.column(), self.grid.table
 
     def code(self, index):
         """Code in index"""
@@ -1010,10 +1031,14 @@ class GridCellDelegate(QStyledItemDelegate):
         self.code_array = code_array
         self.cell_attributes = self.code_array.cell_attributes
 
+    @property
+    def grid(self):
+        return self.main_window.grid
+
     def _paint_bl_border_lines(self, x, y, width, height, painter, key):
         """Paint the bottom and the left border line of the cell"""
 
-        zoom = self.main_window.application_states.zoom
+        zoom = self.grid.zoom
 
         border_bottom = (x, y + height, x + width, y + height)
         border_right = (x + width, y, x + width, y + height)
@@ -1050,7 +1075,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         row = index.row()
         column = index.column()
-        table = self.main_window.grid.table
+        table = self.grid.table
 
         # Paint bottom and right border lines of the current cell
         key = row, column, table
@@ -1134,7 +1159,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
             return inner_width, inner_height
 
-        key = index.row(), index.column(), self.main_window.grid.table
+        key = index.row(), index.column(), self.grid.table
 
         justification = self.cell_attributes[key]["justification"]
         vertical_align = self.cell_attributes[key]["vertical_align"]
@@ -1172,7 +1197,7 @@ class GridCellDelegate(QStyledItemDelegate):
         if isinstance(qimage, BasicQImage):
             img_width, img_height = qimage.width(), qimage.height()
         else:
-            key = index.row(), index.column(), self.main_window.grid.table
+            key = index.row(), index.column(), self.grid.table
             res = self.code_array[key]
             if res is None:
                 return
@@ -1201,7 +1226,7 @@ class GridCellDelegate(QStyledItemDelegate):
         if img_rect is None:
             return
 
-        key = index.row(), index.column(), self.main_window.grid.table
+        key = index.row(), index.column(), self.grid.table
         justification = self.cell_attributes[key]["justification"]
 
         if justification == "justify_fill":
@@ -1223,7 +1248,7 @@ class GridCellDelegate(QStyledItemDelegate):
             # matplotlib is not installed
             return
 
-        key = index.row(), index.column(), self.main_window.grid.table
+        key = index.row(), index.column(), self.grid.table
         figure = self.code_array[key]
 
         if not isinstance(figure, matplotlib_figure.Figure):
@@ -1246,7 +1271,7 @@ class GridCellDelegate(QStyledItemDelegate):
     def __paint(self, painter, option, index):
         """Calls the overloaded paint function or creates html delegate"""
 
-        key = index.row(), index.column(), self.main_window.grid.table
+        key = index.row(), index.column(), self.grid.table
         renderer = self.cell_attributes[key]["renderer"]
 
         if renderer == "text":
@@ -1264,7 +1289,7 @@ class GridCellDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         """Overloads SizeHint"""
 
-        key = index.row(), index.column(), self.main_window.grid.table
+        key = index.row(), index.column(), self.grid.table
         if not self.cell_attributes[key]["renderer"] == "markup":
             return super(GridCellDelegate, self).sizeHint(option, index)
 
@@ -1300,7 +1325,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
 
-        zoom = self.main_window.application_states.zoom
+        zoom = self.grid.zoom
         rect = option.rect
         unzoomed_rect = QRect(rect.x() / zoom, rect.y() / zoom,
                               rect.width() / zoom,
@@ -1309,7 +1334,7 @@ class GridCellDelegate(QStyledItemDelegate):
         painter.save()
         painter.scale(zoom, zoom)
 
-        key = index.row(), index.column(), self.main_window.grid.table
+        key = index.row(), index.column(), self.grid.table
         angle = self.cell_attributes[key]["angle"]
         if abs(angle) < 0.001:
             # No rotation --> call the base class paint method
@@ -1329,7 +1354,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        key = index.row(), index.column(), self.main_window.grid.table
+        key = index.row(), index.column(), self.grid.table
 
         if self.cell_attributes[key]["locked"]:
             return
@@ -1344,7 +1369,7 @@ class GridCellDelegate(QStyledItemDelegate):
     def setEditorData(self, editor, index):
         row = index.row()
         column = index.column()
-        table = self.main_window.grid.table
+        table = self.grid.table
 
         value = self.code_array((row, column, table))
         editor.setText(value)
@@ -1404,5 +1429,5 @@ class TableChoice(QTabBar):
         """Event handler for table changes"""
 
         self.grid.update_cell_spans()
-        self.grid.zoom(self.grid.main_window.application_states.zoom)
+        self.grid.update_zoom()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())

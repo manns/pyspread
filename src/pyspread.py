@@ -81,7 +81,6 @@ class ApplicationStates:
     last_file_input_path = Path.home()  # Initial path for opening files
     last_file_output_path = Path.home()  # Initial path for saving files
     border_choice = "All borders"  # The state of the border choice button
-    zoom = 1.0  # Main grid zoom factor
 
     def __init__(self, parent):
         super().__setattr__("parent", parent)
@@ -210,14 +209,6 @@ class MainWindow(QMainWindow):
 
         self.entry_line = Entryline(self)
         self.grid = Grid(self)
-
-#  This does not work as intended because of pixelation
-
-#        self.gridscene = QGraphicsScene()
-#        self.gridview = QGraphicsView(self.gridscene)
-#        self.gridview.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-#        self.gridscene.addWidget(self.grid)
-#        self.grid.adjust_size()
 
         self.macro_panel = MacroPanel(self, self.grid.model.code_array)
 
@@ -404,18 +395,6 @@ class MainWindow(QMainWindow):
         """Macro panel toggle event handler"""
 
         self._toggle_widget(self.macro_dock, "toggle_macro_panel")
-
-    def on_zoom_in(self):
-        """Zoom in event handler"""
-
-        self.application_states.zoom *= 1.1
-        self.grid.zoom(self.application_states.zoom)
-
-    def on_zoom_out(self):
-        """Zoom out event handler"""
-
-        self.application_states.zoom /= 1.1
-        self.grid.zoom(self.application_states.zoom)
 
     def on_about(self):
         """Show about message box"""
