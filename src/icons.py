@@ -85,7 +85,6 @@ class Icon(QIcon):
         "zoom_in": str(ACTION_PATH / 'view-zoom-in.svg'),
         "zoom_out": str(ACTION_PATH / 'view-zoom-out.svg'),
         "zoom_1": str(ACTION_PATH / 'view-zoom-original.svg'),
-        "zoom_fit": str(ACTION_PATH / 'view-zoom-fit-best.svg'),
         "refresh": str(ACTION_PATH / 'view-refresh.svg'),
         "toggle_periodic_updates": str(ACTION_PATH / 'view-timer.svg'),
         "show_frozen": str(ACTION_PATH / 'view-show-frozen.svg'),

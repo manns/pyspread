@@ -358,13 +358,6 @@ class MainWindowActions(dict):
                                 shortcut='Ctrl+0',
                                 statustip='Show grid on standard zoom level')
 
-        self["zoom_fit"] = Action(self.parent, "Zoom to fit",
-                                  self.parent.on_nothing,
-                                  icon=Icon("zoom_fit"),
-                                  shortcut='F6',
-                                  statustip='Zooms the grid so that it fits '
-                                            'into the window')
-
         self["refresh_cells"] = Action(self.parent, "Refresh selected cells",
                                        self.parent.on_nothing,
                                        icon=Icon("refresh"),

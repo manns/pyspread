@@ -153,7 +153,6 @@ class MenuBar(QMenuBar):
         view_menu.addAction(self.actions["zoom_in"])
         view_menu.addAction(self.actions["zoom_out"])
         view_menu.addAction(self.actions["zoom_1"])
-        view_menu.addAction(self.actions["zoom_fit"])
         view_menu.addSeparator()
         view_menu.addAction(self.actions["refresh_cells"])
         view_menu.addAction(self.actions["toggle_periodic_updates"])
