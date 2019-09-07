@@ -151,7 +151,7 @@ class DataEntryDialog(QDialog):
 
     def __init__(self, parent, title, labels, initial_data=None,
                  groupbox_title=None, validators=None):
-        super(QDialog, self).__init__(parent)
+        super().__init__(parent)
 
         self.labels = labels
         self.groupbox_title = groupbox_title
@@ -183,7 +183,7 @@ class DataEntryDialog(QDialog):
     def data(self):
         """Executes the dialog and returns a tuple of strings
 
-        Returns None if the dialog is canceled
+        Returns None if the dialog is canceled.
 
         """
 
@@ -246,14 +246,14 @@ class GridShapeDialog(DataEntryDialog):
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
         validators = [validator] * len(labels)
-        super(GridShapeDialog, self).__init__(parent, title, labels, shape,
-                                              groupbox_title, validators)
+        super().__init__(parent, title, labels, shape, groupbox_title,
+                         validators)
 
     @property
     def shape(self):
         """Executes the dialog and returns an int tuple rows, columns, tables
 
-        Returns None if the dialog is canceled
+        Returns None if the dialog is canceled.
 
         """
 
@@ -266,7 +266,6 @@ class PreferencesDialog(DataEntryDialog):
     """Modal dialog for entering pyspread preferences"""
 
     def __init__(self, parent):
-
         title = "Preferences"
         groupbox_title = "Global settings"
         labels = ["Number of undo steps", "Cell calculation timeout [s]",
@@ -276,14 +275,14 @@ class PreferencesDialog(DataEntryDialog):
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
         validators = [validator] * len(labels)
-        super(PreferencesDialog, self).__init__(parent, title, labels, data,
-                                                groupbox_title, validators)
+        super().__init__(parent, title, labels, data, groupbox_title,
+                         validators)
 
     @property
     def data(self):
         """Executes the dialog and returns a dict containing preferences data
 
-        Returns None if the dialog is canceled
+        Returns None if the dialog is canceled.
 
         """
 
@@ -376,7 +375,7 @@ class ChartDialog(QDialog):
         if Figure is None:
             raise ModuleNotFoundError
 
-        super(ChartDialog, self).__init__(parent)
+        super().__init__(parent)
 
         self.actions = ChartDialogActions(self)
 
