@@ -331,7 +331,7 @@ class Grid(QTableView):
             return
         description = "Resize row {} to {}".format(row, new_height)
         command = CommandSetRowHeight(self, row, self.table, old_height,
-                                      new_height, self.zoom, description)
+                                      new_height, description)
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
@@ -341,7 +341,7 @@ class Grid(QTableView):
             return
         description = "Resize column {} to {}".format(column, new_width)
         command = CommandSetColumnWidth(self, column, self.table, old_width,
-                                        new_width, self.zoom, description)
+                                        new_width, description)
         self.main_window.undo_stack.push(command)
 
     def on_zoom_in(self):
