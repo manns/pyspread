@@ -30,7 +30,7 @@ Provides
 --------
 
 * Grid: QTableView of the main grid
-* GridItemModel: QAbstractTableModel linking the view to the code_array backend
+* GridTableModel: QAbstractTableModel linking the view to code_array backend
 * GridCellDelegate: QStyledItemDelegate handling custom painting and editors
 
 """
@@ -82,7 +82,7 @@ class Grid(QTableView):
 
         self.setGeometry(*window_position, *window_size)
 
-        self.model = GridItemModel(main_window, dimensions)
+        self.model = GridTableModel(main_window, dimensions)
         self.setModel(self.model)
 
         self.table_choice = TableChoice(self, dimensions[2])
@@ -285,8 +285,15 @@ class Grid(QTableView):
 
         """
 
-        self.verticalHeader().zoom(zoom)
-        self.horizontalHeader().zoom(zoom)
+        row_heights = self.model.code_array.row_heights
+        col_widths = self.model.code_array.col_widths
+        rh = [(row, row_heights[row, tab]) for row, tab in row_heights
+              if tab == self.table]
+        cw = [(col, col_widths[col, tab]) for col, tab in col_widths
+              if tab == self.table]
+
+        self.verticalHeader().zoom(zoom, rh)
+        self.horizontalHeader().zoom(zoom, cw)
 
     # Event handlers
 
@@ -314,8 +321,9 @@ class Grid(QTableView):
         if self.undo_resizing_row:  # Resize from undo or redo command
             return
         description = "Resize row {} to {}".format(row, new_height)
+        zoom = self.main_window.application_states.zoom
         command = CommandSetRowHeight(self, row, self.table, old_height,
-                                      new_height, description)
+                                      new_height, zoom, description)
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
@@ -324,8 +332,9 @@ class Grid(QTableView):
         if self.undo_resizing_column:  # Resize from undo or redo command
             return
         description = "Resize column {} to {}".format(column, new_width)
+        zoom = self.main_window.application_states.zoom
         command = CommandSetColumnWidth(self, column, self.table, old_width,
-                                        new_width, description)
+                                        new_width, zoom, description)
         self.main_window.undo_stack.push(command)
 
     def on_font(self):
@@ -765,18 +774,36 @@ class GridHeaderView(QHeaderView):
         self.default_section_size = self.defaultSectionSize()
         self.__zoom = 1.0
 
-    def zoom(self, zoom):
-        """Zooms the section sizes"""
+    def zoom(self, zoom, section_sizes):
+        """Zooms the section sizes
+
+        section_sizes: List of 2-tuples
+        \tList of (section index, size) tuples
+
+        """
 
         self.__zoom = zoom
         self.setDefaultSectionSize(self.default_section_size * zoom)
+        for section, size in section_sizes:
+            self.resizeSection(section, size * zoom)
 
     def sizeHint(self):
+        """Overrides sizeHint, which supports zoom"""
+
         unzoomed_size = super().sizeHint()
         return QSize(unzoomed_size.width() * self.__zoom,
                      unzoomed_size.height() * self.__zoom)
 
+    def sectionSizeHint(self, logicalIndex):
+        """Overrides sectionSizeHint, which supports zoom"""
+
+        unzoomed_size = super().sectionSizeHint(logicalIndex)
+        return QSize(unzoomed_size.width() * self.__zoom,
+                     unzoomed_size.height() * self.__zoom)
+
     def paintSection(self, painter, rect, logicalIndex):
+        """Overrides paintSection, which supports zoom"""
+
         zoom = self.__zoom
         unzoomed_rect = QRect(rect.x()/zoom, rect.y()/zoom,
                               rect.width()/zoom, rect.height()/zoom)
@@ -786,7 +813,9 @@ class GridHeaderView(QHeaderView):
         painter.restore()
 
 
-class GridItemModel(QAbstractTableModel):
+class GridTableModel(QAbstractTableModel):
+    """QAbstractTableModel for Grid"""
+
     def __init__(self, main_window, dimensions):
         super().__init__()
 

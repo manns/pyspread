@@ -64,7 +64,8 @@ class CommandSetCellCode(QUndoCommand):
 class CommandSetRowHeight(QUndoCommand):
     """Sets row height in grid"""
 
-    def __init__(self, grid, row, table, old_height, new_height, description):
+    def __init__(self, grid, row, table, old_height, new_height, zoom,
+                 description):
         super().__init__(description)
 
         self.grid = grid
@@ -72,6 +73,7 @@ class CommandSetRowHeight(QUndoCommand):
         self.table = table
         self.old_height = old_height
         self.new_height = new_height
+        self.zoom = zoom
 
     def id(self):
         return 2  # Enable command merging
@@ -83,28 +85,31 @@ class CommandSetRowHeight(QUndoCommand):
         return True
 
     def redo(self):
+        if self.new_height != self.grid.verticalHeader().defaultSectionSize():
+            self.grid.model.code_array.row_heights[(self.row, self.table)] = \
+                self.new_height / self.zoom
         if self.grid.rowHeight(self.row) != self.new_height:
             self.grid.undo_resizing_row = True
             self.grid.setRowHeight(self.row, self.new_height)
-            self.grid.adjust_size()
-            self.grid.model.code_array.row_heights[(self.row, self.table)] = \
-                self.new_height
             self.grid.undo_resizing_row = False
 
     def undo(self):
+        if self.old_height == self.grid.verticalHeader().defaultSectionSize():
+            self.grid.model.code_array.row_heights.pop((self.row, self.table))
+        else:
+            self.grid.model.code_array.row_heights[(self.row, self.table)] = \
+                self.old_height / self.zoom
         if self.grid.rowHeight(self.row) != self.old_height:
             self.grid.undo_resizing_row = True
             self.grid.setRowHeight(self.row, self.old_height)
-            self.grid.adjust_size()
-            self.grid.model.code_array.row_heights[(self.row, self.table)] = \
-                self.old_height
             self.grid.undo_resizing_row = False
 
 
 class CommandSetColumnWidth(QUndoCommand):
     """Sets column width in grid"""
 
-    def __init__(self, grid, column, table, old_width, new_width, description):
+    def __init__(self, grid, column, table, old_width, new_width, zoom,
+                 description):
         super().__init__(description)
 
         self.grid = grid
@@ -112,6 +117,7 @@ class CommandSetColumnWidth(QUndoCommand):
         self.table = table
         self.old_width = old_width
         self.new_width = new_width
+        self.zoom = zoom
 
     def id(self):
         return 3  # Enable command merging
@@ -123,21 +129,24 @@ class CommandSetColumnWidth(QUndoCommand):
         return True
 
     def redo(self):
+        if self.new_width != self.grid.horizontalHeader().defaultSectionSize():
+            self.grid.model.code_array.col_widths[(self.column, self.table)] =\
+                self.new_width / self.zoom
         if self.grid.columnWidth(self.column) != self.new_width:
             self.grid.undo_resizing_column = True
             self.grid.setColumnWidth(self.column, self.new_width)
-            self.grid.adjust_size()
-            self.grid.model.code_array.col_widths[(self.column, self.table)] =\
-                self.new_width
             self.grid.undo_resizing_column = False
 
     def undo(self):
+        if self.old_width == self.grid.horizontalHeader().defaultSectionSize():
+            self.grid.model.code_array.col_widths.pop((self.column,
+                                                       self.table))
+        else:
+            self.grid.model.code_array.col_widths[(self.column, self.table)] =\
+                self.old_width / self.zoom
         if self.grid.columnWidth(self.column) != self.old_width:
             self.grid.undo_resizing_column = True
             self.grid.setColumnWidth(self.column, self.old_width)
-            self.grid.adjust_size()
-            self.grid.model.code_array.col_widths[(self.column, self.table)] =\
-                self.old_width
             self.grid.undo_resizing_column = False
 
 
