@@ -800,21 +800,10 @@ class GridHeaderView(QHeaderView):
         self.default_section_size = self.defaultSectionSize()
         self.grid = parent
 
-    @property
-    def zoom(self):
-        """Returns grid zoom property"""
-
-        return self.grid.zoom
-
     def update_zoom(self):
-        """Zooms the section sizes
+        """Updates zoom for the section sizes"""
 
-        section_sizes: List of 2-tuples
-        \tList of (section index, size) tuples
-
-        """
-
-        self.setDefaultSectionSize(self.default_section_size * self.zoom)
+        self.setDefaultSectionSize(self.default_section_size * self.grid.zoom)
 
         if self.orientation() == Qt.Horizontal:
             section_sizes = self.grid.column_widths
@@ -822,29 +811,30 @@ class GridHeaderView(QHeaderView):
             section_sizes = self.grid.row_heights
 
         for section, size in section_sizes:
-            self.resizeSection(section, size * self.zoom)
+            self.resizeSection(section, size * self.grid.zoom)
 
     def sizeHint(self):
         """Overrides sizeHint, which supports zoom"""
 
         unzoomed_size = super().sizeHint()
-        return QSize(unzoomed_size.width() * self.zoom,
-                     unzoomed_size.height() * self.zoom)
+        return QSize(unzoomed_size.width() * self.grid.zoom,
+                     unzoomed_size.height() * self.grid.zoom)
 
     def sectionSizeHint(self, logicalIndex):
         """Overrides sectionSizeHint, which supports zoom"""
 
         unzoomed_size = super().sectionSizeHint(logicalIndex)
-        return QSize(unzoomed_size.width() * self.zoom,
-                     unzoomed_size.height() * self.zoom)
+        return QSize(unzoomed_size.width() * self.grid.zoom,
+                     unzoomed_size.height() * self.grid.zoom)
 
     def paintSection(self, painter, rect, logicalIndex):
         """Overrides paintSection, which supports zoom"""
 
-        unzoomed_rect = QRect(rect.x()/self.zoom, rect.y()/self.zoom,
-                              rect.width()/self.zoom, rect.height()/self.zoom)
+        unzoomed_rect = QRect(rect.x()/self.grid.zoom, rect.y()/self.grid.zoom,
+                              rect.width()/self.grid.zoom,
+                              rect.height()/self.grid.zoom)
         painter.save()
-        painter.scale(self.zoom, self.zoom)
+        painter.scale(self.grid.zoom, self.grid.zoom)
         super().paintSection(painter, unzoomed_rect, logicalIndex)
         painter.restore()
 
