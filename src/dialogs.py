@@ -292,6 +292,47 @@ class PreferencesDialog(DataEntryDialog):
             return dict(zip(self.keys, int_data))
 
 
+class CellKeyDialog(DataEntryDialog):
+    """Modal dialog for entering a cell key, i.e. row, column and table
+
+    Parameters
+    ----------
+    * parent: QWidget
+    \tParent window
+    * shape: 3-tuple of Integer
+    \tShape of the grid: (rows, columns, tables)
+
+    """
+
+    def __init__(self, parent, shape):
+        title = "Go to cell"
+        groupbox_title = "Cell index"
+        labels = ["Row", "Column", "Table"]
+
+        row_validator = QIntValidator()
+        row_validator.setRange(0, shape[0] - 1)
+        column_validator = QIntValidator()
+        column_validator.setRange(0, shape[1] - 1)
+        table_validator = QIntValidator()
+        table_validator.setRange(0, shape[2] - 1)
+        validators = [row_validator, column_validator, table_validator]
+
+        super().__init__(parent, title, labels, None, groupbox_title,
+                         validators)
+
+    @property
+    def key(self):
+        """Executes the dialog and returns an int tuple rows, columns, tables
+
+        Returns None if the dialog is canceled.
+
+        """
+
+        data = self.data
+        if data is not None:
+            return tuple(map(int, data))
+
+
 class FileDialogBase:
     """Base class for modal file dialogs
 

@@ -43,6 +43,7 @@ from PyQt5.QtWidgets import QProgressDialog, QMessageBox
 from src.commands import CommandSetCellCode
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
+from src.dialogs import CellKeyDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 
@@ -371,6 +372,16 @@ class Workflows:
         self.main_window.undo_stack.push(command)
 
         self.main_window.entry_line.setUpdatesEnabled(True)
+
+    def goto_cell(self):
+        """View -> Go to cell workflow"""
+
+        # Get cell key from user
+        shape = self.main_window.grid.model.code_array.shape
+        key = CellKeyDialog(self.main_window, shape).key
+
+        if key is not None:
+            self.main_window.grid.current = key
 
     def insert_chart(self):
         """Insert chart workflow"""

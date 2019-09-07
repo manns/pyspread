@@ -327,7 +327,7 @@ class MainWindowActions(dict):
                    statustip='Show/hide the macro panel')
 
         self["goto_cell"] = Action(self.parent, "Go to cell",
-                                   self.parent.on_nothing,
+                                   self.parent.grid.on_goto_cell,
                                    icon=Icon("goto_cell"),
                                    shortcut='Ctrl+g',
                                    statustip='Select a cell and put it into '

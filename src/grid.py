@@ -366,6 +366,11 @@ class Grid(QTableView):
                                         new_width, description)
         self.main_window.undo_stack.push(command)
 
+    def on_goto_cell(self):
+        """Go to cell event handler"""
+
+        self.main_window.workflows.goto_cell()
+
     def on_zoom_in(self):
         """Zoom in event handler"""
 
