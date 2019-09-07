@@ -301,8 +301,8 @@ class Grid(QTableView):
         cw = [(col, col_widths[col, tab]) for col, tab in col_widths
               if tab == self.table]
 
-        self.verticalHeader().zoom(self._zoom, rh)
-        self.horizontalHeader().zoom(self._zoom, cw)
+        self.verticalHeader().update_zoom(rh)
+        self.horizontalHeader().update_zoom(cw)
 
     # Event handlers
 
@@ -786,12 +786,18 @@ class Grid(QTableView):
 class GridHeaderView(QHeaderView):
     """QHeaderView with zoom support"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, orientation, parent):
+        super().__init__(orientation, parent)
         self.default_section_size = self.defaultSectionSize()
-        self.__zoom = 1.0
+        self.grid = parent
 
-    def zoom(self, zoom, section_sizes):
+    @property
+    def zoom(self):
+        """Returns grid zoom property"""
+
+        return self.grid.zoom
+
+    def update_zoom(self, section_sizes):
         """Zooms the section sizes
 
         section_sizes: List of 2-tuples
@@ -799,33 +805,31 @@ class GridHeaderView(QHeaderView):
 
         """
 
-        self.__zoom = zoom
-        self.setDefaultSectionSize(self.default_section_size * zoom)
+        self.setDefaultSectionSize(self.default_section_size * self.zoom)
         for section, size in section_sizes:
-            self.resizeSection(section, size * zoom)
+            self.resizeSection(section, size * self.zoom)
 
     def sizeHint(self):
         """Overrides sizeHint, which supports zoom"""
 
         unzoomed_size = super().sizeHint()
-        return QSize(unzoomed_size.width() * self.__zoom,
-                     unzoomed_size.height() * self.__zoom)
+        return QSize(unzoomed_size.width() * self.zoom,
+                     unzoomed_size.height() * self.zoom)
 
     def sectionSizeHint(self, logicalIndex):
         """Overrides sectionSizeHint, which supports zoom"""
 
         unzoomed_size = super().sectionSizeHint(logicalIndex)
-        return QSize(unzoomed_size.width() * self.__zoom,
-                     unzoomed_size.height() * self.__zoom)
+        return QSize(unzoomed_size.width() * self.zoom,
+                     unzoomed_size.height() * self.zoom)
 
     def paintSection(self, painter, rect, logicalIndex):
         """Overrides paintSection, which supports zoom"""
 
-        zoom = self.__zoom
-        unzoomed_rect = QRect(rect.x()/zoom, rect.y()/zoom,
-                              rect.width()/zoom, rect.height()/zoom)
+        unzoomed_rect = QRect(rect.x()/self.zoom, rect.y()/self.zoom,
+                              rect.width()/self.zoom, rect.height()/self.zoom)
         painter.save()
-        painter.scale(zoom, zoom)
+        painter.scale(self.zoom, self.zoom)
         super().paintSection(painter, unzoomed_rect, logicalIndex)
         painter.restore()
 
