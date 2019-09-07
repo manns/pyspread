@@ -144,23 +144,31 @@ class DataEntryDialog(QDialog):
     \tLabels for the values in the dialog
     * initial_data: list or tuple of str, defaults to None
     \tInitial values to be displayed in the dialog, must match no. labels
+    * validators: list or tuple of QValidator, defaults to None
+    \tValidators for the editors of the dialog, must match no. labels
 
     """
 
     def __init__(self, parent, title, labels, initial_data=None,
-                 groupbox_title=None, validator=None):
+                 groupbox_title=None, validators=None):
         super(QDialog, self).__init__(parent)
 
         self.labels = labels
         self.groupbox_title = groupbox_title
-        self.validator = validator
 
         if initial_data is None:
             self.initial_data = [""] * len(labels)
+        elif len(initial_data) != len(labels):
+            raise ValueError("Length of labels and initial_data not equal")
         else:
-            if len(initial_data) != len(labels):
-                raise ValueError("Length of labels and initial_data not equal")
             self.initial_data = initial_data
+
+        if validators is None:
+            self.validators = [None] * len(labels)
+        elif len(validators) != len(labels):
+            raise ValueError("Length of labels and validators not equal")
+        else:
+            self.validators = validators
 
         self.editors = []
 
@@ -195,11 +203,13 @@ class DataEntryDialog(QDialog):
             form_group_box.setTitle(self.groupbox_title)
         form_layout = QFormLayout()
 
-        for label, initial_value in zip(self.labels, self.initial_data):
+        for label, initial_value, validator in zip(self.labels,
+                                                   self.initial_data,
+                                                   self.validators):
             editor = QLineEdit(str(initial_value))
             editor.setAlignment(Qt.AlignRight)
-            if self.validator:
-                editor.setValidator(self.validator)
+            if validator:
+                editor.setValidator(validator)
             form_layout.addRow(QLabel(label), editor)
             self.editors.append(editor)
 
@@ -232,11 +242,12 @@ class GridShapeDialog(DataEntryDialog):
     def __init__(self, parent, shape):
         title = "Create a new grid"
         groupbox_title = "Grid shape"
+        labels = ["Number of rows", "Number of columns", "Number of tables"]
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
-        labels = ["Number of rows", "Number of columns", "Number of tables"]
+        validators = [validator] * len(labels)
         super(GridShapeDialog, self).__init__(parent, title, labels, shape,
-                                              groupbox_title, validator)
+                                              groupbox_title, validators)
 
     @property
     def shape(self):
@@ -251,20 +262,22 @@ class GridShapeDialog(DataEntryDialog):
             return tuple(map(int, data))
 
 
-class PreferencesDialog(QDialog):
+class PreferencesDialog(DataEntryDialog):
     """Modal dialog for entering pyspread preferences"""
 
     def __init__(self, parent):
-        super(PreferencesDialog, self).__init__(parent)
 
-        self.settings = parent.settings
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.create_form())
-        layout.addWidget(self.create_buttonbox())
-        self.setLayout(layout)
-
-        self.setWindowTitle("Preferences")
+        title = "Preferences"
+        groupbox_title = "Global settings"
+        labels = ["Number of undo steps", "Cell calculation timeout [s]",
+                  "Maximum length of cell result strings"]
+        self.keys = ["unredo", "timeout", "max_result_length"]
+        data = [getattr(parent.settings, key) for key in self.keys]
+        validator = QIntValidator()
+        validator.setBottom(0)  # Do not allow negative values
+        validators = [validator] * len(labels)
+        super(PreferencesDialog, self).__init__(parent, title, labels, data,
+                                                groupbox_title, validators)
 
     @property
     def data(self):
@@ -274,60 +287,10 @@ class PreferencesDialog(QDialog):
 
         """
 
-        result = self.exec_()
-
-        if result == QDialog.Accepted:
-            try:
-                unredo = int(self.unredo_edit.text())
-                timeout = int(self.timeout_edit.text())
-                max_result_length = int(self.max_result_length_edit.text())
-            except ValueError:
-                # At least one field was empty or contained no number
-                return
-
-            return {"unredo": unredo,
-                    "timeout": timeout,
-                    "max_result_length": max_result_length}
-
-    def create_form(self):
-        """Returns form inside a QGroupBox"""
-
-        form_group_box = QGroupBox("Global settings")
-        form_layout = QFormLayout()
-
-        validator = QIntValidator()
-        validator.setBottom(0)  # Do not allow negative values
-
-        self.unredo_edit = QLineEdit(str(self.settings.max_unredo))
-        self.unredo_edit.setAlignment(Qt.AlignRight)
-        self.unredo_edit.setValidator(validator)
-        form_layout.addRow(QLabel("Number of undo steps"), self.unredo_edit)
-
-        self.timeout_edit = QLineEdit(str(self.settings.timeout))
-        self.timeout_edit.setAlignment(Qt.AlignRight)
-        self.timeout_edit.setValidator(validator)
-        form_layout.addRow(QLabel("Cell calculation timeout [s]"),
-                           self.timeout_edit)
-
-        self.max_result_length_edit = \
-            QLineEdit(str(self.settings.max_result_length))
-        self.max_result_length_edit.setAlignment(Qt.AlignRight)
-        self.max_result_length_edit.setValidator(validator)
-        form_layout.addRow(QLabel("Maximum length of cell result strings"),
-                           self.max_result_length_edit)
-
-        form_group_box.setLayout(form_layout)
-
-        return form_group_box
-
-    def create_buttonbox(self):
-        """Returns a QDialogButtonBox with Ok and Cancel"""
-
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok
-                                      | QDialogButtonBox.Cancel)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-        return button_box
+        data = super().data
+        if data is not None:
+            int_data = map(int, data)
+            return dict(zip(self.keys, int_data))
 
 
 class FileDialogBase:
