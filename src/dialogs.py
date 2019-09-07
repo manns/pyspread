@@ -28,6 +28,7 @@ Modal dialogs for pyspread
 
  * DiscardChangesDialog
  * ApproveWarningDialog
+ * DataEntryDialog
  * GridShapeDialog
  * (FileDialogBase)
  * FileOpenDialog
@@ -130,32 +131,49 @@ class ApproveWarningDialog:
             return False
 
 
-class GridShapeDialog(QDialog):
-    """Modal dialog for entering the number of rows, columns and tables
+class DataEntryDialog(QDialog):
+    """Modal dialog for entering multiple values
 
     Parameters
     ----------
     * parent: QWidget
     \tParent window
-    * shape: 3-tuple of Integer
-    \tInitial shape to be displayed in the dialog: (rows, columns, tables)
+    * title: str
+    \tDialog title
+    * labels: list or tuple of str
+    \tLabels for the values in the dialog
+    * initial_data: list or tuple of str, defaults to None
+    \tInitial values to be displayed in the dialog, must match no. labels
 
     """
 
-    def __init__(self, parent, shape):
-        super(GridShapeDialog, self).__init__(parent)
+    def __init__(self, parent, title, labels, initial_data=None,
+                 groupbox_title=None, validator=None):
+        super(QDialog, self).__init__(parent)
 
-        self.__shape = shape
+        self.labels = labels
+        self.groupbox_title = groupbox_title
+        self.validator = validator
+
+        if initial_data is None:
+            self.initial_data = [""] * len(labels)
+        else:
+            if len(initial_data) != len(labels):
+                raise ValueError("Length of labels and initial_data not equal")
+            self.initial_data = initial_data
+
+        self.editors = []
+
         layout = QVBoxLayout(self)
         layout.addWidget(self.create_form())
         layout.addWidget(self.create_buttonbox())
         self.setLayout(layout)
 
-        self.setWindowTitle("Create a new grid")
+        self.setWindowTitle(title)
 
     @property
-    def shape(self):
-        """Executes the dialog and returns an int tuple rows, columns, tables
+    def data(self):
+        """Executes the dialog and returns a tuple of strings
 
         Returns None if the dialog is canceled
 
@@ -164,39 +182,26 @@ class GridShapeDialog(QDialog):
         result = self.exec_()
 
         if result == QDialog.Accepted:
-            try:
-                rows = int(self.row_edit.text())
-                columns = int(self.column_edit.text())
-                tables = int(self.table_edit.text())
-            except ValueError:
-                # At least one field was empty or contained no number
-                return
-
-            return rows, columns, tables
+            data = tuple(editor.text() for editor in self.editors)
+            if all(data):
+                return data
+            # At least one field was empty or contained no number
 
     def create_form(self):
         """Returns form inside a QGroupBox"""
 
-        form_group_box = QGroupBox("Grid shape")
+        form_group_box = QGroupBox()
+        if self.groupbox_title:
+            form_group_box.setTitle(self.groupbox_title)
         form_layout = QFormLayout()
 
-        validator = QIntValidator()
-        validator.setBottom(0)  # Do not allow negative values
-
-        self.row_edit = QLineEdit(str(self.__shape[0]))
-        self.row_edit.setAlignment(Qt.AlignRight)
-        self.row_edit.setValidator(validator)
-        form_layout.addRow(QLabel("Number of rows"), self.row_edit)
-
-        self.column_edit = QLineEdit(str(self.__shape[1]))
-        self.column_edit.setAlignment(Qt.AlignRight)
-        self.column_edit.setValidator(validator)
-        form_layout.addRow(QLabel("Number of columns"), self.column_edit)
-
-        self.table_edit = QLineEdit(str(self.__shape[2]))
-        self.table_edit.setAlignment(Qt.AlignRight)
-        self.table_edit.setValidator(validator)
-        form_layout.addRow(QLabel("Number of tables"), self.table_edit)
+        for label, initial_value in zip(self.labels, self.initial_data):
+            editor = QLineEdit(str(initial_value))
+            editor.setAlignment(Qt.AlignRight)
+            if self.validator:
+                editor.setValidator(self.validator)
+            form_layout.addRow(QLabel(label), editor)
+            self.editors.append(editor)
 
         form_group_box.setLayout(form_layout)
 
@@ -210,6 +215,40 @@ class GridShapeDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         return button_box
+
+
+class GridShapeDialog(DataEntryDialog):
+    """Modal dialog for entering the number of rows, columns and tables
+
+    Parameters
+    ----------
+    * parent: QWidget
+    \tParent window
+    * shape: 3-tuple of Integer
+    \tInitial shape to be displayed in the dialog: (rows, columns, tables)
+
+    """
+
+    def __init__(self, parent, shape):
+        title = "Create a new grid"
+        groupbox_title = "Grid shape"
+        validator = QIntValidator()
+        validator.setBottom(0)  # Do not allow negative values
+        labels = ["Number of rows", "Number of columns", "Number of tables"]
+        super(GridShapeDialog, self).__init__(parent, title, labels, shape,
+                                              groupbox_title, validator)
+
+    @property
+    def shape(self):
+        """Executes the dialog and returns an int tuple rows, columns, tables
+
+        Returns None if the dialog is canceled
+
+        """
+
+        data = self.data
+        if data is not None:
+            return tuple(map(int, data))
 
 
 class PreferencesDialog(QDialog):
