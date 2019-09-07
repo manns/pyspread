@@ -68,8 +68,8 @@ from src.lib.typechecks import is_svg
 class Grid(QTableView):
     """The main grid of pyspread"""
 
-    zoom_levels = [0.5, 0.6, 0.7, 0.8, 1.0,
-                   1.25, 1.5, 1.75, 2.0, 3.0, 4.0, 6.0, 8.0]
+    zoom_levels = [0.4, 0.5, 0.6, 0.7, 0.8, 1.0,
+                   1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0]
 
     def __init__(self, main_window):
         super().__init__()
@@ -356,12 +356,16 @@ class Grid(QTableView):
     def on_zoom_in(self):
         """Zoom in event handler"""
 
-        self.zoom *= 1.1
+        larger_zoom_levels = [zl for zl in self.zoom_levels if zl > self.zoom]
+        if larger_zoom_levels:
+            self.zoom = min(larger_zoom_levels)
 
     def on_zoom_out(self):
         """Zoom out event handler"""
 
-        self.zoom /= 1.1
+        smaller_zoom_levels = [zl for zl in self.zoom_levels if zl < self.zoom]
+        if smaller_zoom_levels:
+            self.zoom = max(smaller_zoom_levels)
 
     def on_font(self):
         """Font change event handler"""
