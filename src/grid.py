@@ -189,6 +189,22 @@ class Grid(QTableView):
         self.setCurrentIndex(index)
 
     @property
+    def row_heights(self):
+        """Returns list of tuples (row_index, row height) for current table"""
+
+        row_heights = self.model.code_array.row_heights
+        return [(row, row_heights[row, tab]) for row, tab in row_heights
+                if tab == self.table]
+
+    @property
+    def column_widths(self):
+        """Returns list of tuples (col_index, col_width) for current table"""
+
+        col_widths = self.model.code_array.col_widths
+        return [(col, col_widths[col, tab]) for col, tab in col_widths
+                if tab == self.table]
+
+    @property
     def selection(self):
         """Pyspread selection based on self's QSelectionModel"""
 
@@ -294,15 +310,8 @@ class Grid(QTableView):
     def update_zoom(self):
         """Updates the zoom level visualization to the current zoom factor"""
 
-        row_heights = self.model.code_array.row_heights
-        col_widths = self.model.code_array.col_widths
-        rh = [(row, row_heights[row, tab]) for row, tab in row_heights
-              if tab == self.table]
-        cw = [(col, col_widths[col, tab]) for col, tab in col_widths
-              if tab == self.table]
-
-        self.verticalHeader().update_zoom(rh)
-        self.horizontalHeader().update_zoom(cw)
+        self.verticalHeader().update_zoom()
+        self.horizontalHeader().update_zoom()
 
     # Event handlers
 
@@ -797,7 +806,7 @@ class GridHeaderView(QHeaderView):
 
         return self.grid.zoom
 
-    def update_zoom(self, section_sizes):
+    def update_zoom(self):
         """Zooms the section sizes
 
         section_sizes: List of 2-tuples
@@ -806,6 +815,12 @@ class GridHeaderView(QHeaderView):
         """
 
         self.setDefaultSectionSize(self.default_section_size * self.zoom)
+
+        if self.orientation() == Qt.Horizontal:
+            section_sizes = self.grid.column_widths
+        else:
+            section_sizes = self.grid.row_heights
+
         for section, size in section_sizes:
             self.resizeSection(section, size * self.zoom)
 
