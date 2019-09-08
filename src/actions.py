@@ -184,7 +184,8 @@ class MainWindowActions(dict):
                                       statustip='Copy the result strings of '
                                                 'the cells to the clipboard')
 
-        self["paste"] = Action(self.parent, "&Paste", self.parent.on_nothing,
+        self["paste"] = Action(self.parent, "&Paste",
+                               self.parent.grid.on_paste,
                                icon=Icon("paste"),
                                shortcut='Ctrl+v',
                                statustip='Paste cells from the clipboard')

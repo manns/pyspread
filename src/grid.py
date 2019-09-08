@@ -114,7 +114,6 @@ class Grid(QTableView):
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
 
-
         self.setShowGrid(False)
 
         delegate = GridCellDelegate(main_window, self.model.code_array)
@@ -365,6 +364,11 @@ class Grid(QTableView):
         command = CommandSetColumnWidth(self, column, self.table, old_width,
                                         new_width, description)
         self.main_window.undo_stack.push(command)
+
+    def on_paste(self):
+        """Paste event handler"""
+
+        self.main_window.workflows.paste()
 
     def on_goto_cell(self):
         """Go to cell event handler"""

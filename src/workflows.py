@@ -38,7 +38,7 @@ import sys
 from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QProgressDialog, QMessageBox
+from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
 
 from src.commands import CommandSetCellCode
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
@@ -330,6 +330,76 @@ class Workflows:
 
         sys.exit()
 
+    # Edit menu
+
+    def _mime_preference(self):
+        """Mime preferences  for pasting content
+
+        Returns a preference list for clipboard mime data.
+        Preference is assumed top to down.
+        Generally speking:
+        vector images > bitmap images > csv > text > html
+
+        """
+
+        mime_preferences = []
+
+        # Vector images
+
+        mime_preferences += [
+            "image/svg+xml-compressed",
+            "image/svg+xml",
+        ]
+
+        # Bitmap images
+
+        mime_preferences += [
+            "image/png",
+            "image/tiff",
+            "image/jpeg",
+            "image/bmp",
+        ]
+
+        # Text
+
+        mime_preferences += [
+            "text/csv",
+            "text/plain",
+            "text/html",
+        ]
+
+        return mime_preferences
+
+    def paste(self):
+        """Edit -> Paste workflow
+
+        Paste handles clipboard data by choosing amongst the available mime
+        types. Paste As allows individual choice to both mime data choice and
+        data post processing, e. g. how a table is distributed in the grid.
+
+
+        TODO: Add puys and pysu to freedesktop.org shared mime data
+
+        """
+
+        clipboard = QApplication.clipboard()
+        mimedata = clipboard.mimeData()
+        print(mimedata.formats())
+
+    # View menu
+
+    def goto_cell(self):
+        """View -> Go to cell workflow"""
+
+        # Get cell key from user
+        shape = self.main_window.grid.model.code_array.shape
+        key = CellKeyDialog(self.main_window, shape).key
+
+        if key is not None:
+            self.main_window.grid.current = key
+
+    # Macro menu
+
     def insert_image(self):
         """Insert image workflow"""
 
@@ -342,14 +412,12 @@ class Workflows:
             chosen_filter = image_file_open_dialog.chosen_filter
 
         if ".svg" in chosen_filter:
-            raw = True
             with open(filepath, "r") as svgfile:
                 codelines = svgfile.read().splitlines()
                 codelines[0] = '"""' + codelines[0]
                 codelines[-1] = codelines[-1] + '"""'
                 code = "\n".join(codelines)
         else:
-            raw = False
             with open(filepath, "rb") as imgfile:
                 imgdata = b85encode(imgfile.read())
 
@@ -372,16 +440,6 @@ class Workflows:
         self.main_window.undo_stack.push(command)
 
         self.main_window.entry_line.setUpdatesEnabled(True)
-
-    def goto_cell(self):
-        """View -> Go to cell workflow"""
-
-        # Get cell key from user
-        shape = self.main_window.grid.model.code_array.shape
-        key = CellKeyDialog(self.main_window, shape).key
-
-        if key is not None:
-            self.main_window.grid.current = key
 
     def insert_chart(self):
         """Insert chart workflow"""
