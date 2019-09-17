@@ -57,15 +57,6 @@ from PyQt5.QtGui import QImage, QPixmap
 from lib.typechecks import isslice, isstring
 from lib.selection import Selection
 
-DEFAULT_BORDERWIDTH = 1
-DEFAULT_FONT_SIZE = 10
-DEFAULT_ANGLE = 0.0
-DEFAULT_COLUMN_WIDTH = 75
-DEFAULT_ROW_HEIGHT = 26
-DEFAULT_ALIGNMENT = "align_top"
-DEFAULT_JUSTIFICATION = "justify_left"
-DEFAULT_RENDERER = "text"
-
 
 class CellAttributes(list):
     """Stores cell formatting attributes in a list of 3 - tuples
@@ -80,27 +71,27 @@ class CellAttributes(list):
     """
 
     default_cell_attributes = {
-        "borderwidth_bottom": DEFAULT_BORDERWIDTH,
-        "borderwidth_right": DEFAULT_BORDERWIDTH,
+        "borderwidth_bottom": 1,
+        "borderwidth_right": 1,
         "bordercolor_bottom": None,
         "bordercolor_right": None,
         "bgcolor": None,
         "textfont": None,
-        "pointsize": DEFAULT_FONT_SIZE,
+        "pointsize": 10,
         "fontweight": None,
         "fontstyle": None,
         "textcolor": None,
         "underline": False,
         "strikethrough": False,
         "locked": False,
-        "angle": DEFAULT_ANGLE,
-        "column-width": DEFAULT_COLUMN_WIDTH,
-        "row-height": DEFAULT_ROW_HEIGHT,
-        "vertical_align": DEFAULT_ALIGNMENT,
-        "justification": DEFAULT_JUSTIFICATION,
+        "angle": 0.0,
+        "column-width": 75,
+        "row-height": 26,
+        "vertical_align": "align_top",
+        "justification": "justify_left",
         "frozen": False,
         "merge_area": None,
-        "renderer": DEFAULT_RENDERER,
+        "renderer": "text",
         "button_cell": False,
         "panel_cell": False,
     }
