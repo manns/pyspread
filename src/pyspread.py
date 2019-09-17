@@ -58,6 +58,7 @@ from src.workflows import Workflows
 from src.widgets import Widgets
 from src.dialogs import ApproveWarningDialog, PreferencesDialog
 from src.panels import MacroPanel
+from src.lib.hashing import genkey
 
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
@@ -89,6 +90,8 @@ class MainWindow(QMainWindow):
         self._init_toolbars()
 
         self.settings.restore()
+        if self.settings.signature_key is None:
+            self.settings.signature_key = genkey()
 
         self.show()
         self._update_action_toggles()
@@ -257,10 +260,13 @@ class MainWindow(QMainWindow):
         """Preferences event handler"""
 
         data = PreferencesDialog(self).data
+
         if data is not None:
             # Dialog has not been approved --> Store data to settings
             for key in data:
-                self.settings[key] = data[key]
+                if key == "signature_key" and not data[key]:
+                    data[key] = genkey()
+                self.settings.__setattr__(key, data[key])
 
     def on_undo(self):
         """Undo event handler"""

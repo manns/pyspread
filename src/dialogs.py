@@ -42,7 +42,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDialog, QLineEdit
 from PyQt5.QtWidgets import QLabel, QFormLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtWidgets import QDialogButtonBox, QSplitter, QTextBrowser
-from PyQt5.QtGui import QIntValidator, QImageWriter
+from PyQt5.QtGui import QIntValidator, QValidator, QImageWriter
 
 try:
     from matplotlib.figure import Figure
@@ -190,10 +190,7 @@ class DataEntryDialog(QDialog):
         result = self.exec_()
 
         if result == QDialog.Accepted:
-            data = tuple(editor.text() for editor in self.editors)
-            if all(data):
-                return data
-            # At least one field was empty or contained no number
+            return tuple(editor.text() for editor in self.editors)
 
     def create_form(self):
         """Returns form inside a QGroupBox"""
@@ -259,7 +256,10 @@ class GridShapeDialog(DataEntryDialog):
 
         data = self.data
         if data is not None:
-            return tuple(map(int, data))
+            try:
+                return tuple(map(int, data))
+            except ValueError:
+                return
 
 
 class PreferencesDialog(DataEntryDialog):
@@ -270,10 +270,11 @@ class PreferencesDialog(DataEntryDialog):
         groupbox_title = "Global settings"
         labels = ["Signature key for files", "Cell calculation timeout [s]"]
         self.keys = ["signature_key", "timeout"]
+        self.mappers = [str, int]
         data = [getattr(parent.settings, key) for key in self.keys]
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
-        validators = [validator] * len(labels)
+        validators = [None, validator]
         super().__init__(parent, title, labels, data, groupbox_title,
                          validators)
 
@@ -287,8 +288,10 @@ class PreferencesDialog(DataEntryDialog):
 
         data = super().data
         if data is not None:
-            int_data = map(int, data)
-            return dict(zip(self.keys, int_data))
+            data_dict = {}
+            for key, mapper, data in zip(self.keys, self.mappers, data):
+                data_dict[key] = mapper(data)
+            return data_dict
 
 
 class CellKeyDialog(DataEntryDialog):
@@ -329,7 +332,10 @@ class CellKeyDialog(DataEntryDialog):
 
         data = self.data
         if data is not None:
-            return tuple(map(int, data))
+            try:
+                return tuple(map(int, data))
+            except ValueError:
+                return
 
 
 class FileDialogBase:
@@ -362,7 +368,7 @@ class FileOpenDialog(FileDialogBase):
     def _get_filepath(self):
         """Returns (filepath, chosen_filter) from modal user dialog"""
 
-        path = self.main_window.application_states.last_file_input_path
+        path = self.main_window.settings.last_file_input_path
         filepath, chosen_filter = \
             QFileDialog.getOpenFileName(self.main_window, self.title,
                                         str(path), self.name_filter)
@@ -377,7 +383,7 @@ class FileSaveDialog(FileDialogBase):
     def _get_filepath(self):
         """Returns (filepath, chosen_filter) from modal user dialog"""
 
-        path = self.main_window.application_states.last_file_output_path
+        path = self.main_window.settings.last_file_output_path
         filepath, chosen_filter = \
             QFileDialog.getSaveFileName(self.main_window, self.title,
                                         str(path), self.name_filter)
@@ -399,7 +405,7 @@ class ImageFileOpenDialog(FileDialogBase):
     def _get_filepath(self):
         """Returns (filepath, chosen_filter) from modal user dialog"""
 
-        path = self.main_window.application_states.last_file_input_path
+        path = self.main_window.settings.last_file_input_path
         filepath, chosen_filter = \
             QFileDialog.getOpenFileName(self.main_window,
                                         self.title,

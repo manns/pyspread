@@ -66,13 +66,13 @@ class Settings:
         if not hasattr(self, key):
             raise AttributeError("{self} has no attribute {key}.".format(
                                  self=self, key=key))
-        object.__setattr__(self, key, value)
+        super().__setattr__(key, value)
 
     def reset(self):
         cls_attrs = (attr for attr in dir(self)
                      if (not attr.startswith("__")
-                         and attr not in ("reset", "parent", "save_gui_states",
-                                          "restore_gui_states")))
+                         and attr not in ("reset", "parent", "save",
+                                          "restore")))
         for cls_attr in cls_attrs:
             setattr(self, cls_attr, getattr(Settings, cls_attr))
 
