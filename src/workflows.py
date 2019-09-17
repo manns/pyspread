@@ -130,9 +130,6 @@ class Workflows:
         # Select upper left cell because initial selection behaves strange
         self.main_window.grid.reset_selection()
 
-        # Reset application states
-        self.main_window.settings.reset()
-
         # Exit safe mode
         self.main_window.safe_mode = False
 
@@ -157,12 +154,14 @@ class Workflows:
         self.main_window.grid.model.reset()
 
         # Is the file signed properly?
+        signature_key = self.main_window.settings.signature_key
         try:
-            with open(filepath) as infile:
-                sigpath = filepath / ".sig"
-                with open(sigpath) as sigfile:
+            with open(filepath, "rb") as infile:
+                signature_path = filepath.with_suffix(filepath.suffix + '.sig')
+                with open(signature_path, "rb") as sigfile:
                     self.main_window.safe_mode = not verify(infile.read(),
-                                                            sigfile.read())
+                                                            sigfile.read(),
+                                                            signature_key)
         except OSError:
             self.main_window.safe_mode = True
 
@@ -198,23 +197,24 @@ class Workflows:
         # Select upper left cell because initial selection behaves strangely
         self.main_window.grid.reset_selection()
 
-        # Reset application states
-        self.main_window.settings.reset()
-
         # Change the main window last input directory state
         self.main_window.settings.last_file_input_path = filepath
 
+        # Change the main window filepath state
+        self.main_window.settings.changed_since_save = False
+
     def sign_file(self, filepath):
-        """Signs filepath if gnupg present and pyspread not in safe mode"""
+        """Signs filepath if pyspread is not in safe mode"""
 
         if self.main_window.grid.model.code_array.safe_mode:
             msg = "File saved but not signed because it is unapproved."
             self.main_window.statusBar().showMessage(msg)
             return
 
+        signature_key = self.main_window.settings.signature_key
         try:
             with open(filepath, "rb") as infile:
-                signature = sign(infile.read())
+                signature = sign(infile.read(), signature_key)
         except OSError as err:
             msg = "Error signing file: {}".format(err)
             self.main_window.statusBar().showMessage(msg)
@@ -225,7 +225,8 @@ class Workflows:
             self.main_window.statusBar().showMessage(msg)
             return
 
-        with open(filepath + '.sig', 'wb') as signfile:
+        signature_path = filepath.with_suffix(filepath.suffix + '.sig')
+        with open(signature_path, 'wb') as signfile:
             signfile.write(signature)
 
         msg = "File saved and signed."
@@ -293,9 +294,6 @@ class Workflows:
 
     def file_save(self):
         """File save workflow"""
-
-        if not self.main_window.settings.changed_since_save:
-            return
 
         filepath = self.main_window.settings.last_file_input_path
 

@@ -35,11 +35,11 @@ Provides
 
 """
 
+import ast
+
 from hashlib import blake2b
 from hmac import compare_digest
 import secrets
-
-from settings import Settings
 
 
 def genkey(nbytes=64):
@@ -52,19 +52,14 @@ def genkey(nbytes=64):
     return secrets.token_bytes(nbytes)
 
 
-def sign(data, key=None):
-    """Returns signature for file
-
-    If key is None use settings key.
-
-    """
-
-    if key is None:
-        settings = Settings()
-        key = settings.signature_key
+def sign(data, key):
+    """Returns signature for file"""
 
     if not key:
         raise ValueError("No signature key defined")
+
+    if not isinstance(key, bytes):
+        key = ast.literal_eval(key)
 
     signature = blake2b(digest_size=64, key=key)
     signature.update(data)
@@ -72,16 +67,11 @@ def sign(data, key=None):
     return signature.hexdigest().encode('utf-8')
 
 
-def verify(data, signature, key=None):
-    """Verifies a signature, returns True if successful else False
+def verify(data, signature, key):
+    """Verifies a signature, returns True if successful else False"""
 
-    If key is None use settings key.
-
-    """
-
-    if key is None:
-        settings = Settings()
-        key = settings.signature_key
+    if not isinstance(key, bytes):
+        key = ast.literal_eval(key)
 
     data_signature = sign(data, key)
     return compare_digest(data_signature, signature)
