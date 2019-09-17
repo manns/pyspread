@@ -51,7 +51,6 @@ from src.lib.hashing import sign, verify
 class Workflows:
     def __init__(self, main_window):
         self.main_window = main_window
-        self.application_states = main_window.application_states
 
     @contextmanager
     def progress_dialog(self, title, label, maximum, min_duration=3000):
@@ -87,7 +86,7 @@ class Workflows:
         def function_wrapper(self):
             """Check changes and display and handle the dialog"""
 
-            if self.application_states.changed_since_save:
+            if self.main_window.settings.changed_since_save:
                 choice = DiscardChangesDialog(self.main_window).choice
                 if choice is None:
                     return
@@ -102,10 +101,10 @@ class Workflows:
         """Sets changed_since_save to False and updates the window title"""
 
         # Change the main window filepath state
-        self.application_states.changed_since_save = False
+        self.main_window.settings.changed_since_save = False
 
         # Get the current filepath
-        filepath = self.application_states.last_file_input_path
+        filepath = self.main_window.settings.last_file_input_path
 
         # Change the main window title
         window_title = "{filename} - pyspread".format(filename=filepath.name)
@@ -132,7 +131,7 @@ class Workflows:
         self.main_window.grid.reset_selection()
 
         # Reset application states
-        self.application_states.reset()
+        self.main_window.settings.reset()
 
         # Exit safe mode
         self.main_window.safe_mode = False
@@ -141,6 +140,7 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
+        #TODO: Fix signature key issue
         code_array = self.main_window.grid.model.code_array
 
         # Get filepath from user
@@ -199,10 +199,10 @@ class Workflows:
         self.main_window.grid.reset_selection()
 
         # Reset application states
-        self.application_states.reset()
+        self.main_window.settings.reset()
 
         # Change the main window last input directory state
-        self.application_states.last_file_input_path = filepath
+        self.main_window.settings.last_file_input_path = filepath
 
     def sign_file(self, filepath):
         """Signs filepath if gnupg present and pyspread not in safe mode"""
@@ -280,10 +280,10 @@ class Workflows:
             return
 
         # Change the main window filepath state
-        self.application_states.changed_since_save = False
+        self.main_window.settings.changed_since_save = False
 
         # Set the current filepath
-        self.application_states.last_file_input_path = filepath
+        self.main_window.settings.last_file_input_path = filepath
 
         # Change the main window title
         window_title = "{filename} - pyspread".format(filename=filepath.name)
@@ -294,10 +294,10 @@ class Workflows:
     def file_save(self):
         """File save workflow"""
 
-        if not self.application_states.changed_since_save:
+        if not self.main_window.settings.changed_since_save:
             return
 
-        filepath = self.application_states.last_file_input_path
+        filepath = self.main_window.settings.last_file_input_path
 
         if filepath.suffix:
             self._save(filepath)

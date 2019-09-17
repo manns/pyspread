@@ -54,10 +54,17 @@ import sys
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
 
-from settings import Settings
-
 from lib.typechecks import isslice, isstring
 from lib.selection import Selection
+
+DEFAULT_BORDERWIDTH = 1
+DEFAULT_FONT_SIZE = 10
+DEFAULT_ANGLE = 0.0
+DEFAULT_COLUMN_WIDTH = 75
+DEFAULT_ROW_HEIGHT = 26
+DEFAULT_ALIGNMENT = "align_top"
+DEFAULT_JUSTIFICATION = "justify_left"
+DEFAULT_RENDERER = "text"
 
 
 class CellAttributes(list):
@@ -72,33 +79,30 @@ class CellAttributes(list):
 
     """
 
-    settings = Settings()
-
     default_cell_attributes = {
-        "borderwidth_bottom": 1,
-        "borderwidth_right": 1,
-        "bordercolor_bottom": settings.grid_color,
-        "bordercolor_right": settings.grid_color,
-        "bgcolor": settings.background_color,
-        "textfont": settings.font,
-        "pointsize": 10,
-        "fontweight": 50,
-        "fontstyle": 0,
-        "textcolor": settings.text_color,
+        "borderwidth_bottom": DEFAULT_BORDERWIDTH,
+        "borderwidth_right": DEFAULT_BORDERWIDTH,
+        "bordercolor_bottom": None,
+        "bordercolor_right": None,
+        "bgcolor": None,
+        "textfont": None,
+        "pointsize": DEFAULT_FONT_SIZE,
+        "fontweight": None,
+        "fontstyle": None,
+        "textcolor": None,
         "underline": False,
         "strikethrough": False,
         "locked": False,
-        "angle": 0.0,
-        "column-width": 75,
-        "row-height": 26,
-        "vertical_align": "align_top",
-        "justification": "justify_left",
+        "angle": DEFAULT_ANGLE,
+        "column-width": DEFAULT_COLUMN_WIDTH,
+        "row-height": DEFAULT_ROW_HEIGHT,
+        "vertical_align": DEFAULT_ALIGNMENT,
+        "justification": DEFAULT_JUSTIFICATION,
         "frozen": False,
         "merge_area": None,
-        "renderer": "text",
+        "renderer": DEFAULT_RENDERER,
         "button_cell": False,
         "panel_cell": False,
-        "video_volume": None,
     }
 
     # Cache for __getattr__ maps key to tuple of len and attr_dict
@@ -287,10 +291,9 @@ class DataArray(object):
 
     """
 
-    settings = Settings()
-
-    def __init__(self, shape):
+    def __init__(self, shape, settings):
         self.dict_grid = DictGrid(shape)
+        self.settings = settings
 
         # Safe mode
         self.safe_mode = False
@@ -583,7 +586,7 @@ class DataArray(object):
             return self.row_heights[(row, tab)]
 
         except KeyError:
-            return self.settings.default_row_height
+            return
 
     def get_col_width(self, col, tab):
         """Returns column width"""
@@ -592,7 +595,7 @@ class DataArray(object):
             return self.col_widths[(col, tab)]
 
         except KeyError:
-            return self.settings.default_col_width
+            return
 
     def keys(self):
         """Returns keys in self.dict_grid"""

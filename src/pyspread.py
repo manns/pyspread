@@ -37,7 +37,6 @@ Provides
 
 """
 
-from pathlib import Path
 import os
 import sys
 
@@ -45,7 +44,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor, QFont, QPalette
 
 from src.settings import Settings, VERSION
 from src.icons import Icon
@@ -68,83 +67,6 @@ QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
-class ApplicationStates:
-    """Holds all global application states"""
-
-    # Names of widgets with persistant states
-    widget_names = ['main_window', "main_toolbar", "find_toolbar",
-                    "format_toolbar", "macro_toolbar", "widget_toolbar"]
-
-    # Note that safe_mode is not listed here but inside model.DataArray
-
-    changed_since_save = False  # If True then File actions trigger a dialog
-    last_file_input_path = Path.home()  # Initial path for opening files
-    last_file_output_path = Path.home()  # Initial path for saving files
-    border_choice = "All borders"  # The state of the border choice button
-
-    def __init__(self, parent):
-        super().__setattr__("parent", parent)
-        super().__setattr__("settings", parent.settings)
-
-    def __setattr__(self, key, value):
-        if not hasattr(self, key):
-            raise AttributeError("{self} has no attribute {key}.".format(
-                                 self=self, key=key))
-        object.__setattr__(self, key, value)
-
-    def reset(self):
-        cls_attrs = (attr for attr in dir(self)
-                     if (not attr.startswith("__")
-                         and attr not in ("reset", "parent", "settings",
-                                          "save_gui_states",
-                                          "restore_gui_states")))
-        for cls_attr in cls_attrs:
-            setattr(self, cls_attr, getattr(ApplicationStates, cls_attr))
-
-    def save_gui_states(self):
-        """Saves GUI states to QSettings"""
-
-        for widget_name in self.widget_names:
-            geometry_name = widget_name + '/geometry'
-            widget_state_name = widget_name + '/windowState'
-
-            if widget_name == "main_window":
-                widget = self.parent
-            else:
-                widget = getattr(self.parent, widget_name)
-            try:
-                self.settings.qsettings.setValue(geometry_name,
-                                                 widget.saveGeometry())
-            except AttributeError:
-                pass
-            try:
-                self.settings.qsettings.setValue(widget_state_name,
-                                                 widget.saveState())
-            except AttributeError:
-                pass
-
-        self.settings.qsettings.sync()
-
-    def restore_gui_states(self):
-        """Restores GUI states from QSettings"""
-
-        for widget_name in self.widget_names:
-            geometry_name = widget_name + '/geometry'
-            widget_state_name = widget_name + '/windowState'
-
-            if widget_name == "main_window":
-                widget = self.parent
-            else:
-                widget = getattr(self.parent, widget_name)
-
-            geometry = self.settings.qsettings.value(geometry_name)
-            if geometry:
-                widget.restoreGeometry(geometry)
-            widget_state = self.settings.qsettings.value(widget_state_name)
-            if widget_state:
-                widget.restoreState(widget_state)
-
-
 class MainWindow(QMainWindow):
     """Pyspread main window"""
 
@@ -155,8 +77,7 @@ class MainWindow(QMainWindow):
 
         self._loading = True
         self.application = application
-        self.settings = Settings()
-        self.application_states = ApplicationStates(self)
+        self.settings = Settings(self)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
 
@@ -167,7 +88,7 @@ class MainWindow(QMainWindow):
         self._init_window()
         self._init_toolbars()
 
-        self.application_states.restore_gui_states()
+        self.settings.restore()
 
         self.show()
         self._update_action_toggles()
@@ -197,7 +118,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         """Overloaded close event, allows saving changes or canceling close"""
 
-        self.application_states.save_gui_states()
+        self.settings.save()
 
         self.workflows.file_quit()
         event.ignore()
@@ -339,7 +260,7 @@ class MainWindow(QMainWindow):
         if data is not None:
             # Dialog has not been approved --> Store data to settings
             for key in data:
-                self.settings.__setattr__(key, data[key])
+                self.settings[key] = data[key]
 
     def on_undo(self):
         """Undo event handler"""
@@ -467,8 +388,18 @@ class MainWindow(QMainWindow):
             self.menuBar().line_width_submenu.setIcon(icon)
             self.format_toolbar.line_width_button.setIcon(icon)
 
-        widgets.text_color_button.color = QColor(*attributes["textcolor"])
-        widgets.background_color_button.color = QColor(*attributes["bgcolor"])
+        if attributes["textcolor"] is None:
+            text_color = self.grid.palette().color(QPalette.Text)
+        else:
+            text_color = QColor(*attributes["textcolor"])
+        widgets.text_color_button.color = text_color
+
+        if attributes["bgcolor"] is None:
+            bgcolor = self.grid.palette().color(QPalette.Base)
+        else:
+            bgcolor = QColor(*attributes["bgcolor"])
+        widgets.background_color_button.color = bgcolor
+
         widgets.font_combo.font = attributes["textfont"]
         widgets.font_size_combo.size = attributes["pointsize"]
 

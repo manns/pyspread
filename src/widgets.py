@@ -277,7 +277,7 @@ class FontChoiceCombo(QFontComboBox):
         self.setMaximumWidth(150)
 
         # Set default font
-        self.setFont(QFont(main_window.settings.font))
+        self.setFont(QFont())
 
         self.currentFontChanged.connect(self.on_font)
 
@@ -309,11 +309,10 @@ class FontSizeCombo(QComboBox):
 
         self.setEditable(True)
 
-        for size in main_window.settings.font_default_sizes:
+        for size in main_window.settings.font_sizes:
             self.addItem(str(size))
 
-        idx = self.findText(str(
-                main_window.settings.font_default_size))
+        idx = self.findText(str(main_window.settings.font_sizes))
         if idx >= 0:
             self.setCurrentIndex(idx)
 
@@ -354,22 +353,19 @@ class FontSizeCombo(QComboBox):
 class Widgets:
     def __init__(self, main_window):
 
-        self.main_window = main_window
-        settings = self.main_window.settings
-
         # Format toolbar widgets
 
         self.font_combo = FontChoiceCombo(main_window)
 
         self.font_size_combo = FontSizeCombo(main_window)
 
-        text_color = QColor(*settings.text_color)
+        text_color = QColor("black")
         self.text_color_button = TextColorButton(text_color)
 
-        background_color = QColor(*settings.background_color)
+        background_color = QColor("white")
         self.background_color_button = BackgroundColorButton(background_color)
 
-        line_color = QColor(*settings.grid_color)
+        line_color = QColor("black")
         self.line_color_button = LineColorButton(line_color)
 
         self.renderer_button = RendererButton(main_window)

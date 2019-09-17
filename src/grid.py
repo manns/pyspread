@@ -43,7 +43,7 @@ from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont
-from PyQt5.QtGui import QImage as BasicQImage, QPainter
+from PyQt5.QtGui import QImage as BasicQImage, QPainter, QPalette
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
@@ -68,22 +68,12 @@ from src.lib.typechecks import is_svg
 class Grid(QTableView):
     """The main grid of pyspread"""
 
-    zoom_levels = [0.4, 0.5, 0.6, 0.7, 0.8, 1.0,
-                   1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0]
-
     def __init__(self, main_window):
         super().__init__()
 
         self.main_window = main_window
 
-        dimensions = (main_window.settings.grid_rows,
-                      main_window.settings.grid_columns,
-                      main_window.settings.grid_tables)
-
-        window_position = main_window.settings.window_position
-        window_size = main_window.settings.window_size
-
-        self.setGeometry(*window_position, *window_size)
+        dimensions = main_window.settings.shape
 
         self.model = GridTableModel(main_window, dimensions)
         self.setModel(self.model)
@@ -333,8 +323,8 @@ class Grid(QTableView):
         code = self.model.code_array(self.current)
         self.main_window.entry_line.setPlainText(code)
 
-        if not self.main_window.application_states.changed_since_save:
-            self.main_window.application_states.changed_since_save = True
+        if not self.main_window.settings.changed_since_save:
+            self.main_window.settings.changed_since_save = True
             main_window_title = "* " + self.main_window.windowTitle()
             self.main_window.setWindowTitle(main_window_title)
 
@@ -378,14 +368,16 @@ class Grid(QTableView):
     def on_zoom_in(self):
         """Zoom in event handler"""
 
-        larger_zoom_levels = [zl for zl in self.zoom_levels if zl > self.zoom]
+        zoom_levels = self.main_window.settings.zoom_levels
+        larger_zoom_levels = [zl for zl in zoom_levels if zl > self.zoom]
         if larger_zoom_levels:
             self.zoom = min(larger_zoom_levels)
 
     def on_zoom_out(self):
         """Zoom out event handler"""
 
-        smaller_zoom_levels = [zl for zl in self.zoom_levels if zl < self.zoom]
+        zoom_levels = self.main_window.settings.zoom_levels
+        smaller_zoom_levels = [zl for zl in zoom_levels if zl < self.zoom]
         if smaller_zoom_levels:
             self.zoom = max(smaller_zoom_levels)
 
@@ -655,8 +647,7 @@ class Grid(QTableView):
     def on_border_choice(self, event):
         """Border choice style event handler"""
 
-        self.main_window.application_states.border_choice = \
-            self.sender().text()
+        self.main_window.settings.border_choice = self.sender().text()
         self.gui_update()
 
     def on_text_color(self):
@@ -675,7 +666,7 @@ class Grid(QTableView):
     def on_line_color(self):
         """Line color change event handler"""
 
-        border_choice = self.main_window.application_states.border_choice
+        border_choice = self.main_window.settings.border_choice
         bottom_selection = \
             self.selection.get_bottom_borders_selection(border_choice)
         right_selection = \
@@ -720,7 +711,7 @@ class Grid(QTableView):
 
         width = int(self.sender().text().split()[-1])
 
-        border_choice = self.main_window.application_states.border_choice
+        border_choice = self.main_window.settings.border_choice
         bottom_selection = \
             self.selection.get_bottom_borders_selection(border_choice)
         right_selection = \
@@ -877,7 +868,7 @@ class GridTableModel(QAbstractTableModel):
         super().__init__()
 
         self.main_window = main_window
-        self.code_array = CodeArray(dimensions)
+        self.code_array = CodeArray(dimensions, main_window.settings)
 
     @property
     def grid(self):
@@ -971,24 +962,34 @@ class GridTableModel(QAbstractTableModel):
                 bg_color = QBrush(QColor(*pattern_rgb), Qt.BDiagPattern)
             else:
                 bg_color_rgb = self.code_array.cell_attributes[key]["bgcolor"]
-                bg_color = QColor(*bg_color_rgb)
+                if bg_color_rgb is None:
+                    bg_color = self.grid.palette().color(QPalette.Base)
+                else:
+                    bg_color = QColor(*bg_color_rgb)
             return bg_color
 
         if role == Qt.TextColorRole:
             text_color_rgb = self.code_array.cell_attributes[key]["textcolor"]
-            return QColor(*text_color_rgb)
+            if text_color_rgb is None:
+                return self.grid.palette().color(QPalette.Text)
+            else:
+                return QColor(*text_color_rgb)
 
         if role == Qt.FontRole:
             attr = self.code_array.cell_attributes[key]
-            text_font = attr["textfont"]
-            pointsize = attr["pointsize"]
-            fontweight = attr["fontweight"]
-            italic = attr["fontstyle"]
-            underline = attr["underline"]
-            strikethrough = attr["strikethrough"]
-            font = QFont(text_font, pointsize, fontweight, italic)
-            font.setUnderline(underline)
-            font.setStrikeOut(strikethrough)
+            font = QFont()
+            if attr["textfont"] is not None:
+                font.setFamily(attr["textfont"])
+            if attr["pointsize"] is not None:
+                font.setPointSizeF(attr["pointsize"])
+            if attr["fontweight"] is not None:
+                font.setWeight(attr["fontweight"])
+            if attr["fontstyle"] is not None:
+                font.setStyle(attr["fontstyle"])
+            if attr["underline"] is not None:
+                font.setUnderline(attr["underline"])
+            if attr["strikethrough"] is not None:
+                font.setStrikeOut(attr["strikethrough"])
             return font
 
         if role == Qt.TextAlignmentRole:
@@ -1083,17 +1084,24 @@ class GridCellDelegate(QStyledItemDelegate):
         border_bottom = (x, y + height, x + width, y + height)
         border_right = (x + width, y, x + width, y + height)
 
-        bordercolor_bottom = self.cell_attributes[key]["bordercolor_bottom"]
-        bordercolor_right = self.cell_attributes[key]["bordercolor_right"]
+        cell_attributes = self.cell_attributes[key]
+        if cell_attributes["bordercolor_bottom"] is None:
+            bordercolor_bottom = self.grid.palette().color(QPalette.Mid)
+        else:
+            bordercolor_bottom = QColor(*cell_attributes["bordercolor_bottom"])
+        if cell_attributes["bordercolor_right"] is None:
+            bordercolor_right = self.grid.palette().color(QPalette.Mid)
+        else:
+            bordercolor_right = QColor(*cell_attributes["bordercolor_right"])
 
         borderwidth_bottom = self.cell_attributes[key]["borderwidth_bottom"]
         borderwidth_right = self.cell_attributes[key]["borderwidth_right"]
 
-        painter.setPen(QPen(QBrush(QColor(*bordercolor_bottom)),
+        painter.setPen(QPen(QBrush(bordercolor_bottom),
                             borderwidth_bottom * zoom))
         painter.drawLine(*border_bottom)
 
-        painter.setPen(QPen(QBrush(QColor(*bordercolor_right)),
+        painter.setPen(QPen(QBrush(bordercolor_right),
                             borderwidth_right * zoom))
         painter.drawLine(*border_right)
 

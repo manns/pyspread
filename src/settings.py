@@ -26,86 +26,115 @@ pyspread settings
 
 """
 
+from pathlib import Path
+
 from PyQt5.QtCore import QSettings
 
 VERSION = "1.99"
 
 
-class DefaultSettings:
-    """Default settings for pyspread
+class Settings:
+    """Holds all global application states"""
 
-    These settings may be overridden by stored QSettings
+    # Names of widgets with persistant states
+    widget_names = ['main_window', "main_toolbar", "find_toolbar",
+                    "format_toolbar", "macro_toolbar", "widget_toolbar"]
 
-    """
+    # Note that safe_mode is not listed here but inside model.DataArray
 
-    config_version = VERSION  # Config file version
+    shape = 1000, 100, 3  # Shape of initial grid (rows, columns, tables)
+    changed_since_save = False  # If True then File actions trigger a dialog
+    last_file_input_path = Path.home()  # Initial path for opening files
+    last_file_output_path = Path.home()  # Initial path for saving files
+    border_choice = "All borders"  # The state of the border choice button
+    timeout = 1.0  # Timeout for cell calculations in seconds
+    signature_key = None  # Key for signing save files
 
-    max_unredo = 5000
-    timeout = 10  # Cell calculation timeout in s
-    timer_interval = 1000
+    font_sizes = 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32
 
-    ui_language = 'en'  # 'system' for system locale
-    check_spelling = False  # Spell checking toggle
-    spell_lang = 'en_US'  # Spell checking language
+    zoom_levels = (0.4, 0.5, 0.6, 0.7, 0.8, 1.0,
+                   1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0)
 
-    default_open_filetype = 'pysu'
-    default_save_filetype = 'pysu'
-
-    window_position = 10, 10
-    window_size = 800, 600
-    window_layout = ''
-    icon_theme = 'Tango'
-    help_window_position = 50, 50
-    help_window_size = 600, 400
-
-    grid_rows = 1000
-    grid_columns = 100
-    grid_tables = 3
-
-    default_row_height = 23
-    default_col_width = 80
-
-    max_result_length = 100000  # Maximum result length in a cell in characters
-
-    grid_color = 192, 192, 192
-    background_color = 255, 255, 255
-    text_color = 0, 0, 0
-    freeze_color = 0, 0, 255
-
-    font = "Sans"
-    font_save_enabled = "False"
-
-    font_default_size = 10  # Default cell font size
-    font_default_sizes = [6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32]
-
-    minimum_zoom = 0.25
-    maximum_zoom = 8.0
-    zoom_factor = 0.05  # Increase and decrease factor on zoom in and zoom out
-
-    signature_key = b''
-
+    # TODO: Adjust in code
     sniff_size = 65536  # Number of bytes for csv sniffer
     #                     sniff_size should be larger than 1st+2nd line
-    max_textctrl_length = 65534  # Maximum number of characters in wx.TextCtrl
 
+    def __init__(self, parent):
+        super().__setattr__("parent", parent)
 
-class Settings:
-    """QT5 settings accessor"""
+    def __setattr__(self, key, value):
+        if not hasattr(self, key):
+            raise AttributeError("{self} has no attribute {key}.".format(
+                                 self=self, key=key))
+        object.__setattr__(self, key, value)
 
-    qsettings = QSettings("pyspread", "pyspread")
-    defaults = DefaultSettings()
+    def reset(self):
+        cls_attrs = (attr for attr in dir(self)
+                     if (not attr.startswith("__")
+                         and attr not in ("reset", "parent", "save_gui_states",
+                                          "restore_gui_states")))
+        for cls_attr in cls_attrs:
+            setattr(self, cls_attr, getattr(Settings, cls_attr))
 
-    def __getattr__(self, name):
+    def save(self):
+        """Saves application states to QSettings"""
 
-        try:
-            value = self.qsettings.value(name)
-            if value is not None:
-                return value
-        except AttributeError:
-            pass  # Attribute not in stored settings
+        settings = QSettings("pyspread", "pyspread")
 
-        return getattr(self.defaults, name)
+        # Application state
 
-    def __setattr__(self, name, value):
-        self.qsettings.setValue(name, value)
-        self.qsettings.sync()
+        settings.setValue("last_file_input_path", self.last_file_input_path)
+        settings.setValue("last_file_output_path", self.last_file_output_path)
+        settings.setValue("timeout", self.timeout)
+        settings.setValue("signature_key", self.signature_key)
+
+        # GUI state
+
+        for widget_name in self.widget_names:
+            geometry_name = widget_name + '/geometry'
+            widget_state_name = widget_name + '/windowState'
+
+            if widget_name == "main_window":
+                widget = self.parent
+            else:
+                widget = getattr(self.parent, widget_name)
+            try:
+                settings.setValue(geometry_name, widget.saveGeometry())
+            except AttributeError:
+                pass
+            try:
+                settings.setValue(widget_state_name, widget.saveState())
+            except AttributeError:
+                pass
+
+        settings.sync()
+
+    def restore(self):
+        """Restores application states from QSettings"""
+
+        settings = QSettings("pyspread", "pyspread")
+
+        # Application state
+
+        self.last_file_input_path = settings.value("last_file_input_path")
+        self.last_file_output_path = settings.value("last_file_output_path")
+        self.timeout = settings.value("timeout")
+        self.signature_key = settings.value("signature_key")
+
+        # GUI state
+
+        for widget_name in self.widget_names:
+            geometry_name = widget_name + '/geometry'
+            widget_state_name = widget_name + '/windowState'
+
+            if widget_name == "main_window":
+                widget = self.parent
+            else:
+                widget = getattr(self.parent, widget_name)
+
+            geometry = settings.value(geometry_name)
+            if geometry:
+                widget.restoreGeometry(geometry)
+            widget_state = settings.value(widget_state_name)
+            if widget_state:
+                widget.restoreState(widget_state)
