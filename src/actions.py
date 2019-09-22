@@ -171,7 +171,7 @@ class MainWindowActions(dict):
                              shortcut='Ctrl+x',
                              statustip='Cut cell to the clipboard')
 
-        self["copy"] = Action(self.parent, "&Copy", self.parent.on_nothing,
+        self["copy"] = Action(self.parent, "&Copy", self.parent.grid.on_copy,
                               icon=Icon("copy"),
                               shortcut='Ctrl+c',
                               statustip='Copy the input strings of the cells '

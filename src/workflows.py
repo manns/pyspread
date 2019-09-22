@@ -330,6 +330,37 @@ class Workflows:
 
     # Edit menu
 
+    def copy(self):
+        """Edit -> Copy workflow
+
+        Copies selected grid code to clipboard
+
+        """
+
+        grid = self.main_window.grid
+        table = grid.table
+        selection = grid.selection
+        bbox = selection.get_grid_bbox(grid.model.shape)
+        (top, left), (bottom, right) = bbox
+
+        data = []
+
+        for row in range(top, bottom + 1):
+            data.append([])
+            for column in range(left, right + 1):
+                if (row, column) in selection:
+                    code = grid.model.code_array((row, column, table))
+                    if code is None:
+                        code = ""
+                else:
+                    code = ""
+                data[-1].append(code)
+
+        data_string = "\n".join("\t".join(line) for line in data)
+
+        clipboard = QApplication.clipboard()
+        clipboard.setText(data_string)
+
     def _mime_preference(self):
         """Mime preferences  for pasting content
 
