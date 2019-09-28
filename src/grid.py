@@ -360,6 +360,11 @@ class Grid(QTableView):
 
         self.main_window.workflows.copy()
 
+    def on_copy_results(self):
+        """Copy results event handler"""
+
+        self.main_window.workflows.copy_results()
+
     def on_paste(self):
         """Paste event handler"""
 

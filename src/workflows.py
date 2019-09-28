@@ -361,6 +361,32 @@ class Workflows:
         clipboard = QApplication.clipboard()
         clipboard.setText(data_string)
 
+    def copy_results(self):
+        """Edit -> Copy results workflow
+
+        Copies repr of selected grid cells result objects to clipboard
+
+        """
+
+        def repr_nn(ele):
+            """repr which returns '' if ele is None"""
+
+            if ele is None:
+                return ''
+            return repr(ele)
+
+        grid = self.main_window.grid
+        table = grid.table
+        selection = grid.selection
+        bbox = selection.get_grid_bbox(grid.model.shape)
+        (top, left), (bottom, right) = bbox
+
+        data = grid.model.code_array[top:bottom+1, left:right+1, table]
+        data_string = "\n".join("\t".join(map(repr_nn, line)) for line in data)
+
+        clipboard = QApplication.clipboard()
+        clipboard.setText(data_string)
+
     def _mime_preference(self):
         """Mime preferences  for pasting content
 

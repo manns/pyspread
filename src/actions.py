@@ -178,7 +178,7 @@ class MainWindowActions(dict):
                                         'to the clipboard')
 
         self["copy_results"] = Action(self.parent, "Copy results",
-                                      self.parent.on_nothing,
+                                      self.parent.grid.on_copy_results,
                                       icon=Icon("copy_results"),
                                       shortcut='Shift+Ctrl+c',
                                       statustip='Copy the result strings of '
