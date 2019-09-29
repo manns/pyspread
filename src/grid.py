@@ -42,8 +42,8 @@ import numpy
 from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView
-from PyQt5.QtGui import QColor, QBrush, QPen, QFont
-from PyQt5.QtGui import QImage as BasicQImage, QPainter, QPalette
+from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QPainter, QPalette
+from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
 from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel

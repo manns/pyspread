@@ -538,3 +538,8 @@ class Selection(object):
         else:
             raise ValueError("border_choice {} unknown.".format(border_choice))
 
+    def single_cell_selected(self):
+        """Returns True iif a single cell is selected via self.cells"""
+
+        return (not any((self.block_tl, self.block_br, self.rows, self.cols))
+                and len(self.cells) == 1)

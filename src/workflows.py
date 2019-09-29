@@ -31,14 +31,21 @@ Workflows for pyspread
 from base64 import b85encode
 import bz2
 from contextlib import contextmanager
+import io
 import os.path
 from pathlib import Path
 from shutil import move
 import sys
 from tempfile import NamedTemporaryFile
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QMimeData
+from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
+
+try:
+    import matplotlib.figure as matplotlib_figure
+except ImportError:
+    matplotlib_figure = None
 
 from src.commands import CommandSetCellCode
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
@@ -46,6 +53,8 @@ from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
+from src.lib.typechecks import is_svg
+from src.lib.selection import Selection
 
 
 class Workflows:
@@ -361,12 +370,53 @@ class Workflows:
         clipboard = QApplication.clipboard()
         clipboard.setText(data_string)
 
-    def copy_results(self):
-        """Edit -> Copy results workflow
+    def _copy_results_current(self, grid):
+        """Copy cell results for the current cell"""
 
-        Copies repr of selected grid cells result objects to clipboard
+        current = grid.current
+        data = grid.model.code_array[current]
+        if data is None:
+            return
 
-        """
+        clipboard = QApplication.clipboard()
+
+        # Get renderer for current cell
+        renderer = grid.model.code_array.cell_attributes[current]["renderer"]
+
+        if renderer == "text":
+            clipboard.setText(repr(data))
+
+        elif renderer == "image":
+            if isinstance(data, BasicQImage):
+                clipboard.setImage(data)
+            else:
+                # We may have an svg image here
+                try:
+                    svg_bytes = bytes(data)
+                except TypeError:
+                    svg_bytes = bytes(data, encoding='utf-8')
+                if is_svg(svg_bytes):
+                    mime_data = QMimeData()
+                    mime_data.setData("image/svg+xml", svg_bytes)
+                    clipboard.setMimeData(mime_data)
+
+        elif renderer == "markup":
+            mime_data = QMimeData()
+            mime_data.setHtml(data)
+            clipboard.setMimeData(mime_data)
+
+        elif renderer == "matplotlib" and isinstance(data,
+                                                     matplotlib_figure.Figure):
+            # We copy and svg to the clipboard
+            svg_filelike = io.BytesIO()
+            data.savefig(svg_filelike, format="svg")
+            svg_bytes = (svg_filelike.getvalue())
+            mime_data = QMimeData()
+            mime_data.setData("image/svg+xml", svg_bytes)
+            clipboard.setMimeData(mime_data)
+
+    def _copy_results_selection(self, grid):
+        """Copy repr of selected cells result objects to the clipboard"""
 
         def repr_nn(ele):
             """repr which returns '' if ele is None"""
@@ -375,7 +425,6 @@ class Workflows:
                 return ''
             return repr(ele)
 
-        grid = self.main_window.grid
         table = grid.table
         selection = grid.selection
         bbox = selection.get_grid_bbox(grid.model.shape)
@@ -386,6 +435,35 @@ class Workflows:
 
         clipboard = QApplication.clipboard()
         clipboard.setText(data_string)
+
+    def copy_results(self):
+        """Edit -> Copy results workflow
+
+        If a selection is present then repr of selected grid cells result
+        objects are copied to the clipboard.
+
+        If no selection is present, the current cell results are copied to the
+        clipboard. This can be plain text, html, a png image or an svg image.
+
+        """
+
+        grid = self.main_window.grid
+        selection = grid.selection
+        cell_attributes = grid.model.code_array.cell_attributes
+        merge_area = cell_attributes[grid.current]["merge_area"]
+        if merge_area is None:
+            merge_sel = None
+        else:
+            top, left, bottom, right = merge_area
+            merge_sel = Selection([(top, left)], [(bottom, right)], [], [], [])
+
+        # Handle merged cells
+        if selection.single_cell_selected() or \
+           merge_sel.get_bbox() == selection.get_bbox():
+            self._copy_results_current(grid)
+        else:
+            # We have a selection of multipek cells and no merged cell
+            self._copy_results_selection(grid)
 
     def _mime_preference(self):
         """Mime preferences  for pasting content
@@ -399,21 +477,21 @@ class Workflows:
 
         mime_preferences = []
 
-        # Vector images
-
-        mime_preferences += [
-            "image/svg+xml-compressed",
-            "image/svg+xml",
-        ]
-
-        # Bitmap images
-
-        mime_preferences += [
-            "image/png",
-            "image/tiff",
-            "image/jpeg",
-            "image/bmp",
-        ]
+#        # Vector images
+#
+#        mime_preferences += [
+#            "image/svg+xml-compressed",
+#            "image/svg+xml",
+#        ]
+#
+#        # Bitmap images
+#
+#        mime_preferences += [
+#            "image/png",
+#            "image/tiff",
+#            "image/jpeg",
+#            "image/bmp",
+#        ]
 
         # Text
 
@@ -428,18 +506,47 @@ class Workflows:
     def paste(self):
         """Edit -> Paste workflow
 
+        TODO: Mark grid changed
+
         Paste handles clipboard data by choosing amongst the available mime
-        types. Paste As allows individual choice to both mime data choice and
+        types.
+        *Currently, only text-plain is supported.*
+        (The preference of mime types is taken from self._mime_preference)
+
+        Paste As allows individual choice to both mime data choice and
         data post processing, e. g. how a table is distributed in the grid.
 
 
         TODO: Add puys and pysu to freedesktop.org shared mime data
+
+
+        If no selection is present, data is pasted starting with current cell
+        If a selection is present, data is pasted fully if the selection is
+        smaller. If the selection is larger then data is duplicated.
+        Parameters
+        ----------
+        ul_key: Tuple
+        \key of top left cell of paste area
+        data: iterable of iterables where inner iterable returns string
+        \tThe outer iterable represents rows
+        freq: Integer, defaults to None
+        \tStatus message frequency
 
         """
 
         clipboard = QApplication.clipboard()
         mimedata = clipboard.mimeData()
         print(mimedata.formats())
+
+#        data = clipboard.text
+#        paste_gen = (line.split("\t") for line in data.split("\n"))
+#
+#        if selection:
+#            # There is a selection.  Paste into it.
+#            self.paste_to_selection(selection, data, freq=freq)
+#        else:
+#            # There is no selection.  Paste from current cell.
+#            self.paste_to_current_cell(tl_key, data, freq=freq)
 
     # View menu
 
