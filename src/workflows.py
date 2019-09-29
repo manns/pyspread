@@ -38,7 +38,7 @@ from shutil import move
 import sys
 from tempfile import NamedTemporaryFile
 
-from PyQt5.QtCore import Qt, QMimeData
+from PyQt5.QtCore import Qt, QMimeData, QModelIndex
 from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QTextDocument, QImage
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
@@ -55,7 +55,6 @@ from src.dialogs import CellKeyDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
 from src.lib.typechecks import is_svg
-from src.lib.selection import Selection
 
 
 class Workflows:
@@ -461,24 +460,44 @@ class Workflows:
         grid = self.main_window.grid
 
         if grid.has_selection():
-            self._copy_results_current(grid)
-        else:
             self._copy_results_selection(grid)
+        else:
+            self._copy_results_current(grid)
 
-    @handle_changed_since_save
-    def _paste_to_selection(selection, data):
+    def _paste_to_selection(self, selection, data):
         """"""
 
         paste_gen = (line.split("\t") for line in data.split("\n"))
 
-    @handle_changed_since_save
-    def _paste_to_current(selection, data):
-        """"""
+    def _paste_to_current(self, data):
+        """Pastes data into grid starting from the current cell"""
+
+        grid = self.main_window.grid
+        model = grid.model
+        top, left, curr_table = current = grid.current
+        code_array = grid.model.code_array
+        undo_stack = self.main_window.undo_stack
+
+        description_tpl = "Paste clipboard starting from cell {}"
+        description = description_tpl.format(current)
+
+        paste_gen = (line.split("\t") for line in data.split("\n"))
+        for row, line in enumerate(paste_gen):
+            paste_row = row + top
+            if (paste_row, 0, curr_table) not in code_array:
+                break
+            for column, value in enumerate(line):
+                paste_column = column + left
+                if (paste_row, paste_column, curr_table) in code_array:
+                    index = model.index(paste_row, paste_column, QModelIndex())
+                    command = CommandSetCellCode(value, model, index,
+                                                 description)
+                    undo_stack.push(command)
+                else:
+                    break
 
     def paste(self):
         """Edit -> Paste workflow
-
-        TODO: Mark grid changed
 
         Pastes text clipboard data
 
@@ -493,10 +512,14 @@ class Workflows:
         clipboard = QApplication.clipboard()
         data = clipboard.text()
 
-        if data and grid.has_selection():
-            self._paste_to_selection(grid.selection, data)
-        else:
-            self._paste_to_current(grid.current, data)
+        if data:
+            # Change the main window filepath state
+            self.main_window.settings.changed_since_save = True
+
+            if grid.has_selection():
+                self._paste_to_selection(grid.selection, data)
+            else:
+                self._paste_to_current(data)
 
     # View menu
 

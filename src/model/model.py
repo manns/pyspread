@@ -477,6 +477,19 @@ class DataArray(object):
 
         return iter(self.dict_grid)
 
+    def __contains__(self, key):
+        """Handles single keys only"""
+
+        if any(not isinstance(ele, int) for ele in key):
+            return NotImplemented
+
+        row, column, table = key
+        rows, columns, tables = self.shape
+
+        return (0 <= row <= rows
+                and 0 <= column <= columns
+                and 0 <= table <= tables)
+
     # Slice support
 
     def __getitem__(self, key):
