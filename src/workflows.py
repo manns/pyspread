@@ -459,105 +459,44 @@ class Workflows:
         """
 
         grid = self.main_window.grid
-        selection = grid.selection
-        cell_attributes = grid.model.code_array.cell_attributes
-        merge_area = cell_attributes[grid.current]["merge_area"]
-        if merge_area is None:
-            merge_sel = None
-        else:
-            top, left, bottom, right = merge_area
-            merge_sel = Selection([(top, left)], [(bottom, right)], [], [], [])
 
-        # Handle merged cells
-        if selection.single_cell_selected() or \
-           merge_sel.get_bbox() == selection.get_bbox():
+        if grid.has_selection():
             self._copy_results_current(grid)
         else:
-            # We have a selection of multipek cells and no merged cell
             self._copy_results_selection(grid)
 
-    def _mime_preference(self):
-        """Mime preferences  for pasting content
+    @handle_changed_since_save
+    def _paste_to_selection(selection, data):
+        """"""
 
-        Returns a preference list for clipboard mime data.
-        Preference is assumed top to down.
-        Generally speking:
-        vector images > bitmap images > csv > text > html
+        paste_gen = (line.split("\t") for line in data.split("\n"))
 
-        """
-
-        mime_preferences = []
-
-#        # Vector images
-#
-#        mime_preferences += [
-#            "image/svg+xml-compressed",
-#            "image/svg+xml",
-#        ]
-#
-#        # Bitmap images
-#
-#        mime_preferences += [
-#            "image/png",
-#            "image/tiff",
-#            "image/jpeg",
-#            "image/bmp",
-#        ]
-
-        # Text
-
-        mime_preferences += [
-            "text/csv",
-            "text/plain",
-            "text/html",
-        ]
-
-        return mime_preferences
+    @handle_changed_since_save
+    def _paste_to_current(selection, data):
+        """"""
 
     def paste(self):
         """Edit -> Paste workflow
 
         TODO: Mark grid changed
 
-        Paste handles clipboard data by choosing amongst the available mime
-        types.
-        *Currently, only text-plain is supported.*
-        (The preference of mime types is taken from self._mime_preference)
+        Pastes text clipboard data
 
-        Paste As allows individual choice to both mime data choice and
-        data post processing, e. g. how a table is distributed in the grid.
-
-
-        TODO: Add puys and pysu to freedesktop.org shared mime data
-
-
-        If no selection is present, data is pasted starting with current cell
-        If a selection is present, data is pasted fully if the selection is
-        smaller. If the selection is larger then data is duplicated.
-        Parameters
-        ----------
-        ul_key: Tuple
-        \key of top left cell of paste area
-        data: iterable of iterables where inner iterable returns string
-        \tThe outer iterable represents rows
-        freq: Integer, defaults to None
-        \tStatus message frequency
+        If no selection is present, data is pasted starting with the current
+        cell. If a selection is present, data is pasted fully if the selection
+        is smaller. If the selection is larger then data is duplicated.
 
         """
 
-        clipboard = QApplication.clipboard()
-        mimedata = clipboard.mimeData()
-        print(mimedata.formats())
+        grid = self.main_window.grid
 
-#        data = clipboard.text
-#        paste_gen = (line.split("\t") for line in data.split("\n"))
-#
-#        if selection:
-#            # There is a selection.  Paste into it.
-#            self.paste_to_selection(selection, data, freq=freq)
-#        else:
-#            # There is no selection.  Paste from current cell.
-#            self.paste_to_current_cell(tl_key, data, freq=freq)
+        clipboard = QApplication.clipboard()
+        data = clipboard.text()
+
+        if data and grid.has_selection():
+            self._paste_to_selection(grid.selection, data)
+        else:
+            self._paste_to_current(grid.current, data)
 
     # View menu
 

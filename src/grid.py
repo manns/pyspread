@@ -315,6 +315,26 @@ class Grid(QTableView):
         self.verticalHeader().update_zoom()
         self.horizontalHeader().update_zoom()
 
+    def has_selection(self):
+        """Returns True if only one cell is selected else False
+
+        This method handles spanned/merged cells. One single cell that is
+        selected is considered as no cell being selected.
+
+        """
+
+        cell_attributes = self.model.code_array.cell_attributes
+        merge_area = cell_attributes[self.current]["merge_area"]
+
+        if merge_area is None:
+            merge_sel = Selection([], [], [], [], [])
+        else:
+            top, left, bottom, right = merge_area
+            merge_sel = Selection([(top, left)], [(bottom, right)], [], [], [])
+
+        return (self.selection.single_cell_selected()
+                or merge_sel.get_bbox() == self.selection.get_bbox())
+
     # Event handlers
 
     def on_data_changed(self):
