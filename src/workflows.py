@@ -31,6 +31,7 @@ Workflows for pyspread
 from base64 import b85encode
 import bz2
 from contextlib import contextmanager
+from itertools import cycle
 import io
 import os.path
 from pathlib import Path
@@ -465,16 +466,42 @@ class Workflows:
             self._copy_results_current(grid)
 
     def _paste_to_selection(self, selection, data):
-        """"""
+        """Pastes data into grid filling the selection"""
+
+        grid = self.main_window.grid
+        model = grid.model
+        (top, left), (bottom, right) = selection.get_grid_bbox(model.shape)
+        table = grid.table
+        code_array = grid.model.code_array
+        undo_stack = self.main_window.undo_stack
+
+        description_tpl = "Paste clipboard to selection {}"
+        description = description_tpl.format(selection)
 
         paste_gen = (line.split("\t") for line in data.split("\n"))
+        for row, line in enumerate(cycle(paste_gen)):
+            paste_row = row + top
+            if paste_row > bottom or (paste_row, 0, table) not in code_array:
+                break
+            for column, value in enumerate(cycle(line)):
+                paste_column = column + left
+                if ((paste_row, paste_column, table) in code_array
+                        and paste_column <= right):
+                    if (paste_row, paste_column) in selection:
+                        index = model.index(paste_row, paste_column,
+                                            QModelIndex())
+                        command = CommandSetCellCode(value, model, index,
+                                                     description)
+                        undo_stack.push(command)
+                else:
+                    break
 
     def _paste_to_current(self, data):
         """Pastes data into grid starting from the current cell"""
 
         grid = self.main_window.grid
         model = grid.model
-        top, left, curr_table = current = grid.current
+        top, left, table = current = grid.current
         code_array = grid.model.code_array
         undo_stack = self.main_window.undo_stack
 
@@ -484,11 +511,11 @@ class Workflows:
         paste_gen = (line.split("\t") for line in data.split("\n"))
         for row, line in enumerate(paste_gen):
             paste_row = row + top
-            if (paste_row, 0, curr_table) not in code_array:
+            if (paste_row, 0, table) not in code_array:
                 break
             for column, value in enumerate(line):
                 paste_column = column + left
-                if (paste_row, paste_column, curr_table) in code_array:
+                if (paste_row, paste_column, table) in code_array:
                     index = model.index(paste_row, paste_column, QModelIndex())
                     command = CommandSetCellCode(value, model, index,
                                                  description)
