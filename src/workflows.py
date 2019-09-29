@@ -475,7 +475,7 @@ class Workflows:
         code_array = grid.model.code_array
         undo_stack = self.main_window.undo_stack
 
-        description_tpl = "Paste clipboard to selection {}"
+        description_tpl = "Paste clipboard to {}"
         description = description_tpl.format(selection)
 
         paste_gen = (line.split("\t") for line in data.split("\n"))
