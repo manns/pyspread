@@ -40,6 +40,7 @@ from tempfile import NamedTemporaryFile
 
 from PyQt5.QtCore import Qt, QMimeData
 from PyQt5.QtGui import QImage as BasicQImage
+from PyQt5.QtGui import QTextDocument, QImage
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
 
 try:
@@ -403,16 +404,26 @@ class Workflows:
         elif renderer == "markup":
             mime_data = QMimeData()
             mime_data.setHtml(data)
+
+            # Also copy data as plain text
+            doc = QTextDocument()
+            doc.setHtml(data)
+            mime_data.setText(doc.toPlainText())
+
             clipboard.setMimeData(mime_data)
 
         elif renderer == "matplotlib" and isinstance(data,
                                                      matplotlib_figure.Figure):
             # We copy and svg to the clipboard
             svg_filelike = io.BytesIO()
+            png_filelike = io.BytesIO()
             data.savefig(svg_filelike, format="svg")
+            data.savefig(png_filelike, format="png")
             svg_bytes = (svg_filelike.getvalue())
+            png_image = QImage().fromData(png_filelike.getvalue())
             mime_data = QMimeData()
             mime_data.setData("image/svg+xml", svg_bytes)
+            mime_data.setImageData(png_image)
             clipboard.setMimeData(mime_data)
 
     def _copy_results_selection(self, grid):
