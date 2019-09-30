@@ -106,7 +106,6 @@ class MenuBar(QMenuBar):
         edit_menu.addAction(self.actions["copy_results"])
         edit_menu.addAction(self.actions["paste"])
         edit_menu.addAction(self.actions["paste_as"])
-        edit_menu.addAction(self.actions["select_all"])
         edit_menu.addSeparator()
         edit_menu.addAction(self.actions["find"])
         edit_menu.addAction(self.actions["replace"])

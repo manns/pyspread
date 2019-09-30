@@ -390,6 +390,11 @@ class Grid(QTableView):
 
         self.main_window.workflows.paste()
 
+    def on_paste_as(self):
+        """Paste as event handler"""
+
+        self.main_window.workflows.paste_as()
+
     def on_goto_cell(self):
         """Go to cell event handler"""
 

@@ -43,6 +43,7 @@ from PyQt5.QtCore import Qt, QMimeData, QModelIndex
 from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QTextDocument, QImage
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
+from PyQt5.QtWidgets import QInputDialog
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -403,11 +404,11 @@ class Workflows:
 
         elif renderer == "markup":
             mime_data = QMimeData()
-            mime_data.setHtml(data)
+            mime_data.setHtml(str(data))
 
             # Also copy data as plain text
             doc = QTextDocument()
-            doc.setHtml(data)
+            doc.setHtml(str(data))
             mime_data.setText(doc.toPlainText())
 
             clipboard.setMimeData(mime_data)
@@ -550,6 +551,23 @@ class Workflows:
 
     def paste_as(self):
         """Pastes clipboard using a user specified mime type"""
+
+        # The mimetypes that are supported by pyspread
+        mimetypes = ("image/svg+xml", "image/png", "image/tiff", "image/jpeg",
+                     "image/bmp", "text/html", "text/plain")
+        clipboard = QApplication.clipboard()
+        formats = clipboard.mimeData().formats()
+
+        items = [fmt for fmt in formats if fmt in mimetypes]
+        if not items:
+            return
+
+        item, ok = QInputDialog.getItem(self.main_window, "Paste as",
+                                        "Choose mime type", items, current=6,
+                                        editable=False)
+
+        if ok:
+            print(item)
 
     # View menu
 

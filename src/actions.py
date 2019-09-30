@@ -191,17 +191,11 @@ class MainWindowActions(dict):
                                statustip='Paste cells from the clipboard')
 
         self["paste_as"] = Action(self.parent, "Paste as...",
-                                  self.parent.on_nothing,
+                                  self.parent.grid.on_paste_as,
                                   icon=Icon("paste_as"),
                                   shortcut='Shift+Ctrl+v',
                                   statustip='Transform clipboard and paste '
                                             'results')
-
-        self["select_all"] = Action(self.parent, "&Select all",
-                                    self.parent.on_nothing,
-                                    icon=Icon("select_all"),
-                                    shortcut='Ctrl+a',
-                                    statustip='Select all cells')
 
         self["find"] = Action(self.parent, "&Find", self.parent.on_nothing,
                               icon=Icon("find"),
