@@ -548,6 +548,9 @@ class Workflows:
             else:
                 self._paste_to_current(data)
 
+    def paste_as(self):
+        """Pastes clipboard using a user specified mime type"""
+
     # View menu
 
     def goto_cell(self):

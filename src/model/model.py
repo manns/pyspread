@@ -1012,6 +1012,9 @@ class CodeArray(DataArray):
     def __setitem__(self, key, value):
         """Sets cell code and resets result cache"""
 
+        # Change numpy array repr function for grid cell results
+        numpy.set_string_function(lambda s: repr(s.tolist()))
+
         # Prevent unchanged cells from being recalculated on cursor movement
 
         repr_key = repr(key)
