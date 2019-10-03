@@ -39,7 +39,7 @@ from shutil import move
 import sys
 from tempfile import NamedTemporaryFile
 
-from PyQt5.QtCore import Qt, QMimeData, QModelIndex
+from PyQt5.QtCore import Qt, QMimeData, QModelIndex, QBuffer
 from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QTextDocument, QImage
 from PyQt5.QtWidgets import QApplication, QProgressDialog, QMessageBox
@@ -549,8 +549,73 @@ class Workflows:
             else:
                 self._paste_to_current(data)
 
+    @contextmanager
+    def disable_entryline_updates(self):
+        """Context manager for temporarily disabling the entry line"""
+
+        self.main_window.entry_line.setUpdatesEnabled(False)
+        yield
+        self.main_window.entry_line.setUpdatesEnabled(True)
+
+    def _paste_svg(self, svg, index):
+        """Pastes svg image into cell
+
+        Parameters
+        ----------
+         * svg: string
+        \tSVG data
+         * index: QModelIndex
+        \tTarget cell index
+
+        """
+
+        codelines = svg.splitlines()
+        codelines[0] = '"""' + codelines[0]
+        codelines[-1] = codelines[-1] + '"""'
+        code = "\n".join(codelines)
+
+        model = self.main_window.grid.model
+        description = "Insert svg image into cell {}".format(index)
+
+        self.main_window.grid.on_image_renderer_pressed(True)
+        with self.disable_entryline_updates():
+            command = CommandSetCellCode(code, model, index, description)
+            self.main_window.undo_stack.push(command)
+
+    def _paste_image(self, image_data, index):
+        """Pastes svg image into cell
+
+        Parameters
+        ----------
+         * image_data: bytes
+        \tRaw image data. May be anything that QImage handles.
+         * index: QModelIndex
+        \tTarget cell index
+
+        """
+
+        code = (r'_load_img(base64.b85decode(' +
+                repr(b85encode(image_data)) +
+                '))'
+                r' if exec("'
+                r'def _load_img(data): qimg = QImage(); '
+                r'QImage.loadFromData(qimg, data); '
+                r'return qimg\n'
+                r'") is None else None')
+
+        model = self.main_window.grid.model
+        description = "Insert image into cell {}".format(index)
+
+        self.main_window.grid.on_image_renderer_pressed(True)
+        with self.disable_entryline_updates():
+            command = CommandSetCellCode(code, model, index, description)
+            self.main_window.undo_stack.push(command)
+
     def paste_as(self):
-        """Pastes clipboard using a user specified mime type"""
+        """Pastes clipboard into one cell using a user specified mime type"""
+
+        grid = self.main_window.grid
+        model = grid.model
 
         # The mimetypes that are supported by pyspread
         mimetypes = ("image/svg+xml", "image/png", "image/tiff", "image/jpeg",
@@ -565,9 +630,55 @@ class Workflows:
         item, ok = QInputDialog.getItem(self.main_window, "Paste as",
                                         "Choose mime type", items, current=6,
                                         editable=False)
+        if not ok:
+            return
 
-        if ok:
-            print(item)
+        row, column, table = current = grid.current  # Target cell key
+
+        description_tpl = "Paste {} from clipboard into cell {}"
+        description = description_tpl.format(item, current)
+
+        index = model.index(row, column, QModelIndex())
+
+        if item == "image/svg+xml":
+            # SVG Image
+            mime_data = clipboard.mimeData()
+            if mime_data:
+                svg = mime_data.data("image/svg+xml")
+                self._paste_svg(str(svg, encoding='utf-8'), index)
+
+        elif item in ("image/png", "image/tiff", "image/jpeg", "image/bmp"):
+            # Bitmap Image
+            image = clipboard.image()
+            if not image.isNull():
+                buffer = QBuffer()
+                buffer.open(QBuffer.ReadWrite)
+                image.save(buffer, "PNG")
+                buffer.seek(0)
+                image_data = buffer.readAll()
+                buffer.close()
+                self._paste_image(image_data, index)
+
+        elif item == "text/html":
+            # HTML content
+            mime_data = clipboard.mimeData()
+            if mime_data.hasHtml():
+                html = mime_data.html()
+                command = CommandSetCellCode(html, model, index, description)
+                self.main_window.undo_stack.push(command)
+
+                grid.on_markup_renderer_pressed(True)
+
+        elif item == "text/plain":
+            # Normal code
+            code = clipboard.text()
+            if code:
+                command = CommandSetCellCode(code, model, index, description)
+                self.main_window.undo_stack.push(command)
+
+        else:
+            # Unknown mime type
+            return NotImplemented
 
     # View menu
 
@@ -594,35 +705,16 @@ class Workflows:
             filepath = Path(filepath)
             chosen_filter = image_file_open_dialog.chosen_filter
 
+        index = self.main_window.grid.currentIndex()
+
         if ".svg" in chosen_filter:
             with open(filepath, "r") as svgfile:
-                codelines = svgfile.read().splitlines()
-                codelines[0] = '"""' + codelines[0]
-                codelines[-1] = codelines[-1] + '"""'
-                code = "\n".join(codelines)
+                svg = svgfile.read()
+            self._paste_svg(svg, index)
         else:
             with open(filepath, "rb") as imgfile:
-                imgdata = b85encode(imgfile.read())
-
-            code = (r'_load_img(base64.b85decode(' +
-                    repr(imgdata) +
-                    '))'
-                    r' if exec("'
-                    r'def _load_img(data): qimg = QImage(); '
-                    r'QImage.loadFromData(qimg, data); '
-                    r'return qimg\n'
-                    r'") is None else None')
-
-        index = self.main_window.grid.currentIndex()
-        self.main_window.grid.on_image_renderer_pressed(True)
-        self.main_window.entry_line.setUpdatesEnabled(False)
-
-        model = self.main_window.grid.model
-        description = "Insert image into cell {}".format(index)
-        command = CommandSetCellCode(code, model, index, description)
-        self.main_window.undo_stack.push(command)
-
-        self.main_window.entry_line.setUpdatesEnabled(True)
+                image_data = imgfile.read()
+            self._paste_image(image_data, index)
 
     def insert_chart(self):
         """Insert chart workflow"""
