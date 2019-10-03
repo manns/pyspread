@@ -269,6 +269,8 @@ class Grid(QTableView):
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
+        elif event.key() == Qt.Key_Delete:
+            self.main_window.workflows.delete()
         else:
             super().keyPressEvent(event)
 
@@ -374,6 +376,11 @@ class Grid(QTableView):
         command = CommandSetColumnWidth(self, column, self.table, old_width,
                                         new_width, description)
         self.main_window.undo_stack.push(command)
+
+    def on_cut(self):
+        """Cut event handler"""
+
+        self.main_window.workflows.cut()
 
     def on_copy(self):
         """Copy event handler"""

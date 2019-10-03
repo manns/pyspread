@@ -349,6 +349,27 @@ class Workflows:
 
     # Edit menu
 
+    def delete(self, description_tpl="Delete selection {}"):
+        """Delete cells in selection"""
+
+        grid = self.main_window.grid
+        model = grid.model
+        selection = grid.selection
+
+        description = description_tpl.format(selection)
+
+        for row, column in selection.cell_generator(model.shape):
+            # Pop item
+            index = model.index(row, column, QModelIndex())
+            command = CommandSetCellCode(None, model, index, description)
+            self.main_window.undo_stack.push(command)
+
+    def cut(self):
+        """Edit -> Cut workflow"""
+
+        self.copy()
+        self.delete(description_tpl="Cut selection {}")
+
     def copy(self):
         """Edit -> Copy workflow
 

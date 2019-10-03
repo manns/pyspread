@@ -543,3 +543,27 @@ class Selection(object):
 
         return (not any((self.block_tl, self.block_br, self.rows, self.cols))
                 and len(self.cells) == 1)
+
+    def cell_generator(self, shape, table=None):
+        """Returns a generator of cell key tuples
+
+        Parameters:
+        -----------
+         * shape: 3-tuple of int
+        \tGrid shape
+         * table: int, defaults to None
+        \tThird component of each returned key
+
+        If table is None 2-tuples (row, column) are yielded else 3-tuples
+
+        """
+
+        (top, left), (bottom, right) = self.get_grid_bbox(shape)
+
+        for row in range(top, bottom + 1):
+            for column in range(left, right + 1):
+                if (row, column) in self:
+                    if table is None:
+                        yield row, column
+                    else:
+                        yield row, column, table

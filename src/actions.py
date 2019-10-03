@@ -166,7 +166,7 @@ class MainWindowActions(dict):
                               shortcut='Shift+Ctrl+z',
                               statustip='Redo last undone step')
 
-        self["cut"] = Action(self.parent, "Cut", self.parent.on_nothing,
+        self["cut"] = Action(self.parent, "Cut", self.parent.grid.on_cut,
                              icon=Icon("cut"),
                              shortcut='Ctrl+x',
                              statustip='Cut cell to the clipboard')
