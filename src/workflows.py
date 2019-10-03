@@ -80,6 +80,14 @@ class Workflows:
 
         progress_dialog.setValue(maximum)
 
+    @contextmanager
+    def disable_entryline_updates(self):
+        """Context manager for temporarily disabling the entry line"""
+
+        self.main_window.entry_line.setUpdatesEnabled(False)
+        yield
+        self.main_window.entry_line.setUpdatesEnabled(True)
+
     def handle_changed_since_save(func):
         """Decorator to handle changes since last saving the document
 
@@ -549,14 +557,6 @@ class Workflows:
             else:
                 self._paste_to_current(data)
 
-    @contextmanager
-    def disable_entryline_updates(self):
-        """Context manager for temporarily disabling the entry line"""
-
-        self.main_window.entry_line.setUpdatesEnabled(False)
-        yield
-        self.main_window.entry_line.setUpdatesEnabled(True)
-
     def _paste_svg(self, svg, index):
         """Pastes svg image into cell
 
@@ -618,12 +618,11 @@ class Workflows:
         model = grid.model
 
         # The mimetypes that are supported by pyspread
-        mimetypes = ("image/svg+xml", "image/png", "image/tiff", "image/jpeg",
-                     "image/bmp", "text/html", "text/plain")
+        mimetypes = ("image", "text/html", "text/plain")
         clipboard = QApplication.clipboard()
         formats = clipboard.mimeData().formats()
 
-        items = [fmt for fmt in formats if fmt in mimetypes]
+        items = [fmt for fmt in formats if any(m in fmt for m in mimetypes)]
         if not items:
             return
 
@@ -640,34 +639,31 @@ class Workflows:
 
         index = model.index(row, column, QModelIndex())
 
+        mime_data = clipboard.mimeData()
+
         if item == "image/svg+xml":
             # SVG Image
-            mime_data = clipboard.mimeData()
             if mime_data:
                 svg = mime_data.data("image/svg+xml")
                 self._paste_svg(str(svg, encoding='utf-8'), index)
 
-        elif item in ("image/png", "image/tiff", "image/jpeg", "image/bmp"):
+        elif "image" in item and mime_data.hasImage():
             # Bitmap Image
             image = clipboard.image()
-            if not image.isNull():
-                buffer = QBuffer()
-                buffer.open(QBuffer.ReadWrite)
-                image.save(buffer, "PNG")
-                buffer.seek(0)
-                image_data = buffer.readAll()
-                buffer.close()
-                self._paste_image(image_data, index)
+            buffer = QBuffer()
+            buffer.open(QBuffer.ReadWrite)
+            image.save(buffer, "PNG")
+            buffer.seek(0)
+            image_data = buffer.readAll()
+            buffer.close()
+            self._paste_image(image_data, index)
 
-        elif item == "text/html":
+        elif item == "text/html" and mime_data.hasHtml():
             # HTML content
-            mime_data = clipboard.mimeData()
-            if mime_data.hasHtml():
-                html = mime_data.html()
-                command = CommandSetCellCode(html, model, index, description)
-                self.main_window.undo_stack.push(command)
-
-                grid.on_markup_renderer_pressed(True)
+            html = mime_data.html()
+            command = CommandSetCellCode(html, model, index, description)
+            self.main_window.undo_stack.push(command)
+            grid.on_markup_renderer_pressed(True)
 
         elif item == "text/plain":
             # Normal code
