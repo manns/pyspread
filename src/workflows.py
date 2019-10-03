@@ -625,12 +625,14 @@ class Workflows:
         items = [fmt for fmt in formats if any(m in fmt for m in mimetypes)]
         if not items:
             return
-
-        item, ok = QInputDialog.getItem(self.main_window, "Paste as",
-                                        "Choose mime type", items, current=6,
-                                        editable=False)
-        if not ok:
-            return
+        elif len(items) == 1:
+            item = items[0]
+        else:
+            item, ok = QInputDialog.getItem(self.main_window, "Paste as",
+                                            "Choose mime type", items,
+                                            current=0, editable=False)
+            if not ok:
+                return
 
         row, column, table = current = grid.current  # Target cell key
 
