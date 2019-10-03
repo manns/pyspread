@@ -51,7 +51,7 @@ class MenuBar(QMenuBar):
     def __init__(self, main_window):
         super().__init__()
 
-        self.actions = main_window.actions
+        self.actions = main_window.main_window_actions
 
         self._create_menu()
 

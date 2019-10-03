@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
 
         self._init_widgets()
 
-        self.actions = MainWindowActions(self)
+        self.main_window_actions = MainWindowActions(self)
 
         self._init_window()
         self._init_toolbars()
@@ -95,6 +95,11 @@ class MainWindow(QMainWindow):
 
         self.show()
         self._update_action_toggles()
+
+        # Update the GUI so that everything matches the model
+        cell_attributes = self.grid.model.code_array.cell_attributes
+        attributes = cell_attributes[self.grid.current]
+        self.on_gui_update(attributes)
 
         self._loading = False
         self._previous_window_state = self.windowState()
@@ -163,7 +168,7 @@ class MainWindow(QMainWindow):
         if event.type() == QEvent.Close \
            and isinstance(source, QDockWidget) \
            and source.windowTitle() == "Macros":
-            self.actions["toggle_macro_panel"].setChecked(False)
+            self.main_window_actions["toggle_macro_panel"].setChecked(False)
         return super().eventFilter(source, event)
 
     def _init_toolbars(self):
@@ -185,25 +190,25 @@ class MainWindow(QMainWindow):
     def _update_action_toggles(self):
         """Updates the toggle menu check states"""
 
-        self.actions["toggle_main_toolbar"].setChecked(
+        self.main_window_actions["toggle_main_toolbar"].setChecked(
                 self.main_toolbar.isVisible())
 
-        self.actions["toggle_macro_toolbar"].setChecked(
+        self.main_window_actions["toggle_macro_toolbar"].setChecked(
                 self.macro_toolbar.isVisible())
 
-        self.actions["toggle_widget_toolbar"].setChecked(
+        self.main_window_actions["toggle_widget_toolbar"].setChecked(
                 self.widget_toolbar.isVisible())
 
-        self.actions["toggle_format_toolbar"].setChecked(
+        self.main_window_actions["toggle_format_toolbar"].setChecked(
                 self.format_toolbar.isVisible())
 
-        self.actions["toggle_find_toolbar"].setChecked(
+        self.main_window_actions["toggle_find_toolbar"].setChecked(
                 self.find_toolbar.isVisible())
 
-        self.actions["toggle_entry_line"].setChecked(
+        self.main_window_actions["toggle_entry_line"].setChecked(
                 self.entry_line.isVisible())
 
-        self.actions["toggle_macro_panel"].setChecked(
+        self.main_window_actions["toggle_macro_panel"].setChecked(
                 self.macro_dock.isVisible())
 
     @property
@@ -286,7 +291,7 @@ class MainWindow(QMainWindow):
         else:
             widget.show()
 
-        self.actions[action_name].setChecked(widget.isVisible())
+        self.main_window_actions[action_name].setChecked(widget.isVisible())
 
     def on_toggle_main_toolbar(self):
         """Main toolbar toggle event handler"""
@@ -355,22 +360,22 @@ class MainWindow(QMainWindow):
         widgets = self.widgets
 
         is_bold = attributes["fontweight"] == QFont.Bold
-        self.actions["bold"].setChecked(is_bold)
+        self.main_window_actions["bold"].setChecked(is_bold)
 
         is_italic = attributes["fontstyle"] == QFont.StyleItalic
-        self.actions["italics"].setChecked(is_italic)
+        self.main_window_actions["italics"].setChecked(is_italic)
 
-        underline_action = self.actions["underline"]
+        underline_action = self.main_window_actions["underline"]
         underline_action.setChecked(attributes["underline"])
 
-        strikethrough_action = self.actions["strikethrough"]
+        strikethrough_action = self.main_window_actions["strikethrough"]
         strikethrough_action.setChecked(attributes["strikethrough"])
 
         renderer = attributes["renderer"]
         widgets.renderer_button.set_current_action(renderer)
         widgets.renderer_button.set_menu_checked(renderer)
 
-        lock_action = self.actions["lock_cell"]
+        lock_action = self.main_window_actions["lock_cell"]
         lock_action.setChecked(attributes["locked"])
         self.entry_line.setReadOnly(attributes["locked"])
 
@@ -382,13 +387,14 @@ class MainWindow(QMainWindow):
         widgets.align_button.set_current_action(attributes["vertical_align"])
         widgets.align_button.set_menu_checked(attributes["vertical_align"])
 
-        border_action = self.actions.border_group.checkedAction()
+        border_action = self.main_window_actions.border_group.checkedAction()
         if border_action is not None:
             icon = border_action.icon()
             self.menuBar().border_submenu.setIcon(icon)
             self.format_toolbar.border_menu_button.setIcon(icon)
 
-        border_width_action = self.actions.border_width_group.checkedAction()
+        border_width_action = \
+            self.main_window_actions.border_width_group.checkedAction()
         if border_width_action is not None:
             icon = border_width_action.icon()
             self.menuBar().line_width_submenu.setIcon(icon)
@@ -409,7 +415,7 @@ class MainWindow(QMainWindow):
         widgets.font_combo.font = attributes["textfont"]
         widgets.font_size_combo.size = attributes["pointsize"]
 
-        merge_cells_action = self.actions["merge_cells"]
+        merge_cells_action = self.main_window_actions["merge_cells"]
         merge_cells_action.setChecked(attributes["merge_area"] is not None)
 
 
