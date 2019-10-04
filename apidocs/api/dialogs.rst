@@ -1,0 +1,6 @@
+######################
+dialogs.*
+######################
+
+.. automodule:: dialogs
+    :members:

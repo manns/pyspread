@@ -44,7 +44,7 @@ class PyTest(TestCommand):
 
 setup(
     name='pyspread',
-    version='1.1.3',
+    version='1.99',
     description='Python spreadsheet',
     long_description='Pyspread is a non-traditional spreadsheet application'
     ' that is based on and written in the programming language Python.',
@@ -52,9 +52,8 @@ setup(
     keywords=['spreadsheet', 'pyspread'],
     author='Martin Manns',
     author_email='mmanns@gmx.net',
-    url='https://manns.github.io/pyspread/',
-    requires=['numpy (>=1.1)', 'wx (>=2.8.10)', 'matplotlib (>=1.1.1)',
-              'pycairo (>=1.8.8)'],
+    url='http://manns.github.io/pyspread/',
+    requires=['numpy (>=1.1)', 'PyQt5 (>=5.11.3)', 'matplotlib (>=1.1.1)'],
 #    extras_require = {
 #        'GPG': ['gnupg>=0.3.0'],
 #        'SVG': [],  # May require python_rsvg if not shipped with pyCairo
@@ -65,7 +64,8 @@ setup(
     tests_require=["pytest"],
     cmdclass={"pytest": PyTest},
     packages=['pyspread'],
-    scripts=['pyspread/pyspread'],
+    scripts=['src/pyspread.py'],
+    cmdclass={'test': PyTest},
     package_data={'pyspread': [
             '*.py',
             '../pyspread.sh',
@@ -82,17 +82,13 @@ setup(
             'src/*/test/*.txt',
             'src/*/test/*.svg',
             'src/*/test/*.pys*',
-            'share/icons/*.png',
+            'share/icons/*.svg',
             'share/icons/*.ico',
-            'share/icons/Tango/24x24/actions/*.png',
-            'share/icons/Tango/24x24/toggles/*.png',
-            'share/icons/Tango/24x24/toggles/*.xpm',
-            'share/icons/Tango/24x24/status/*.png',
+            'share/icons/actions/*.svg',
+            'share/icons/status/*.svg',
             'doc/help/*.html',
             'doc/help/images/*.png',
-            'po/*',
-            'locale/*/*/*.mo',
-            'examples/*',
+            'share/templates/*/*.py',
             'COPYING',
             'thanks',
             'faq',
@@ -113,7 +109,7 @@ setup(
         'Operating System :: OS Independent',
         'Operating System :: POSIX',
         'Operating System :: Microsoft',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Office/Business :: Financial :: Spreadsheet',
     ],
 )

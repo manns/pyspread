@@ -1,7 +1,0 @@
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-riF4EABEIAAYFAk4QuXwACgkQOKJRTZORLoh0kAEAldTegTokiq2Pizso1Ucban5/
-5J6dhWi9KpUYqTXLjNwA+wWMtTM+rssd11vIxIvGrLz8NWIo8COgwFoU1N1rZ+i2
-=gp62
------END PGP SIGNATURE-----

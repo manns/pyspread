@@ -1,0 +1,6 @@
+######################
+settings.*
+######################
+
+.. automodule:: settings
+    :members:

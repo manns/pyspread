@@ -1,0 +1,6 @@
+######################
+toolbar.*
+######################
+
+.. automodule:: toolbar
+    :members:

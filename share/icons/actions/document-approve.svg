@@ -1,0 +1,2717 @@
+<svg width="128" height="128" version="1.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient id="r" x1="78.543" x2="120.4" y1="62.577" y2="62.577" gradientTransform="matrix(1.4841 0 0 1.4841 -175.62 -40.368)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#ddd" offset=".0059"/>
+   <stop stop-color="#bbb" offset=".1065"/>
+   <stop stop-color="#B2B2B2" offset=".2799"/>
+   <stop stop-color="#9B9B9B" offset=".5571"/>
+   <stop stop-color="#888" offset=".7396"/>
+   <stop stop-color="#bbb" offset="1"/>
+  </linearGradient>
+  <linearGradient id="q" x1="78.543" x2="89.006" y1="74.202" y2="47.598" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#efefef" offset="0"/>
+   <stop stop-color="#f9f9f9" offset=".18851"/>
+   <stop stop-color="#FAFAFA" offset=".25718"/>
+   <stop stop-color="#fff" offset=".30111"/>
+   <stop stop-color="#FAFAFA" offset=".5313"/>
+   <stop stop-color="#EBECEC" offset=".8449"/>
+   <stop stop-color="#E1E2E3" offset="1"/>
+  </linearGradient>
+  <linearGradient id="p" x1="99.471" x2="120.4" y1="62.577" y2="62.577" gradientUnits="userSpaceOnUse">
+   <stop offset=".0059"/>
+   <stop stop-color="#bbb" offset=".1775"/>
+   <stop stop-color="#C4C4C4" offset=".4387"/>
+   <stop stop-color="#DBDBDB" offset=".8565"/>
+   <stop stop-color="#ddd" offset=".8876"/>
+   <stop stop-color="#bbb" offset="1"/>
+  </linearGradient>
+  <linearGradient id="o" x1="117.23" x2="83.03" y1="64.214" y2="64.214" gradientTransform="matrix(1.4841 0 0 1.4562 -175.62 -38.51)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#888" offset="0"/>
+   <stop stop-color="#868686" offset=".0079"/>
+   <stop stop-color="#626262" offset=".1453"/>
+   <stop stop-color="#555" offset=".2189"/>
+   <stop stop-color="#575757" offset=".2473"/>
+   <stop stop-color="#7B7B7B" offset=".7371"/>
+   <stop stop-color="#888" offset="1"/>
+  </linearGradient>
+  <radialGradient id="l" cx="99.47" cy="80.544" r="36.66" gradientTransform="matrix(1.8002 0 0 1.4562 -207.07 -38.51)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#dec52c" offset=".14893"/>
+   <stop stop-color="#a3a191" offset=".18483"/>
+   <stop stop-color="#fff" offset=".4589"/>
+   <stop stop-color="#e8e8e8" offset=".584"/>
+   <stop stop-color="#292929" offset=".6509"/>
+   <stop stop-color="#fff" offset=".75895"/>
+   <stop stop-color="#e3e3e3" offset="1"/>
+  </radialGradient>
+  <linearGradient id="n" x1="118.4" x2="80.39" y1="63.509" y2="63.509" gradientTransform="matrix(1.4841 0 0 1.4841 -175.62 -40.368)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#fff" offset=".2899"/>
+   <stop stop-color="#ECECEC" offset=".459"/>
+   <stop stop-color="#4f4f4f" offset=".87043"/>
+   <stop stop-color="#727272" offset="1"/>
+  </linearGradient>
+  <filter id="ac">
+   <feGaussianBlur stdDeviation="0.53090557"/>
+  </filter>
+  <filter id="ab">
+   <feGaussianBlur stdDeviation="0.69774324"/>
+  </filter>
+  <linearGradient id="s" x1="33.706" x2="91.5" y1="-14.459" y2="-14.459" gradientTransform="matrix(1.4286 0 0 1.4545 -4.7143 108.98)" gradientUnits="userSpaceOnUse" xlink:href="#k"/>
+  <linearGradient id="j">
+   <stop stop-color="#fffb91" offset="0"/>
+   <stop stop-color="#f3c000" offset=".5"/>
+   <stop stop-color="#f19600" offset="1"/>
+  </linearGradient>
+  <linearGradient id="k">
+   <stop stop-color="#dccc1c" offset="0"/>
+   <stop stop-color="#815804" offset=".03125"/>
+   <stop stop-color="#f6eaa1" offset=".25"/>
+   <stop stop-color="#ecdf4c" offset=".375"/>
+   <stop stop-color="#d2ae11" offset=".5"/>
+   <stop stop-color="#ecc954" offset=".625"/>
+   <stop stop-color="#eeef8c" offset=".75"/>
+   <stop stop-color="#ecd333" offset=".875"/>
+   <stop stop-color="#8d7012" offset="1"/>
+  </linearGradient>
+  <linearGradient id="i">
+   <stop stop-color="#723700" offset="0"/>
+   <stop stop-color="#723700" stop-opacity="0" offset="1"/>
+  </linearGradient>
+  <filter id="aa">
+   <feGaussianBlur stdDeviation="0.20602401"/>
+  </filter>
+  <filter id="z">
+   <feGaussianBlur stdDeviation="0.27469869"/>
+  </filter>
+  <filter id="y">
+   <feGaussianBlur stdDeviation="0.87378641"/>
+  </filter>
+  <clipPath id="ah">
+   <path d="m176.22 4c-1.1047 0-2.2054 0.045799-3.2812 0.15625-16.136 1.6568-28.719 15.437-28.719 32.188v23.656h1.8125 1.5625 1.25 7.125v-23.812c0-11.111 9.0907-20.156 20.25-20.156 11.161 0 20.219 9.0448 20.219 20.156v23.812h7.125 1.2812 3.375v-23.656c0-16.751-12.614-30.531-28.75-32.188-1.0757-0.11045-2.1454-0.15625-3.25-0.15625z" fill="none" filter="url(#y)" stroke="#000"/>
+  </clipPath>
+  <filter id="x" x="-.024001" y="-.79889" width="1.048" height="2.5978">
+   <feGaussianBlur stdDeviation="0.8238137"/>
+  </filter>
+  <filter id="w" x="-.044405" y="-1.4781" width="1.0888" height="3.9561">
+   <feGaussianBlur stdDeviation="1.5241654"/>
+  </filter>
+  <clipPath id="ai">
+   <rect x="257.12" y="56.007" width="80" height="63.993" rx=".97227" ry=".97227" fill="url(#v)"/>
+  </clipPath>
+  <linearGradient id="v" x1="33.706" x2="91.5" y1="-14.459" y2="-14.459" gradientTransform="matrix(1.4286 0 0 1.4545 206.41 108.98)" gradientUnits="userSpaceOnUse" xlink:href="#k"/>
+  <radialGradient id="h" cx="421" cy="76" r="207" gradientTransform="matrix(.1401 0 0 .0067029 199.5 79.179)" gradientUnits="userSpaceOnUse" xlink:href="#i"/>
+  <radialGradient id="g" cx="439" cy="63" r="207" gradientTransform="matrix(.1401 0 0 .015163 199.5 78.383)" gradientUnits="userSpaceOnUse" xlink:href="#j"/>
+  <radialGradient id="f" cx="421" cy="76" r="207" gradientTransform="matrix(.21866 0 0 .010462 203.9 67.686)" gradientUnits="userSpaceOnUse" xlink:href="#i"/>
+  <radialGradient id="e" cx="439" cy="63" r="207" gradientTransform="matrix(.21866 0 0 .023666 203.9 66.443)" gradientUnits="userSpaceOnUse" xlink:href="#j"/>
+  <radialGradient id="d" cx="421" cy="76" r="207" gradientTransform="matrix(.078814 0 0 .0037708 213.72 76.802)" gradientUnits="userSpaceOnUse" xlink:href="#i"/>
+  <radialGradient id="c" cx="439" cy="63" r="207" gradientTransform="matrix(.078814 0 0 .0085301 213.72 76.354)" gradientUnits="userSpaceOnUse" xlink:href="#j"/>
+  <radialGradient id="b" cx="421" cy="76" r="207" gradientTransform="matrix(.12301 0 0 .0058855 216.19 70.336)" gradientUnits="userSpaceOnUse" xlink:href="#i"/>
+  <radialGradient id="a" cx="439" cy="63" r="207" gradientTransform="matrix(.12301 0 0 .013314 216.19 69.637)" gradientUnits="userSpaceOnUse" xlink:href="#j"/>
+  <filter id="ag">
+   <feGaussianBlur stdDeviation="0.45"/>
+  </filter>
+  <filter id="af">
+   <feGaussianBlur stdDeviation="0.20734046"/>
+  </filter>
+  <radialGradient id="m" cx="56" cy="35.232" r="40" gradientTransform="matrix(1 0 0 .26434 29.965 50.596)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#e9d127" offset="0"/>
+   <stop stop-color="#927513" offset="1"/>
+  </radialGradient>
+  <filter id="ae" x="-.11262" y="-.33786" width="1.2252" height="1.6757">
+   <feGaussianBlur stdDeviation="0.5631068"/>
+  </filter>
+  <linearGradient id="u" x1="44" x2="44" y1="52" y2="60" gradientTransform="translate(22)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#fff" offset="0"/>
+   <stop stop-opacity="0" offset="1"/>
+  </linearGradient>
+  <filter id="ad" x="-.0030677" y="-.13584" width="1.0061" height="1.2717">
+   <feGaussianBlur stdDeviation="0.10188117"/>
+  </filter>
+  <linearGradient id="t" x1="193.04" x2="306.88" y1="71.785" y2="71.785" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#fefbf1" offset="0"/>
+   <stop stop-color="#fefbf1" stop-opacity="0" offset="1"/>
+  </linearGradient>
+ </defs>
+ <rect x="46.186" y="118.58" width="79.705" height="1.8" rx=".94072" ry=".70713" fill="#846810" fill-opacity=".92959" filter="url(#ad)" opacity=".9901"/>
+ <rect transform="matrix(.97969 0 0 .7273 31.484 32.983)" x="14.496" y="118.1" width="82.378" height="2.4749" rx=".97227" ry=".97227" fill="#846810" fill-opacity=".92959" filter="url(#x)" opacity=".9901"/>
+ <g transform="matrix(1.0303 0 0 1.0656 62.849 -18.946)">
+  <path d="m-27.999 26.225c-17.154 0-31.059 13.593-31.059 30.36v22.19h11.414v-22.357c0-10.427 8.8124-18.91 19.643-18.91 10.832 0 19.643 8.4829 19.643 18.91v22.357h11.414v-22.19c0.001477-16.767-13.903-30.36-31.056-30.36z" fill="url(#r)"/>
+  <g transform="matrix(1.4841 0 0 1.4841 -175.62 -40.368)">
+   <path d="m78.543 65.329v14.952h1.195v-14.952c0-11.298 8.834-20.457 19.732-20.457-11.558 0-20.927 9.159-20.927 20.457z" fill="url(#q)" filter="url(#aa)"/>
+   <path d="m99.471 44.872c10.898 0 19.732 9.159 19.732 20.457v14.952h1.195v-14.952c0-11.298-9.369-20.457-20.927-20.457z" fill="url(#p)" filter="url(#z)"/>
+  </g>
+  <path d="m-26.399 31.214c-15.691 0-25.998 9.0276-25.998 24.799v22.761h3.9803v-22.933c0-12.092 9.8779-21.93 22.018-21.93 12.137 0 22.013 9.8379 22.013 21.93v22.933h2.75v-22.761c-0.00149-15.771-9.0736-24.799-24.763-24.799z" fill="url(#o)"/>
+  <path d="m-28.042 33.278c-14.7 0-24.355 8.6373-24.355 23.724v21.773h3.7295v-21.937c0-11.567 9.2532-20.98 20.626-20.98 11.374 0 20.626 9.4119 20.626 20.98v21.937h2.5763v-21.773c0.00149-15.089-8.4992-23.724-23.202-23.724z" fill="url(#l)" filter="url(#ab)"/>
+  <path d="m-27.999 28.099c-15.347 0-27.788 13.054-27.788 28.055v22.62h1.2362v-20.149c0-14.998 11.205-27.16 26.551-27.16 16.646 0 26.551 10.534 26.551 27.16v20.149h1.2347v-23.433c0-15.655-11.952-27.242-27.786-27.242z" fill="url(#n)" filter="url(#ac)"/>
+ </g>
+ <path transform="translate(-142.21 5)" d="m176.22 4c-1.1047 0-2.2054 0.045799-3.2812 0.15625-16.136 1.6568-28.719 15.437-28.719 32.188v23.656h11.75v-23.812c0-11.111 9.0907-20.156 20.25-20.156 11.161 0 20.219 9.0448 20.219 20.156v23.812h11.781v-23.656c0-16.751-12.614-30.531-28.75-32.188-1.0757-0.11045-2.1454-0.15625-3.25-0.15625z" clip-path="url(#ah)" fill="none" filter="url(#ag)" opacity=".4802" stroke="#000" stroke-width=".7"/>
+ <rect x="46" y="56.007" width="80" height="63.993" rx=".97227" ry=".97227" fill="url(#s)"/>
+ <path transform="matrix(.97571 0 0 1.0038 31.706 -.25335)" d="m15.468 116.11c26.47 4.9924 53.238 4.6234 80.433 0 0.53864 0 0.97227 0.43364 0.97227 0.97227v2.5228c0 0.53864-0.43363 0.97228-0.97227 0.97228h-80.433c-0.53864 0-0.97227-0.43364-0.97227-0.97228v-2.5228c0-0.53863 0.43363-0.97227 0.97227-0.97227z" filter="url(#w)" opacity=".21287" stroke="#000" stroke-linecap="square" stroke-width="2.361"/>
+ <g transform="translate(-211.13 .0026917)" clip-path="url(#ai)" opacity=".034851" stroke-width="1px">
+  <g transform="translate(101.39 1.4964)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(9.3203 4.8334)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(9.7551 16.659)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(21.489 61.778)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 40.406 3.8942)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 -1.0012 3.9208)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 165.17 58.392)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 80.822 18.686)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 84.718 -30.934)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -19.558 -11.161)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 34.728 45.077)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -52.684 -12.133)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 124.24 76.193)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 74.534 24.727)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 57.871 26.066)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 71.875 21.863)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -4.9693 -5.0049)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -98.999 66.199)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -55.256 38.583)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -83.77 15.155)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 38.881 49.701)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -63.097 11.888)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 102.37 17.313)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 23.194 64.863)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -52.084 12.157)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -150.49 24.451)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -5.6046 25.719)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -124.19 -14.027)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 61.088 42.378)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -63.819 53.257)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 60.048 51.302)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -49.833 30.848)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(92.721 46.168)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(6.885 16.737)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(22.256 34.838)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-31.565 68.033)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 68.129 76.472)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 40.732 52.387)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 39.762 -3.9475)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 27.507 22.259)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 55.1 29.138)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -65.254 22.878)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -25.782 19.707)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 22.567 46.195)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 42.371 61.769)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 92.367 70.023)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 167.88 -4.5268)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 84.532 6.8382)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 1.5619 29.411)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -133.15 24.289)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 26.113 -2.921)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -93.402 42.998)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 11.364 50.899)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -34.058 55.306)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 94.476 13.818)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 12.592 65.907)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -37.581 -27.79)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -97.378 48.834)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -3.9475 -27.697)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -71.716 -19.923)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 53.082 23.212)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -.088904 32.528)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 35.839 54.983)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 22.379 68.893)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(64.136 41.518)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-13.669 15.205)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(88.515 2.0211)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(88.207 39.964)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 124.94 45.3)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 110.2 62.733)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 178.21 9.3971)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 136.03 13.108)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 71.583 -28.814)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 3.9916 66.919)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -30.275 38.325)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 33.642 45.768)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 87.317 3.6738)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 76.836 -1.2854)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 23.385 63.843)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 74.761 8.9261)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -22.905 38.524)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -117.84 22.903)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -78.499 37.618)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -78.326 40.181)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -34.861 8.1265)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -19.843 65.436)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 43.173 80.414)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -26.385 42.762)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -10.704 -4.4294)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -90.673 -8.0695)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -119.63 -6.219)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -51.311 -19.546)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -1.2132 60.802)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 14.384 53.072)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 19.476 36.66)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 3.5597 79.179)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(-17.664 2.6727)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-19.061 63.366)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(30.723 45.049)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-33.201 63.579)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 24.266 54.229)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 6.6018 68.206)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 85.611 53.201)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 112.08 87.881)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 48.062 -28.395)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -24.595 -5.1262)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 50.098 -14.227)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 56.31 39.139)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 132.38 42.086)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 47.017 46.424)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 25.866 5.4317)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 75.251 9.8307)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -73.998 48.12)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -118.58 13.811)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -101.22 10.309)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -84.098 23.191)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 53.891 61.572)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -53.869 63.011)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 95.961 -4.5034)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -44.061 57.713)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -118.05 -24.901)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -133.03 10.784)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -28.169 -14.226)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -83.948 55.826)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -29.967 35.972)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 12.031 15.672)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 37.616 23.124)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 34.932 27.654)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(29.258 .8264)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-34.061 10.73)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(-23.948 51.673)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(91.798 22.993)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 55.22 29.479)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 48.086 41.55)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 166.64 25.266)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 120.42 15.177)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -45.099 52.174)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -32.411 -13.376)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 92.992 -11.431)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 19.262 65.273)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 7.6437 -7.7526)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 76.048 5.5199)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 21.385 40.234)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 118.19 7.8794)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -27.834 35.929)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -115.9 33.367)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 10.173 48.409)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -29.98 -7.4844)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -34.79 57.75)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 1.4814 17.652)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 54.205 78.415)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 33.999 55.936)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -15.997 -13.733)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -137.46 32.717)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 .85978 13.597)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -39.48 1.4263)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 7.0589 -1.1912)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -39.602 41.827)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -3.4803 5.6762)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 45.147 59.056)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(-5.5596 42.915)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(39.655 16.325)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(32.065 4.3156)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(35.669 -13.897)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 132.26 46.817)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 57.699 62.282)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 139 78.716)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 29.096 39.937)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 29.65 -4.1282)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -9.8855 36.576)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 64.349 18.211)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 73.819 50.967)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 122.88 22.534)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 90.336 60.253)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 59.798 14.837)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 28.204 37.89)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -65.859 31.326)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -66.073 62.767)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -63.119 36.657)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -113.69 62.857)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 86.122 .57651)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -13.852 65.653)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -15.516 30.636)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -26.694 58.551)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -81.88 20.372)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -129.92 62.063)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -5.4339 7.1033)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -112.46 -9.129)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 26.298 -6.7667)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 6.9861 67.259)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -37.994 71.639)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -7.4832 76.392)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(-10.493 23.358)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-25.833 63.474)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(.70913 -4.6567)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(9.9233 13.08)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 94.847 23.074)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 57.01 45.275)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 149.29 34.932)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 129.52 58.551)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 40.469 19.962)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -14.961 24.766)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 70.085 42.675)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 30.585 24.277)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 139.39 15.766)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 -.58927 19.464)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 155.33 17.071)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 44.167 31.221)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -57.923 6.7555)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -99.474 -13.368)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -14.885 24.961)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -107.68 2.1236)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 47.058 12.407)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 6.558 67.765)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 82.47 53.052)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -20.253 47.995)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -61.577 53.166)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -135.84 24.389)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -33.939 15.172)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -96.693 3.4566)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -52.823 60.061)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -10.061 83.008)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 83.448 32.92)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -48.82 27.266)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(-26.393 32.734)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-39.852 67.265)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(126.85 -5.1813)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-37.669 22.635)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 150.36 16.564)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 43.15 89.625)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 178.02 57.517)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 141.26 42.166)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 8.7171 -3.1992)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -58.941 58.82)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -6.6121 41.832)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 .92031 61.713)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 35.34 74.003)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 30.731 73.449)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 165.44 59.435)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 59.98 64.263)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -68.549 -19.231)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -106.27 72.604)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -54.927 17.131)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -65.674 9.3581)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 15.417 28.746)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -24.597 62.125)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -14.856 57.97)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 20.778 73.847)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -83.9 54.803)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -97.216 29.629)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -43.951 -2.2958)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -67.103 -22.037)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -51.617 28.421)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 6.6627 19.633)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 33.09 51.018)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 44.96 22.534)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(91.21 33.14)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-.19873 35.629)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(7.6814 57.319)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(21.093 29.738)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 94.772 38.42)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 64.94 67.048)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 177.92 67.227)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 63.395 67.535)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 36.114 35.253)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -68.23 29.095)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 61.995 43.634)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 34.287 47.127)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 145.38 -3.3627)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 1.5654 42.216)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 165.95 32.222)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 23.703 19.219)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 12.108 59.473)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -91.528 -9.8063)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -70.289 65.582)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -67.108 25.93)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 40.681 .34148)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -39.279 43.791)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 47.647 32.129)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 71.007 71.992)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -13.138 24.477)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -146.73 -9.3707)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -44.242 -11.958)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -86.742 19.969)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 32.835 46.166)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 13.593 40.915)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 57.309 .02351)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -32.693 40.453)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(16.969 35.123)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-14.706 43.193)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(91.728 1.72)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-24.334 21.007)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 119.25 76.898)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 108.47 43.526)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 43.234 27.276)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 97.082 12.561)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 4.1502 -6.1062)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 6.1551 14.79)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -40.819 -5.7077)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 3.8426 -16.703)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 129.84 13.804)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 99.54 26.643)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 116.25 19.533)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 7.0332 19.171)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -52.83 -12.808)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -70.538 24.522)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -32.984 63.662)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -112.18 1.8615)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -30.508 67.47)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -35.631 30.962)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 86.634 17.075)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -36.37 56.382)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -58.042 -14.247)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -134.75 70.13)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -5.2624 -27.831)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -38.597 31.418)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 19.861 10.497)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 2.6372 14.344)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -41.231 56.138)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 62.07 34.714)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(55.387 60.166)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-6.242 -9.2747)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(125.87 11.126)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-15.316 45.167)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 28.906 -3.1756)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 41.08 25.79)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 178.95 40.688)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 33.457 11.956)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 40.583 53.968)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -60.486 6.5192)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -35.663 -20.531)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 68.412 10.671)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 41.623 71.333)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 76.255 7.4629)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 41.79 -11.795)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 102.77 62.643)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -37.268 59.555)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -107.96 36.42)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -67.434 -16.722)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -68.491 -7.3423)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -9.0015 80.514)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -38.055 18.628)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 43.836 34.484)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 71.73 67.868)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -121.34 -10.331)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -127.27 16.197)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -90.417 -26.689)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -99.274 -3.1003)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -41.726 76.112)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -21.768 12.079)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 38.458 3.0041)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -34.397 7.0304)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(-8.687 35.277)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-26.128 57.1)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(46.248 10.536)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(57.552 46.398)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 50.959 29.442)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 45.772 29.805)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 96.323 8.9032)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 116.95 41.707)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 21.672 1.1129)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 14.989 4.2853)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 111.16 38.167)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 37.323 12.397)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 76.449 49.375)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 59.523 44.794)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 46.145 76.993)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 12.035 1.0462)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -66.818 29.885)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -110.49 25.759)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -96.958 65.764)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -59.629 22.979)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 69.681 12.287)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 10.272 13.221)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 34.906 31.851)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -35.522 85.696)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -75.139 -10.043)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -115.38 19.131)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 16.684 -24.202)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -120.89 63.59)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 29.577 -8.9016)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -43.356 23.628)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 88.153 -3.9832)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 39.004 5.3153)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(100.69 -22.739)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-32.541 -4.9784)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(30.809 -23.802)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(60.378 39.455)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 21.735 -7.2258)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 65.984 24.47)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 89.678 53.965)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 91.811 32.1)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -32.023 -9.5744)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -31.31 41.395)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -2.5829 41.712)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 39.179 30.798)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 8.3582 28.054)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 78.709 33.22)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 136.55 31.294)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 44.14 33.149)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -20.279 4.3014)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -126.05 48.635)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 46.772 46.498)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -32.148 42.213)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 83.416 70.203)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -32.275 62.628)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 99.635 50.298)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -37.737 18.418)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -119.33 47.562)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -99.167 -15.776)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -98.679 31.951)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -45.327 -3.5673)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -51.547 56.557)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -8.3741 38.659)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 28.376 63.111)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -58.352 8.1901)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(51.357 -19.264)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-44.968 64.628)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(-27.677 41.321)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-22.506 63.328)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 44.006 63.676)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 104.07 1.2636)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 147.85 54.563)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 59.622 -2.9647)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 73.491 53.377)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -29.1 69.016)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 25.746 50.014)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 32.243 -.12259)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 142.4 69.47)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 22.358 16.264)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 98.71 60.653)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 122.26 30.314)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 6.2844 -15.882)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -80.422 13.949)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -91.638 29.748)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -36.18 15.692)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 15.606 68.651)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -15.671 20.847)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 98.378 50.76)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 63.103 34.289)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -40.184 31.62)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -148.2 33.73)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -15.834 39.112)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -24.173 -1.6646)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 22.913 68.744)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -67.419 2.8191)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -50.046 74.796)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -58.052 54.806)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(34.181 28.178)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-49.233 20.525)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(-25.788 63.173)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-29.874 -14.974)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 151.67 2.9591)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 33.788 52.726)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 65.883 75.531)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 70.326 48.267)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 44.214 -25.045)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -13.696 54.113)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -35.321 5.1579)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 60.957 65.879)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 13.605 31.696)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 3.6195 3.2765)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 161.61 38.902)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 91.626 59.414)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -45.925 42.917)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -81.284 24.47)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -94.663 -4.5025)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -44.057 34.894)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 86.659 39.41)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 12.25 20.095)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 115.2 46.608)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 60.342 47.772)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -115.25 47.699)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -105.65 40.312)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 8.9979 32.928)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -131.33 51.556)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 29.961 21.093)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -42.461 24.442)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 47.59 69.056)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 59.995 72.033)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(101.5 41.044)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(-12.184 42.558)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(19.422 4.3145)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(72.052 43.851)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 24.44 40.724)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 103.71 58.772)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 165.91 13.971)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 101.92 43.323)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -10.367 13.49)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -67.661 32.934)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -42.045 -20.946)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 7.1197 19.131)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 141.22 41.109)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 72.03 -2.1266)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 49.344 61.949)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 4.704 -3.268)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -63.849 -9.791)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -71.142 -12.755)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -52.434 -24.118)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -66.034 25.749)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 5.6682 29.507)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -32.004 81.206)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 117.28 3.7675)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 61.593 67.246)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -57.092 14.533)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -94.062 45.736)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -101.24 -.48253)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -105.36 -21.357)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 58.636 45.085)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -43.214 76.329)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 50.94 20.224)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 60.05 79.817)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(33.171 45.639)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(5.1616 13.466)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(94.576 8.3526)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-44.481 64.527)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 152.23 74.096)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 105.58 22.024)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 137.65 67.975)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 147.04 64.806)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -46.943 .18382)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718-18.995 0.2636z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -51.852 -7.637)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 18.63 47.033)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 57.09 9.4286)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 137.83 61.933)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 12.053 1.7812)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 56.723 56.225)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 120.02 .30874)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -40.638 44.669)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -75.108 42.744)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -88.845 -17.77)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 .21015 -.71165)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 53.67 38.693)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 11.991 7.6185)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -6.9775 4.3466)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -9.1326 63.188)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -55.202 -15.323)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -104.08 -18.865)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -.22626 56.773)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -44.306 41.864)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -8.741 4.5998)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 1.3804 18.094)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -43.836 25.831)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -51.461 73.431)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(76.438 -4.7379)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(39.859 48.213)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(127.35 21.038)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-13.629 -11.419)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 116.53 3.5512)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 110.84 11.709)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 65.022 49.558)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 42.411 41.256)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 42.642 41.155)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 8.4377 10.087)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 16.241 2.0954)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -20.836 5.6884)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 48.217 44.328)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 28.095 69.092)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 38.952 -11.248)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 135.1 55.975)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -62.85 -24.722)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -129.68 31.527)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -18.117 -9.619)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -101.78 71.442)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 38.62 34.9)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -35.624 48.835)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 9.3372 31.702)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 48.673 56.019)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -121.8 40.975)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -106.63 12.866)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 17.205 27.287)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -55.675 14.08)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 66.602 -4.4432)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -1.4379 46.624)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 95.771 6.4209)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -44.234 23.598)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(33.199 -5.4016)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(28.226 73.241)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(-10.924 59.781)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-24.749 27.424)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 24.336 14.687)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 118.16 64.874)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 108.44 5.1023)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 62.922 54.474)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -26.024 7.7205)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -.87882 40.662)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 87.066 11.027)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 37.092 66.077)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 45.432 3.1912)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 24.945 .29292)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 49.15 56.837)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 76.372 27.163)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 10.235 -12.199)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -78.923 12.38)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -23.177 22.586)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -51.625 29.355)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -6.2488 38.24)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -31.355 15.75)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -23.849 38.819)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 24.213 10.631)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -17.683 38.271)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -113.98 28.999)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -75.532 41.14)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -93.58 -16.526)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 67.504 16.795)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -65.124 56.841)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 58.641 36.049)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 2.1139 27.86)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="translate(35.579 7.0844)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="translate(42.413 26.997)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="translate(-21.459 -21.346)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="translate(-43.202 34.461)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 123.05 76.583)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 85.673 88.19)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 41.558 -5.0211)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.78753 0 0 .78753 140.6 21.726)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 54.891 39.883)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 -46.223 41.083)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 59.72 58.954)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0625 0 0 1.0625 1.9128 -2.0304)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 43.088 64.33)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 55.3 66.505)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 170.38 19.277)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(.83675 0 0 .83675 90.9 26.375)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -75.171 4.184)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -103.2 1.4192)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 2.8984 13.506)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3081 0 0 1 -89.761 35.52)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 13.974 -6.8052)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -20.784 5.6342)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 -.55321 -4.9811)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0302 0 0 .78753 22.702 6.829)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -107.36 35.593)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -126.52 -5.6912)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -79.177 4.5895)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.3898 0 0 1.0625 -127.8 63.632)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 8.562 71.842)">
+   <path d="m232 79.527h58l-30.821 0.3233z" fill="url(#h)"/>
+   <path d="m232 79.527h58l-30.821-0.37718z" fill="url(#g)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -28.385 78.47)">
+   <path d="m254.63 68.228h90.527l-48.106 0.50461z" fill="url(#f)"/>
+   <path d="m254.63 68.228h90.527l-48.106-0.58871z" fill="url(#e)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 7.9326 31.228)">
+   <path d="m232 76.998h32.629l-17.339 0.18188z" fill="url(#d)"/>
+   <path d="m232 76.998h32.629l-17.339-0.21219z" fill="url(#c)"/>
+  </g>
+  <g transform="matrix(1.0945 0 0 .83675 -47.105 23.058)">
+   <path d="m244.73 70.641h50.927l-27.063 0.28388z" fill="url(#b)"/>
+   <path d="m244.73 70.641h50.927l-27.063-0.33119z" fill="url(#a)"/>
+  </g>
+ </g>
+ <g>
+  <path d="m46.902 56.009c-0.1974 0-0.3484 0.08525-0.5 0.1875 2.1476 0.98952 19.254 5.4118 39.562 5.4118 20.306 0 37.415-4.4223 39.562-5.4118-0.1516-0.10225-0.3026-0.1875-0.5-0.1875z" fill="url(#m)" opacity=".65851"/>
+  <path d="m47.871 56.519c4.9907 1.6433 20.324 5.5938 38.094 5.5938 17.768 0 33.102-3.9504 38.094-5.5938-4.9913 1.5093-20.326 4.875-38.094 4.875-17.77 0-33.103-3.3657-38.094-4.875z" fill="#fffeda" filter="url(#af)" opacity=".84653"/>
+  <path d="m54 56h12v4l-12-2.0938z" fill="url(#u)" filter="url(#ae)"/>
+ </g>
+ <rect x="193.04" y="43.147" width="113.84" height="57.276" rx=".94072" ry=".70713" fill="url(#t)" opacity=".034851"/>
+</svg>

@@ -1,0 +1,81 @@
+<svg width="30" height="30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient id="e" x1="-102.16" x2="-102.16" y1="220.34" y2="-5.0697" gradientTransform="matrix(.12358 0 0 .12358 27.859 2.0457)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#6c9bce" offset=".005615"/>
+   <stop stop-color="#3465a4" offset=".23942"/>
+   <stop stop-color="#457dc4" offset=".54494"/>
+   <midPointStop stop-color="#0035ED" offset="0.005615"/>
+   <midPointStop stop-color="#0035ED" offset="0.5"/>
+   <midPointStop stop-color="#00008D" offset="0.544944"/>
+   <midPointStop stop-color="#00008D" offset="0.5"/>
+   <midPointStop stop-color="#0053BD" offset="1"/>
+  </linearGradient>
+  <linearGradient id="d" x1="-103.35" x2="-103.35" y1="222.21" y2="-8.1996" gradientTransform="matrix(.12358 0 0 .12358 27.859 2.0457)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#a5c2e1" offset=".20369"/>
+   <stop stop-color="#a5c2e1" offset=".57303"/>
+   <stop stop-color="#dfe9f4" offset="1"/>
+   <midPointStop stop-color="#428AFF" offset="0.005615"/>
+   <midPointStop stop-color="#428AFF" offset="0.5"/>
+   <midPointStop stop-color="#94CAFF" offset="0.573034"/>
+   <midPointStop stop-color="#94CAFF" offset="0.5"/>
+   <midPointStop stop-color="#DCF0FF" offset="1"/>
+  </linearGradient>
+  <linearGradient id="c" x1="-102.74" x2="-102.74" y1="217.5" y2="-5.3081" gradientTransform="matrix(.12358 0 0 .12358 27.859 2.0457)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#FFF" offset="0"/>
+   <stop stop-color="#a5c2e1" offset=".5"/>
+   <stop stop-color="#b9d0e8" offset="1"/>
+   <midPointStop stop-color="#FFFFFF" offset="0"/>
+   <midPointStop stop-color="#FFFFFF" offset="0.5"/>
+   <midPointStop stop-color="#006DFF" offset="0.5"/>
+   <midPointStop stop-color="#006DFF" offset="0.5"/>
+   <midPointStop stop-color="#C9E6FF" offset="1"/>
+  </linearGradient>
+  <radialGradient id="b" cx="-103.07" cy="218.75" r="69.963" gradientTransform="matrix(.17533 0 0 .17533 33.226 -23.17)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#FFF" offset=".60112"/>
+   <stop stop-color="#EAEAF0" offset=".8764"/>
+   <stop stop-color="#E6E6ED" offset=".91417"/>
+   <stop stop-color="#DBDBE5" offset=".94998"/>
+   <stop stop-color="#C8C8D7" offset=".98491"/>
+   <stop stop-color="#BDBDCF" offset="1"/>
+   <midPointStop stop-color="#FFFFFF" offset="0.601124"/>
+   <midPointStop stop-color="#FFFFFF" offset="0.5"/>
+   <midPointStop stop-color="#EAEAF0" offset="0.876404"/>
+   <midPointStop stop-color="#EAEAF0" offset="0.717949"/>
+   <midPointStop stop-color="#BDBDCF" offset="1"/>
+  </radialGradient>
+  <linearGradient id="a" x1="117.74" x2="137.88" y1="123.59" y2="123.59" gradientTransform="matrix(.12358 0 0 .12358 27.859 2.0457)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#FFF" offset="0"/>
+   <stop stop-color="#585868" offset="1"/>
+   <midPointStop stop-color="#FFFFFF" offset="0"/>
+   <midPointStop stop-color="#FFFFFF" offset="0.5"/>
+   <midPointStop stop-color="#585868" offset="1"/>
+  </linearGradient>
+ </defs>
+ <g stroke-width=".12193">
+  <path d="m-4.4021e-6 15c0 8.2708 6.7291 15 15 15 8.2707 0 15-6.7293 15-15 0-8.271-6.7294-15-15-15-8.2708 0-15 6.7291-15 15z" fill="url(#e)"/>
+  <path d="m0.90223 15c0 7.7736 6.3243 14.098 14.098 14.098 7.7734 0 14.098-6.3242 14.098-14.098 0-7.7736-6.3234-14.098-14.098-14.098-7.7734-2.4386e-4 -14.098 6.3241-14.098 14.098z" fill="url(#d)"/>
+  <path d="m1.3784 15c0 7.5115 6.1111 13.621 13.622 13.621 7.5112 0 13.622-6.1097 13.622-13.621 0-7.5107-6.11-13.622-13.622-13.622-7.5099 6.097e-4 -13.622 6.1114-13.622 13.622z" fill="url(#c)"/>
+  <path d="m15 3.0802c-6.8407 0-12.407 5.5647-12.407 12.407 0 6.8407 5.5659 12.405 12.407 12.405 6.8408 0 12.407-5.5646 12.407-12.405 0-6.8414-5.5654-12.407-12.407-12.407z" fill="#fff" opacity=".8"/>
+  <path d="m2.5935 15c0 6.8411 5.5659 12.405 12.407 12.405 6.8416 0 12.407-5.5637 12.407-12.405 0-6.8407-5.5649-12.407-12.407-12.407-6.8404 0-12.407 5.5656-12.407 12.407z" fill="#3465a4"/>
+  <path d="m2.8974 15c0 6.6732 5.4291 12.102 12.103 12.102 6.6734 0 12.103-5.4289 12.103-12.102s-5.4294-12.103-12.103-12.103c-6.6735 0-12.103 5.4294-12.103 12.103z" fill="url(#b)"/>
+ </g>
+ <g stroke-width=".12193">
+  <path d="m3.8989 14.604c-0.13467 0-0.24386 0.10919-0.24386 0.24386v0.30322c0 0.13467 0.10919 0.24386 0.24386 0.24386h2.1266c0.13467 0 0.24386-0.10919 0.24386-0.24386v-0.30361c0-0.13467-0.10919-0.24386-0.24386-0.24386h-2.1266z" fill="#3465a4"/>
+  <rect x="3.8989" y="14.848" width="2.1266" height=".30322" fill="#adc8e4"/>
+  <path d="m23.908 14.604c-0.13467 0-0.24386 0.10919-0.24386 0.24386v0.30322c0 0.13467 0.10919 0.24386 0.24386 0.24386h2.1275c0.13467 0 0.24386-0.10919 0.24386-0.24386v-0.30361c0-0.13467-0.10919-0.24386-0.24386-0.24386h-2.1277z" fill="#3465a4"/>
+  <rect x="23.908" y="14.848" width="2.1275" height=".30322" fill="#afc9e4"/>
+  <path d="m14.849 23.664c-0.13467 0-0.24386 0.10919-0.24386 0.24386v2.1266c0 0.13467 0.10919 0.24386 0.24386 0.24386h0.30388c0.13467 0 0.24386-0.10919 0.24386-0.24386v-2.1265c0-0.13467-0.10919-0.24386-0.24386-0.24386h-0.30361z" fill="#3465a4"/>
+  <rect x="14.849" y="23.908" width=".30388" height="2.1266" fill="#adc8e4"/>
+  <path d="m14.849 3.6548c-0.13467 0-0.24386 0.10919-0.24386 0.24386v2.1266c0 0.13467 0.10919 0.24386 0.24386 0.24386h0.30388c0.13467 0 0.24386-0.10919 0.24386-0.24386v-2.1266c0-0.13467-0.10919-0.24386-0.24386-0.24386h-0.30361z" fill="#3465a4"/>
+  <rect x="14.849" y="3.8986" width=".30388" height="2.1266" fill="#a4bedd"/>
+ </g>
+ <path d="m15.944 14.687c-0.13181-0.39539-0.50452-0.68157-0.94365-0.68157-0.51559 0-0.94057 0.3945-0.98974 0.8977 0.6505 0.04692 1.3084-0.0029 1.9333-0.21612z" fill="url(#a)" stroke-width=".12193"/>
+ <g transform="matrix(.25495 -.04727 .04727 .25495 -67.531 8.4079)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="7.7132">
+  <g>
+   <path d="m287.13 48.53 20.641 35.752" stroke="#e0e0e0"/>
+   <path d="m307.77 42.999v41.283" stroke="#bfbfbf"/>
+   <path d="m328.41 48.53-20.64 35.752" stroke="#808080"/>
+  </g>
+  <path d="m280.5 68.534 27.277 15.749 35.751-20.641" stroke="#000"/>
+ </g>
+</svg>

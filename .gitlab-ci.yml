@@ -1,0 +1,16 @@
+image: python:3.6
+
+before_script:
+- pip3 install -r requirements.txt
+
+pages:
+  script:
+  - pip3 install -r requirements.txt
+  - pip3 install -r apidocs/requirements.txt
+  - mkdir public
+  - sphinx-build -a -b html ./apidocs ./public/
+  artifacts:
+    paths:
+    - public
+  only:
+  - py3_docs

@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="25.4"
+   inkscape:export-xdpi="25.4"
+   inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_4.png"
+   sodipodi:docname="chart_minmax_2_4.svg"
+   height="60.000000mm"
+   width="64.000000mm"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:version="0.32"
+   id="svg1"
+   version="1.1">
+  <defs
+     id="defs3">
+    <linearGradient
+       id="linearGradient6655">
+      <stop
+         id="stop6656"
+         offset="0.0000000"
+         style="stop-color:#ffda86;stop-opacity:1.0000000;" />
+      <stop
+         id="stop6657"
+         offset="0.81471545"
+         style="stop-color:#c68c0b;stop-opacity:1.0000000;" />
+      <stop
+         id="stop6658"
+         offset="1.0000000"
+         style="stop-color:#664805;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6649">
+      <stop
+         id="stop6650"
+         offset="0.0000000"
+         style="stop-color:#b5e6b0;stop-opacity:1.0000000;" />
+      <stop
+         id="stop6652"
+         offset="0.81471545"
+         style="stop-color:#6c8969;stop-opacity:1.0000000;" />
+      <stop
+         id="stop6651"
+         offset="1.0000000"
+         style="stop-color:#3b4b39;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4044">
+      <stop
+         id="stop4045"
+         offset="0.0000000"
+         style="stop-color:#ffffff;stop-opacity:0.0000000;" />
+      <stop
+         id="stop4046"
+         offset="1.0000000"
+         style="stop-color:#363636;stop-opacity:0.18750000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3418">
+      <stop
+         id="stop3419"
+         offset="0.0000000"
+         style="stop-color:#f7f7f7;stop-opacity:1.0000000;" />
+      <stop
+         id="stop3420"
+         offset="1.0000000"
+         style="stop-color:#dedede;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2791">
+      <stop
+         id="stop2792"
+         offset="0.0000000"
+         style="stop-color:#fbfbfb;stop-opacity:1.0000000;" />
+      <stop
+         id="stop2793"
+         offset="1.0000000"
+         style="stop-color:#e9e9e9;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       y2="0.96103895"
+       x2="0.49079755"
+       y1="0.058441557"
+       x1="0.49693251"
+       id="linearGradient2794"
+       xlink:href="#linearGradient2791"
+       inkscape:collect="always" />
+    <linearGradient
+       y2="0.98051947"
+       x2="0.53254437"
+       y1="0.012987013"
+       x1="0.53846157"
+       id="linearGradient3417"
+       xlink:href="#linearGradient3418"
+       inkscape:collect="always" />
+    <linearGradient
+       y2="0.99350649"
+       x2="0.49689442"
+       y1="0.012987013"
+       x1="0.49689442"
+       id="linearGradient4043"
+       xlink:href="#linearGradient4044"
+       inkscape:collect="always" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:current-layer="svg1"
+     showguides="true"
+     inkscape:window-y="27"
+     inkscape:window-x="0"
+     guidetolerance="1.0000000mm"
+     inkscape:guide-points="true"
+     inkscape:guide-bbox="true"
+     gridtolerance="1.0000000px"
+     inkscape:grid-bbox="true"
+     inkscape:grid-points="true"
+     showgrid="true"
+     showborder="true"
+     inkscape:window-height="971"
+     inkscape:window-width="1270"
+     inkscape:cy="120.2872"
+     inkscape:cx="85.487865"
+     inkscape:zoom="4.4593316"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0000000"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:window-maximized="0">
+    <sodipodi:guide
+       id="guide5924"
+       position="23.994627"
+       orientation="vertical" />
+    <sodipodi:guide
+       id="guide5925"
+       position="58.080453"
+       orientation="vertical" />
+    <sodipodi:guide
+       id="guide5926"
+       position="92.166278"
+       orientation="vertical" />
+    <sodipodi:guide
+       id="guide5927"
+       position="126.25210"
+       orientation="vertical" />
+    <inkscape:grid
+       id="GridFromPre046Settings"
+       type="xygrid"
+       originx="0.50000000mm"
+       originy="0.50000000mm"
+       spacingx="1.0000000mm"
+       spacingy="1.0000000mm"
+       color="#3f3fff"
+       empcolor="#3f3fff"
+       opacity="0.15"
+       empopacity="0.38"
+       empspacing="5" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <rect
+     ry="14.164467"
+     rx="17.594519"
+     y="23.040251"
+     x="23.031496"
+     height="177.15660"
+     width="184.25197"
+     id="rect4047"
+     style="fill:url(#linearGradient4043);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;"
+     inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+     inkscape:export-xdpi="31.261538"
+     inkscape:export-ydpi="31.261538" />
+  <rect
+     ry="14.164467"
+     rx="17.594519"
+     y="23.031490"
+     x="26.574802"
+     height="173.62204"
+     width="177.16536"
+     id="rect3421"
+     style="fill:url(#linearGradient4043);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;"
+     inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+     inkscape:export-xdpi="31.261538"
+     inkscape:export-ydpi="31.261538" />
+  <rect
+     ry="14.164467"
+     rx="17.594519"
+     y="26.554472"
+     x="30.118111"
+     height="159.80026"
+     width="170.38249"
+     id="rect2169"
+     style="fill:url(#linearGradient2794);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3.5262673;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
+     inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+     inkscape:export-xdpi="31.261538"
+     inkscape:export-ydpi="31.261538" />
+  <rect
+     ry="14.164467"
+     rx="17.594519"
+     y="31.699234"
+     x="31.955462"
+     height="149.19994"
+     width="163.39728"
+     id="rect3416"
+     style="fill:url(#linearGradient3417);fill-opacity:0.74901998;fill-rule:evenodd;stroke:none;stroke-width:3.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;"
+     inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+     inkscape:export-xdpi="31.261538"
+     inkscape:export-ydpi="31.261538" />
+  <rect
+     ry="14.164467"
+     rx="17.594519"
+     y="26.574797"
+     x="29.993284"
+     height="159.80026"
+     width="170.38249"
+     id="rect5928"
+     style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.5262673;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
+     inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+     inkscape:export-xdpi="31.261538"
+     inkscape:export-ydpi="31.261538" />
+  <g
+     id="g3551"
+     transform="matrix(0,-1,-1,0,224.86875,224.86875)">
+    <path
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       id="path10050-8"
+       d="m 67.531704,87.881908 c 0,85.120972 -0.41774,85.120972 -0.41774,85.120972"
+       style="fill:none;stroke:#0000c2;stroke-width:3.46500993;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="167.64879"
+       x="61.412212"
+       height="11.821243"
+       width="11.821243"
+       id="rect11925-1"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <path
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       id="path10050"
+       d="m 164.76378,39.856732 c 0,109.542498 -0.33944,109.542498 -0.33944,109.542498"
+       style="fill:none;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="34.241741"
+       x="158.68343"
+       height="11.821243"
+       width="11.821243"
+       id="rect11924"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="144.08427"
+       x="158.68343"
+       height="11.821243"
+       width="11.821243"
+       id="rect11925"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="131.14046"
+       x="176.22049"
+       height="11.821243"
+       width="11.821243"
+       id="rect11924-8"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="160.02914"
+       x="176.22049"
+       height="11.821243"
+       width="11.821243"
+       id="rect11925-7"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <path
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       id="path10050-6"
+       d="m 114.25092,87.476474 c 0,61.442136 -0.53886,61.442136 -0.53886,61.442136"
+       style="fill:none;stroke:#0000c2;stroke-width:3.34384537;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="78.533081"
+       x="108.07087"
+       height="11.821243"
+       width="11.821243"
+       id="rect11924-3"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="143.50395"
+       x="108.07087"
+       height="11.821243"
+       width="11.821243"
+       id="rect11925-2"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="82.473633"
+       x="61.412212"
+       height="11.821243"
+       width="11.821243"
+       id="rect11924-9"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <path
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       id="path10050-31"
+       d="m 54.103493,43.704879 c 0,85.120961 -0.41774,85.120961 -0.41774,85.120961"
+       style="fill:none;stroke:#0000c2;stroke-width:3.4650104;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="39.193604"
+       x="47.984001"
+       height="11.821243"
+       width="11.821243"
+       id="rect11924-89"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       y="122.57477"
+       x="47.984001"
+       height="11.821243"
+       width="11.821243"
+       id="rect11925-0"
+       style="fill:#0000c2;fill-opacity:1;stroke:#0000c2;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+    <path
+       inkscape:export-ydpi="31.261538"
+       inkscape:export-xdpi="31.261538"
+       inkscape:export-filename="/home/jean/devel/goffice/plugins/plot_xy/chart_minmax_2_3.png"
+       id="path10050-84"
+       d="m 182.59138,137.63218 c 0,28.22387 -0.92052,28.22387 -0.92052,28.22387"
+       style="fill:none;stroke:#0000c2;stroke-width:2.96213007;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

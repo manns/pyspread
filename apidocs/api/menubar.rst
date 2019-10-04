@@ -1,0 +1,6 @@
+######################
+menubar.*
+######################
+
+.. automodule:: menubar
+    :members:

@@ -1,0 +1,6 @@
+######################
+pyspread.*
+######################
+
+.. automodule:: pyspread
+    :members:

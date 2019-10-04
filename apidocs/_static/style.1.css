@@ -1,0 +1,91 @@
+body {
+  background-color: white; }
+
+#XHEAD {
+  background: #CD8936;
+  background: linear-gradient(90deg, #dddddd 0%, white 3%, white 41%, #dddddd 100%);
+  margin: 0; }
+
+.main_title {
+  margin: 0;
+  padding: 10px 0 10px 40px;
+  font-size: 14pt;
+  vertical-align: top;
+  color: #999999;
+  font-family: monospace; }
+  .main_title a {
+    color: #444444; }
+  .main_title a:hover {
+    text-decoration: none; }
+  .main_title small {
+    margin: 10px;
+    font-size: 8pt;
+    vertical-align: top;
+    color: #999999;
+    font-weight: normal;
+    font-family: sans-serif, Verdana; }
+
+.related {
+  border-top: 2px solid #dddddd;
+  margin-right: 10px; }
+  .related a {
+    color: #444444 !important;
+    text-shadow: none;
+    font-size: 10pt !important; }
+  .related ul {
+    padding-left: 300px; }
+  .related ul li {
+    color: #CD8936 !important; }
+
+div.body {
+  font-size: 10pt; }
+  div.body h1 {
+    padding: 5px 10px;
+    font-size: 18pt;
+    background-color: white !important;
+    color: #444444;
+    border-bottom: 1px solid #eeeeee; }
+  div.body h2 {
+    border: 1px solid #aaaaaa;
+    background-color: #cccccc !important;
+    font-size: 11pt;
+    padding: 5px 10px; }
+  div.body h3 {
+    background-color: #dddddd !important;
+    background-color: #eeeeee !important;
+    font-size: 10pt;
+    padding: 5px 10px; }
+  div.body p, div.body ol, div.body ul {
+    margin-left: 20px; }
+  div.body .admonition {
+    margin-left: 60px;
+    margin-right: 60px; }
+
+pre {
+  border: 1px solid #cccccc;
+  background-color: #efefef;
+  margin-left: 30px;
+  margin-right: 30px;
+  font-size: 8pt;
+  padding: 4px; }
+
+code.docutils {
+    background-color: #FFFDC6;
+    font-family: monospace;
+}
+
+table.docutils {
+  /* box-shadow: 9px 10px 34px -16px rgba(0,0,0,0.75); */
+  font-size: 9pt; }
+  table.docutils th.stub {
+    background-color: #efefef;
+    font-family: monospace; }
+  table.docutils th.head {
+    background-color: #dddddd;
+    font-family: monospace; }
+  table.docutils th {
+    padding: 5px; }
+  table.docutils td {
+    padding: 2px; }
+
+/*# sourceMappingURL=style.2.css.map */
