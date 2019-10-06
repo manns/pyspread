@@ -51,7 +51,8 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from src.commands import CommandSetCellCode
+from src.commands import CommandSetCellCode, CommandSetCellFormat
+from src.commands import CommandSetRowHeight, CommandSetColumnWidth
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog
@@ -766,6 +767,16 @@ class Workflows:
 
         """
 
+        def remove_tabu_keys(attr):
+            """Remove keys that are not copied from attr"""
+
+            tabu_attrs = "merge_area", "renderer", "frozen"
+            for tabu_attr in tabu_attrs:
+                try:
+                    attrs.pop(tabu_attr)
+                except KeyError:
+                    pass
+
         grid = self.main_window.grid
         code_array = grid.model.code_array
         cell_attributes = code_array.cell_attributes
@@ -783,23 +794,22 @@ class Workflows:
 
         for __selection, _, attrs in cell_attributes.for_table(table):
             new_selection = selection & __selection
-            if new_selection and "merge_area" not in attrs:
-                # We do not copy merged cells
+            if new_selection:
+                # We do not copy merged cells and cell renderers
+                remove_tabu_keys(attrs)
                 new_shifted_selection = new_selection.shifted(-top, -left)
-                cell_attribute = new_shifted_selection.parameters, table, attrs
+                cell_attribute = new_shifted_selection.parameters, attrs
                 new_cell_attributes.append(cell_attribute)
 
         # Rows
 
-        new_row_heights = {r - top: h
-                           for (r, t), h in code_array.row_heights.items()
-                           if t == table and top <= r <= bottom}
+        new_row_heights = {r-top: h for r, h in grid.row_heights
+                           if top <= r <= bottom}
 
         # Columns
 
-        new_col_widths = {c - left: w
-                          for (c, t), w in code_array.col_widths.items()
-                          if t == table and left <= c <= right}
+        new_col_widths = {c-left: w for c, w in grid.column_widths
+                          if left <= c <= right}
 
         ca_repr = bytes(repr(new_cell_attributes), encoding='utf-8')
         rh_repr = bytes(repr(new_row_heights), encoding='utf-8')
@@ -824,69 +834,62 @@ class Workflows:
         mime_data = clipboard.mimeData()
 
         grid = self.main_window.grid
-        code_array = grid.model.code_array
-        cell_attributes = code_array.cell_attributes
+        model = grid.model
 
         row, column, table = grid.current
 
         if "application/x-pyspread-cell-attributes" in mime_data.formats():
             ca_data = mime_data.data("application/x-pyspread-cell-attributes")
-            ca = literal_eval(str(ca_data, encoding='utf-8'))
+            ca_data_str = str(ca_data, encoding='utf-8')
+            ca = literal_eval(ca_data_str)
             assert isinstance(ca, list)
-            print(ca)
+
+            tabu_attrs = "merge_area", "renderer", "frozen"
+
+            description = "Paste format for selections {}".format(ca_data_str)
+
+#            for selection_params, attrs in ca:
+#                if not any(tabu_attr in attrs for tabu_attr in tabu_attrs):
+#                    # Do not paste merge areas because this may have
+#                    # inintended consequences for existing merge areas
+#                    base_selection = Selection(*selection_params)
+#                    shifted_selection = base_selection.shifted(row, column)
+#                    new_cell_attribute = shifted_selection, table, attrs
+#
+#                    selected_idx = []
+#                    for key in shifted_selection.cell_generator(model.shape):
+#                        selected_idx.append(model.index(*key))
+#                    command = CommandSetCellFormat(new_cell_attribute, model,
+#                                                   grid.currentIndex(),
+#                                                   selected_idx, description)
+#                    self.main_window.undo_stack.push(command)
+
+                    # We do not have to handle CommandSetCellTextAlignment
+                    # separately because internally there is no difference
 
         if "application/x-pyspread-row-heights" in mime_data.formats():
             rh_data = mime_data.data("application/x-pyspread-row-heights")
-            rh = literal_eval(str(rh_data, encoding='utf-8'))
-            assert isinstance(rh, dict)
-            print(rh)
+            row_heights = literal_eval(str(rh_data, encoding='utf-8'))
+            assert isinstance(row_heights, dict)
+
+            description = "Paste format for rows {}".format(row_heights.keys())
+
+            for row, new_height in row_heights.items():
+                old_height = grid.rowHeight(row)
+                command = CommandSetRowHeight(grid, row, table, old_height,
+                                              new_height, description)
+                self.main_window.undo_stack.push(command)
 
         if "application/x-pyspread-column-widths" in mime_data.formats():
             cw_data = mime_data.data("application/x-pyspread-column-widths")
-            cw = literal_eval(str(cw_data, encoding='utf-8'))
-            assert isinstance(cw, dict)
-            print(cw)
+            column_widths = literal_eval(str(cw_data, encoding='utf-8'))
+            assert isinstance(column_widths, dict)
 
-        return
+            description_tpl = "Paste format for columns {}"
+            description = description_tpl.format(column_widths.keys())
 
-        row, col, tab = self.grid.actions.cursor
-
-        selection = self.get_selection()
-        if selection:
-            # Use selection rather than cursor for top left cell if present
-            row, col = [tl if tl is not None else 0
-                        for tl in selection.get_bbox()[0]]
-
-        cell_attributes = self.grid.code_array.cell_attributes
-
-        string_data = self.grid.main_window.clipboard.get_clipboard()
-        format_data = ast.literal_eval(string_data)
-
-        ca = format_data["cell_attributes"]
-        rh = format_data["row_heights"]
-        cw = format_data["col_widths"]
-
-        assert isinstance(ca, types.ListType)
-        assert isinstance(rh, types.DictType)
-        assert isinstance(cw, types.DictType)
-
-        # Cell attributes
-
-        for selection_params, tab, attrs in ca:
-            base_selection = Selection(*selection_params)
-            shifted_selection = base_selection.shifted(row, col)
-            if "merge_area" not in attrs:
-                # Do not paste merge areas because this may have
-                # inintended consequences for existing merge areas
-                new_cell_attribute = shifted_selection, tab, attrs
-                cell_attributes.append(new_cell_attribute)
-
-        # Row heights
-        row_heights = self.grid.code_array.row_heights
-        for __row, __tab in rh:
-            row_heights[__row+row, tab] = rh[__row, __tab]
-
-        # Column widths
-        col_widths = self.grid.code_array.col_widths
-        for __col, __tab in cw:
-            col_widths[__col+col, tab] = cw[(__col, __tab)]
+            for column, new_width in column_widths.items():
+                old_width = grid.columnWidth(column)
+                command = CommandSetColumnWidth(grid, column, table, old_width,
+                                                new_width, description)
+                self.main_window.undo_stack.push(command)
