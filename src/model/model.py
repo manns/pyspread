@@ -81,7 +81,6 @@ class CellAttributes(list):
         self.__setattr__ = None
         self.__setslice__ = None
         self.insert = None
-        self.pop = None
         self.remove = None
         self.reverse = None
         self.sort = None
