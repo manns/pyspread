@@ -380,14 +380,12 @@ class MainWindowActions(dict):
         self["copy_format"] = Action(self.parent, "&Copy format",
                                      self.parent.grid.on_copy_format,
                                      icon=Icon("copy_format"),
-                                     shortcut='Alt+Ctrl+c',
                                      statustip='Copy format of selection to '
                                                'the clipboard')
 
         self["paste_format"] = Action(self.parent, "&Paste format",
-                                      self.parent.on_nothing,
+                                      self.parent.grid.on_paste_format,
                                       icon=Icon("paste_format"),
-                                      shortcut='Alt+Ctrl+v',
                                       statustip='Apply format from the '
                                                 'clipboard to the selected '
                                                 'cells')

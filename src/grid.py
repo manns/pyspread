@@ -429,9 +429,14 @@ class Grid(QTableView):
         self.zoom = 1.0
 
     def on_copy_format(self):
-        """Copy format venet handler"""
+        """Copy format event handler"""
 
         self.main_window.workflows.copy_format()
+
+    def on_paste_format(self):
+        """Paste format event handler"""
+
+        self.main_window.workflows.paste_format()
 
     def on_font(self):
         """Font change event handler"""

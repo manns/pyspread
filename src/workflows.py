@@ -800,15 +800,17 @@ class Workflows:
                           for (c, t), w in code_array.col_widths.items()
                           if t == table and left <= c <= right}
 
-        format_data = {
-            "cell_attributes": new_cell_attributes,
-            "row_heights": new_row_heights,
-            "col_widths": new_col_widths,
-        }
+        ca_repr = bytes(repr(new_cell_attributes), encoding='utf-8')
+        rh_repr = bytes(repr(new_row_heights), encoding='utf-8')
+        cw_repr = bytes(repr(new_col_widths), encoding='utf-8')
 
-        attr_string = repr(format_data)
+        clipboard = QApplication.clipboard()
+        mime_data = QMimeData()
+        mime_data.setData("application/x-pyspread-cell-attributes", ca_repr)
+        mime_data.setData("application/x-pyspread-row-heights", rh_repr)
+        mime_data.setData("application/x-pyspread-column-widths", cw_repr)
 
-        print(attr_string)
+        clipboard.setMimeData(mime_data)
 
     def paste_format(self):
         """Pastes cell formats
@@ -817,7 +819,11 @@ class Workflows:
 
         """
 
-        raise NotImplementedError
+        clipboard = QApplication.clipboard()
+        formats = clipboard.mimeData().formats()
+        print(formats)
+
+        return
 
         row, col, tab = self.grid.actions.cursor
 
