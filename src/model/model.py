@@ -58,7 +58,6 @@ from lib.typechecks import isslice, isstring
 from lib.selection import Selection
 
 
-
 class CellAttributes(list):
     """Stores cell formatting attributes in a list of 3 - tuples
 
@@ -206,6 +205,19 @@ class CellAttributes(list):
 
         if merge_area:
             return merge_area[0], merge_area[1], tab
+
+    def for_table(self, table):
+        """Return cell attributes for a given table"""
+
+        # table presence in grid is not checked
+
+        table_cell_attributes = CellAttributes()
+
+        for selection, __table, attr in self:
+            if __table == table:
+                table_cell_attributes.append((selection, __table, attr))
+
+        return table_cell_attributes
 
 # End of class CellAttributes
 

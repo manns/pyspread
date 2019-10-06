@@ -378,7 +378,7 @@ class MainWindowActions(dict):
         """Adds actions for Format menu"""
 
         self["copy_format"] = Action(self.parent, "&Copy format",
-                                     self.parent.on_nothing,
+                                     self.parent.grid.on_copy_format,
                                      icon=Icon("copy_format"),
                                      shortcut='Alt+Ctrl+c',
                                      statustip='Copy format of selection to '

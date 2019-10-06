@@ -56,6 +56,7 @@ from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog
 from src.interfaces.pys import PysReader, PysWriter
 from src.lib.hashing import sign, verify
+from src.lib.selection import Selection
 from src.lib.typechecks import is_svg
 
 
@@ -705,7 +706,7 @@ class Workflows:
         """View -> Go to cell workflow"""
 
         # Get cell key from user
-        shape = self.main_window.grid.model.code_array.shape
+        shape = self.main_window.grid.model.shape
         key = CellKeyDialog(self.main_window, shape).key
 
         if key is not None:
@@ -754,3 +755,108 @@ class Workflows:
             description = "Insert chart into cell {}".format(index)
             command = CommandSetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
+
+    # Format menu
+
+    def copy_format(self):
+        """Copies the format of the selected cells to the Clipboard
+
+        Cells are shifted so that the top left bbox corner is at 0,0
+
+        """
+
+        grid = self.main_window.grid
+        code_array = grid.model.code_array
+        cell_attributes = code_array.cell_attributes
+
+        row, column, table = grid.current
+
+        # Cell attributes
+
+        new_cell_attributes = []
+        selection = grid.selection
+
+        # Format content is shifted so that the top left corner is 0,0
+        (top, left), (bottom, right) = \
+            selection.get_grid_bbox(grid.model.shape)
+
+        for __selection, _, attrs in cell_attributes.for_table(table):
+            new_selection = selection & __selection
+            if new_selection and "merge_area" not in attrs:
+                # We do not copy merged cells
+                new_shifted_selection = new_selection.shifted(-top, -left)
+                cell_attribute = new_shifted_selection, table, attrs
+                new_cell_attributes.append(cell_attribute)
+
+        # Rows
+
+        new_row_heights = {r - top: h
+                           for (r, t), h in code_array.row_heights.items()
+                           if t == table and top <= r <= bottom}
+
+        # Columns
+
+        new_col_widths = {c - left: w
+                          for (c, t), w in code_array.col_widths.items()
+                          if t == table and left <= c <= right}
+
+        format_data = {
+            "cell_attributes": new_cell_attributes,
+            "row_heights": new_row_heights,
+            "col_widths": new_col_widths,
+        }
+
+        attr_string = repr(format_data)
+
+        print(attr_string)
+
+    def paste_format(self):
+        """Pastes cell formats
+
+        Pasting starts at cursor or at top left bbox corner
+
+        """
+
+        raise NotImplementedError
+
+        row, col, tab = self.grid.actions.cursor
+
+        selection = self.get_selection()
+        if selection:
+            # Use selection rather than cursor for top left cell if present
+            row, col = [tl if tl is not None else 0
+                        for tl in selection.get_bbox()[0]]
+
+        cell_attributes = self.grid.code_array.cell_attributes
+
+        string_data = self.grid.main_window.clipboard.get_clipboard()
+        format_data = ast.literal_eval(string_data)
+
+        ca = format_data["cell_attributes"]
+        rh = format_data["row_heights"]
+        cw = format_data["col_widths"]
+
+        assert isinstance(ca, types.ListType)
+        assert isinstance(rh, types.DictType)
+        assert isinstance(cw, types.DictType)
+
+        # Cell attributes
+
+        for selection_params, tab, attrs in ca:
+            base_selection = Selection(*selection_params)
+            shifted_selection = base_selection.shifted(row, col)
+            if "merge_area" not in attrs:
+                # Do not paste merge areas because this may have
+                # inintended consequences for existing merge areas
+                new_cell_attribute = shifted_selection, tab, attrs
+                cell_attributes.append(new_cell_attribute)
+
+        # Row heights
+        row_heights = self.grid.code_array.row_heights
+        for __row, __tab in rh:
+            row_heights[__row+row, tab] = rh[__row, __tab]
+
+        # Column widths
+        col_widths = self.grid.code_array.col_widths
+        for __col, __tab in cw:
+            col_widths[__col+col, tab] = cw[(__col, __tab)]
