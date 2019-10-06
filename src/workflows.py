@@ -801,26 +801,11 @@ class Workflows:
                 cell_attribute = new_shifted_selection.parameters, attrs
                 new_cell_attributes.append(cell_attribute)
 
-        # Rows
-
-        new_row_heights = {r-top: h for r, h in grid.row_heights
-                           if top <= r <= bottom}
-
-        # Columns
-
-        new_col_widths = {c-left: w for c, w in grid.column_widths
-                          if left <= c <= right}
-
         ca_repr = bytes(repr(new_cell_attributes), encoding='utf-8')
-        rh_repr = bytes(repr(new_row_heights), encoding='utf-8')
-        cw_repr = bytes(repr(new_col_widths), encoding='utf-8')
 
         clipboard = QApplication.clipboard()
         mime_data = QMimeData()
         mime_data.setData("application/x-pyspread-cell-attributes", ca_repr)
-        mime_data.setData("application/x-pyspread-row-heights", rh_repr)
-        mime_data.setData("application/x-pyspread-column-widths", cw_repr)
-
         clipboard.setMimeData(mime_data)
 
     def paste_format(self):
@@ -838,58 +823,30 @@ class Workflows:
 
         row, column, table = grid.current
 
-        if "application/x-pyspread-cell-attributes" in mime_data.formats():
-            ca_data = mime_data.data("application/x-pyspread-cell-attributes")
-            ca_data_str = str(ca_data, encoding='utf-8')
-            ca = literal_eval(ca_data_str)
-            assert isinstance(ca, list)
+        if "application/x-pyspread-cell-attributes" not in mime_data.formats():
+            return
 
-            tabu_attrs = "merge_area", "renderer", "frozen"
+        cas_data = mime_data.data("application/x-pyspread-cell-attributes")
+        cas_data_str = str(cas_data, encoding='utf-8')
+        cas = literal_eval(cas_data_str)
+        assert isinstance(cas, list)
 
-            description = "Paste format for selections {}".format(ca_data_str)
+        tabu_attrs = "merge_area", "renderer", "frozen"
 
-#            for selection_params, attrs in ca:
-#                if not any(tabu_attr in attrs for tabu_attr in tabu_attrs):
-#                    # Do not paste merge areas because this may have
-#                    # inintended consequences for existing merge areas
-#                    base_selection = Selection(*selection_params)
-#                    shifted_selection = base_selection.shifted(row, column)
-#                    new_cell_attribute = shifted_selection, table, attrs
-#
-#                    selected_idx = []
-#                    for key in shifted_selection.cell_generator(model.shape):
-#                        selected_idx.append(model.index(*key))
-#                    command = CommandSetCellFormat(new_cell_attribute, model,
-#                                                   grid.currentIndex(),
-#                                                   selected_idx, description)
-#                    self.main_window.undo_stack.push(command)
+        description_tpl = "Paste format for selections {}"
+        description = description_tpl.format([ca[0] for ca in cas])
 
-                    # We do not have to handle CommandSetCellTextAlignment
-                    # separately because internally there is no difference
+        for selection_params, attrs in cas:
+            if not any(tabu_attr in attrs for tabu_attr in tabu_attrs):
+                selection = Selection(*selection_params)
+                shifted_selection = selection.shifted(row, column)
+                new_cell_attribute = shifted_selection, table, attrs
 
-        if "application/x-pyspread-row-heights" in mime_data.formats():
-            rh_data = mime_data.data("application/x-pyspread-row-heights")
-            row_heights = literal_eval(str(rh_data, encoding='utf-8'))
-            assert isinstance(row_heights, dict)
+                selected_idx = []
+                for key in shifted_selection.cell_generator(model.shape):
+                    selected_idx.append(model.index(*key))
 
-            description = "Paste format for rows {}".format(row_heights.keys())
-
-            for row, new_height in row_heights.items():
-                old_height = grid.rowHeight(row)
-                command = CommandSetRowHeight(grid, row, table, old_height,
-                                              new_height, description)
-                self.main_window.undo_stack.push(command)
-
-        if "application/x-pyspread-column-widths" in mime_data.formats():
-            cw_data = mime_data.data("application/x-pyspread-column-widths")
-            column_widths = literal_eval(str(cw_data, encoding='utf-8'))
-            assert isinstance(column_widths, dict)
-
-            description_tpl = "Paste format for columns {}"
-            description = description_tpl.format(column_widths.keys())
-
-            for column, new_width in column_widths.items():
-                old_width = grid.columnWidth(column)
-                command = CommandSetColumnWidth(grid, column, table, old_width,
-                                                new_width, description)
+                command = CommandSetCellFormat(new_cell_attribute, model,
+                                               grid.currentIndex(),
+                                               selected_idx, description)
                 self.main_window.undo_stack.push(command)
