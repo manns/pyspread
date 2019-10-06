@@ -28,6 +28,7 @@ Workflows for pyspread
 
 """
 
+from ast import literal_eval
 from base64 import b85encode
 import bz2
 from contextlib import contextmanager
@@ -785,7 +786,7 @@ class Workflows:
             if new_selection and "merge_area" not in attrs:
                 # We do not copy merged cells
                 new_shifted_selection = new_selection.shifted(-top, -left)
-                cell_attribute = new_shifted_selection, table, attrs
+                cell_attribute = new_shifted_selection.parameters, table, attrs
                 new_cell_attributes.append(cell_attribute)
 
         # Rows
@@ -820,8 +821,31 @@ class Workflows:
         """
 
         clipboard = QApplication.clipboard()
-        formats = clipboard.mimeData().formats()
-        print(formats)
+        mime_data = clipboard.mimeData()
+
+        grid = self.main_window.grid
+        code_array = grid.model.code_array
+        cell_attributes = code_array.cell_attributes
+
+        row, column, table = grid.current
+
+        if "application/x-pyspread-cell-attributes" in mime_data.formats():
+            ca_data = mime_data.data("application/x-pyspread-cell-attributes")
+            ca = literal_eval(str(ca_data, encoding='utf-8'))
+            assert isinstance(ca, list)
+            print(ca)
+
+        if "application/x-pyspread-row-heights" in mime_data.formats():
+            rh_data = mime_data.data("application/x-pyspread-row-heights")
+            rh = literal_eval(str(rh_data, encoding='utf-8'))
+            assert isinstance(rh, dict)
+            print(rh)
+
+        if "application/x-pyspread-column-widths" in mime_data.formats():
+            cw_data = mime_data.data("application/x-pyspread-column-widths")
+            cw = literal_eval(str(cw_data, encoding='utf-8'))
+            assert isinstance(cw, dict)
+            print(cw)
 
         return
 
