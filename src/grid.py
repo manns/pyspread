@@ -380,37 +380,37 @@ class Grid(QTableView):
     def on_cut(self):
         """Cut event handler"""
 
-        self.main_window.workflows.cut()
+        self.main_window.workflows.edit_cut()
 
     def on_copy(self):
         """Copy event handler"""
 
-        self.main_window.workflows.copy()
+        self.main_window.workflows.edit_copy()
 
     def on_copy_results(self):
         """Copy results event handler"""
 
-        self.main_window.workflows.copy_results()
+        self.main_window.workflows.edit_copy_results()
 
     def on_paste(self):
         """Paste event handler"""
 
-        self.main_window.workflows.paste()
+        self.main_window.workflows.edit_paste()
 
     def on_paste_as(self):
         """Paste as event handler"""
 
-        self.main_window.workflows.paste_as()
+        self.main_window.workflows.edit_paste_as()
 
     def on_resize(self):
         """Resize event handler"""
 
-        self.main_window.workflows.resize()
+        self.main_window.workflows.edit_resize()
 
     def on_goto_cell(self):
         """Go to cell event handler"""
 
-        self.main_window.workflows.goto_cell()
+        self.main_window.workflows.view_goto_cell()
 
     def on_zoom_in(self):
         """Zoom in event handler"""
@@ -436,12 +436,12 @@ class Grid(QTableView):
     def on_copy_format(self):
         """Copy format event handler"""
 
-        self.main_window.workflows.copy_format()
+        self.main_window.workflows.format_copy_format()
 
     def on_paste_format(self):
         """Paste format event handler"""
 
-        self.main_window.workflows.paste_format()
+        self.main_window.workflows.format_paste_format()
 
     def on_font(self):
         """Font change event handler"""
@@ -1065,12 +1065,12 @@ class GridTableModel(QAbstractTableModel):
     def setData(self, index, value, role, raw=False, table=None):
         """Overloaded setData for code_array backend"""
 
-        if table is None:
-            key = self.current(index)
-        else:
-            key = index.row(), index.column(), table
-
         if role == Qt.EditRole:
+            if table is None:
+                key = self.current(index)
+            else:
+                key = index.row(), index.column(), table
+
             if raw:
                 if value is None:
                     try:

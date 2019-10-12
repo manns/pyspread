@@ -709,7 +709,7 @@ class MainWindowActions(dict):
         """Adds actions for Macro menu"""
 
         self["insert_image"] = Action(self.parent, "Insert image...",
-                                      self.parent.workflows.insert_image,
+                                      self.parent.workflows.macro_insert_image,
                                       icon=Icon("insert_image"),
                                       statustip='Load an image from a file '
                                                 'into a cell')
@@ -720,7 +720,7 @@ class MainWindowActions(dict):
                                     statustip='Link an image file from a cell')
 
         self["insert_chart"] = Action(self.parent, "Insert chart...",
-                                      self.parent.workflows.insert_chart,
+                                      self.parent.workflows.macro_insert_chart,
                                       icon=Icon("insert_chart"),
                                       statustip='Create a matplotlib chart '
                                                 'and insert code so that it '

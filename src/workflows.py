@@ -367,13 +367,13 @@ class Workflows:
             command = CommandSetCellCode(None, model, index, description)
             self.main_window.undo_stack.push(command)
 
-    def cut(self):
+    def edit_cut(self):
         """Edit -> Cut workflow"""
 
-        self.copy()
+        self.edit_copy()
         self.delete(description_tpl="Cut selection {}")
 
-    def copy(self):
+    def edit_copy(self):
         """Edit -> Copy workflow
 
         Copies selected grid code to clipboard
@@ -480,7 +480,7 @@ class Workflows:
         clipboard = QApplication.clipboard()
         clipboard.setText(data_string)
 
-    def copy_results(self):
+    def edit_copy_results(self):
         """Edit -> Copy results workflow
 
         If a selection is present then repr of selected grid cells result
@@ -556,7 +556,7 @@ class Workflows:
                 else:
                     break
 
-    def paste(self):
+    def edit_paste(self):
         """Edit -> Paste workflow
 
         Pastes text clipboard data
@@ -635,7 +635,7 @@ class Workflows:
             command = CommandSetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
 
-    def paste_as(self):
+    def edit_paste_as(self):
         """Pastes clipboard into one cell using a user specified mime type"""
 
         grid = self.main_window.grid
@@ -702,7 +702,7 @@ class Workflows:
             # Unknown mime type
             return NotImplemented
 
-    def resize(self):
+    def edit_resize(self):
         """Edit -> Resize workflow"""
 
         grid = self.main_window.grid
@@ -726,7 +726,7 @@ class Workflows:
 
     # View menu
 
-    def goto_cell(self):
+    def view_goto_cell(self):
         """View -> Go to cell workflow"""
 
         # Get cell key from user
@@ -736,53 +736,9 @@ class Workflows:
         if key is not None:
             self.main_window.grid.current = key
 
-    # Macro menu
-
-    def insert_image(self):
-        """Insert image workflow"""
-
-        image_file_open_dialog = ImageFileOpenDialog(self.main_window)
-        filepath = image_file_open_dialog.filepath
-        if not filepath:
-            return  # Cancel pressed
-        else:
-            filepath = Path(filepath)
-            chosen_filter = image_file_open_dialog.chosen_filter
-
-        index = self.main_window.grid.currentIndex()
-
-        if ".svg" in chosen_filter:
-            with open(filepath, "r") as svgfile:
-                svg = svgfile.read()
-            self._paste_svg(svg, index)
-        else:
-            with open(filepath, "rb") as imgfile:
-                image_data = imgfile.read()
-            self._paste_image(image_data, index)
-
-    def insert_chart(self):
-        """Insert chart workflow"""
-
-        code_array = self.main_window.grid.model.code_array
-        code = code_array(self.main_window.grid.current)
-
-        chart_dialog = ChartDialog(self.main_window)
-        if code is not None:
-            chart_dialog.editor.setPlainText(code)
-        chart_dialog.show()
-        if chart_dialog.exec_() == ChartDialog.Accepted:
-            code = chart_dialog.editor.toPlainText()
-            index = self.main_window.grid.currentIndex()
-            self.main_window.grid.on_matplotlib_renderer_pressed(True)
-
-            model = self.main_window.grid.model
-            description = "Insert chart into cell {}".format(index)
-            command = CommandSetCellCode(code, model, index, description)
-            self.main_window.undo_stack.push(command)
-
     # Format menu
 
-    def copy_format(self):
+    def format_copy_format(self):
         """Copies the format of the selected cells to the Clipboard
 
         Cells are shifted so that the top left bbox corner is at 0,0
@@ -830,7 +786,7 @@ class Workflows:
         mime_data.setData("application/x-pyspread-cell-attributes", ca_repr)
         clipboard.setMimeData(mime_data)
 
-    def paste_format(self):
+    def format_paste_format(self):
         """Pastes cell formats
 
         Pasting starts at cursor or at top left bbox corner
@@ -872,3 +828,47 @@ class Workflows:
                                                grid.currentIndex(),
                                                selected_idx, description)
                 self.main_window.undo_stack.push(command)
+
+    # Macro menu
+
+    def macro_insert_image(self):
+        """Insert image workflow"""
+
+        image_file_open_dialog = ImageFileOpenDialog(self.main_window)
+        filepath = image_file_open_dialog.filepath
+        if not filepath:
+            return  # Cancel pressed
+        else:
+            filepath = Path(filepath)
+            chosen_filter = image_file_open_dialog.chosen_filter
+
+        index = self.main_window.grid.currentIndex()
+
+        if ".svg" in chosen_filter:
+            with open(filepath, "r") as svgfile:
+                svg = svgfile.read()
+            self._paste_svg(svg, index)
+        else:
+            with open(filepath, "rb") as imgfile:
+                image_data = imgfile.read()
+            self._paste_image(image_data, index)
+
+    def macro_insert_chart(self):
+        """Insert chart workflow"""
+
+        code_array = self.main_window.grid.model.code_array
+        code = code_array(self.main_window.grid.current)
+
+        chart_dialog = ChartDialog(self.main_window)
+        if code is not None:
+            chart_dialog.editor.setPlainText(code)
+        chart_dialog.show()
+        if chart_dialog.exec_() == ChartDialog.Accepted:
+            code = chart_dialog.editor.toPlainText()
+            index = self.main_window.grid.currentIndex()
+            self.main_window.grid.on_matplotlib_renderer_pressed(True)
+
+            model = self.main_window.grid.model
+            description = "Insert chart into cell {}".format(index)
+            command = CommandSetCellCode(code, model, index, description)
+            self.main_window.undo_stack.push(command)
