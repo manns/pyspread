@@ -28,6 +28,58 @@ Pyspread undoable commands
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QUndoCommand
 
+from lib.selection import Selection
+
+
+class CommandSetGridSize(QUndoCommand):
+    """Sets size of grid"""
+
+    def __init__(self, grid, old_shape, new_shape, description):
+        super().__init__(description)
+
+        self.grid = grid
+        self.old_shape = old_shape
+        self.new_shape = new_shape
+
+        self.deleted_cells = {}  # Storage dict for deleted cells
+
+    def redo(self):
+        """Changes grid size and deletes cell code outside the new shape
+
+        Cell formats are not deleted.
+
+        """
+
+        model = self.grid.model
+        code_array = model.code_array
+
+        rows, columns, tables = self.new_shape
+        shape_selection = Selection([(0, 0)], [(rows, columns)], [], [], [])
+
+        for row, column, table in code_array.keys():
+            if not (table < tables and (row, column) in shape_selection):
+                # Code outside grid shape. Delete it and store cell data
+                key = row, column, table
+                self.deleted_cells[key] = code_array.pop(key)
+
+        # Now change the shape
+        self.grid.model.shape = self.new_shape
+
+    def undo(self):
+        """Restores grid size and adds cell code outside the old shape
+
+        Cell formats are not affected.
+
+        """
+        model = self.grid.model
+
+        model.shape = self.old_shape
+
+        for row, column, table in self.deleted_cells:
+            index = model.index(row, column, QModelIndex())
+            code = self.deleted_cells[(row, column, table)]
+            model.setData(index, code, Qt.EditRole, raw=True, table=table)
+
 
 class CommandSetCellCode(QUndoCommand):
     """Sets cell code in grid"""

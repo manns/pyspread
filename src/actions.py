@@ -265,7 +265,7 @@ class MainWindowActions(dict):
                                       statustip='Delete current table')
 
         self["resize_grid"] = Action(self.parent, "Resize grid",
-                                     self.parent.on_nothing,
+                                     self.parent.grid.on_resize,
                                      icon=Icon("resize_grid"),
                                      statustip='Resizes the current grid')
 

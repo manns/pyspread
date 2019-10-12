@@ -402,6 +402,11 @@ class Grid(QTableView):
 
         self.main_window.workflows.paste_as()
 
+    def on_resize(self):
+        """Resize event handler"""
+
+        self.main_window.workflows.resize()
+
     def on_goto_cell(self):
         """Go to cell event handler"""
 
@@ -1057,14 +1062,25 @@ class GridTableModel(QAbstractTableModel):
 
         return QVariant()
 
-    def setData(self, index, value, role, raw=False):
+    def setData(self, index, value, role, raw=False, table=None):
         """Overloaded setData for code_array backend"""
+
+        if table is None:
+            key = self.current(index)
+        else:
+            key = index.row(), index.column(), table
 
         if role == Qt.EditRole:
             if raw:
-                self.code_array[self.current(index)] = value
+                if value is None:
+                    try:
+                        self.code_array.pop(key)
+                    except KeyError:
+                        pass
+                else:
+                    self.code_array[key] = value
             else:
-                self.code_array[self.current(index)] = "{}".format(value)
+                self.code_array[key] = "{}".format(value)
             self.dataChanged.emit(index, index)
 
             return True

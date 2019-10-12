@@ -236,8 +236,7 @@ class GridShapeDialog(DataEntryDialog):
 
     """
 
-    def __init__(self, parent, shape):
-        title = "Create a new grid"
+    def __init__(self, parent, shape, title="Create a new grid"):
         groupbox_title = "Grid shape"
         labels = ["Number of rows", "Number of columns", "Number of tables"]
         validator = QIntValidator()

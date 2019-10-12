@@ -52,7 +52,7 @@ except ImportError:
     matplotlib_figure = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
-from src.commands import CommandSetRowHeight, CommandSetColumnWidth
+from src.commands import CommandSetGridSize
 from src.dialogs import DiscardChangesDialog, FileOpenDialog, GridShapeDialog
 from src.dialogs import FileSaveDialog, ImageFileOpenDialog, ChartDialog
 from src.dialogs import CellKeyDialog
@@ -701,6 +701,28 @@ class Workflows:
         else:
             # Unknown mime type
             return NotImplemented
+
+    def resize(self):
+        """Edit -> Resize workflow"""
+
+        grid = self.main_window.grid
+
+        # Get grid shape from user
+        old_shape = grid.model.code_array.shape
+        title = "Resize grid"
+        shape = GridShapeDialog(self.main_window, old_shape, title=title).shape
+        if shape is None:
+            # Abort changes because the dialog has been canceled
+            return
+
+        description = "Resize grid to {}".format(shape)
+
+        with self.disable_entryline_updates():
+            command = CommandSetGridSize(grid, old_shape, shape, description)
+            self.main_window.undo_stack.push(command)
+
+        # Select upper left cell because initial selection behaves strange
+        self.main_window.grid.reset_selection()
 
     # View menu
 
