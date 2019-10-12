@@ -352,9 +352,6 @@ class PysWriter(object):
                 attr_dict_list.append(key)
                 attr_dict_list.append(attr_dict[key])
 
-                if settings.font_save_enabled and key == 'textfont':
-                    self.fonts_used.append(attr_dict[key])
-
             line_list = list(map(repr, sel_list + tab_list + attr_dict_list))
 
             yield u"\t".join(line_list) + u"\n"

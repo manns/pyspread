@@ -377,41 +377,6 @@ class Grid(QTableView):
                                         new_width, description)
         self.main_window.undo_stack.push(command)
 
-    def on_cut(self):
-        """Cut event handler"""
-
-        self.main_window.workflows.edit_cut()
-
-    def on_copy(self):
-        """Copy event handler"""
-
-        self.main_window.workflows.edit_copy()
-
-    def on_copy_results(self):
-        """Copy results event handler"""
-
-        self.main_window.workflows.edit_copy_results()
-
-    def on_paste(self):
-        """Paste event handler"""
-
-        self.main_window.workflows.edit_paste()
-
-    def on_paste_as(self):
-        """Paste as event handler"""
-
-        self.main_window.workflows.edit_paste_as()
-
-    def on_resize(self):
-        """Resize event handler"""
-
-        self.main_window.workflows.edit_resize()
-
-    def on_goto_cell(self):
-        """Go to cell event handler"""
-
-        self.main_window.workflows.view_goto_cell()
-
     def on_zoom_in(self):
         """Zoom in event handler"""
 
@@ -432,16 +397,6 @@ class Grid(QTableView):
         """Sets zoom level ot 1.0"""
 
         self.zoom = 1.0
-
-    def on_copy_format(self):
-        """Copy format event handler"""
-
-        self.main_window.workflows.format_copy_format()
-
-    def on_paste_format(self):
-        """Paste format event handler"""
-
-        self.main_window.workflows.format_paste_format()
 
     def on_font(self):
         """Font change event handler"""

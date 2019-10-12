@@ -166,32 +166,34 @@ class MainWindowActions(dict):
                               shortcut='Shift+Ctrl+z',
                               statustip='Redo last undone step')
 
-        self["cut"] = Action(self.parent, "Cut", self.parent.grid.on_cut,
+        self["cut"] = Action(self.parent, "Cut",
+                             self.parent.workflows.edit_cut,
                              icon=Icon("cut"),
                              shortcut='Ctrl+x',
                              statustip='Cut cell to the clipboard')
 
-        self["copy"] = Action(self.parent, "&Copy", self.parent.grid.on_copy,
+        self["copy"] = Action(self.parent, "&Copy",
+                              self.parent.workflows.edit_copy,
                               icon=Icon("copy"),
                               shortcut='Ctrl+c',
                               statustip='Copy the input strings of the cells '
                                         'to the clipboard')
 
         self["copy_results"] = Action(self.parent, "Copy results",
-                                      self.parent.grid.on_copy_results,
+                                      self.parent.workflows.edit_copy_results,
                                       icon=Icon("copy_results"),
                                       shortcut='Shift+Ctrl+c',
                                       statustip='Copy the result strings of '
                                                 'the cells to the clipboard')
 
         self["paste"] = Action(self.parent, "&Paste",
-                               self.parent.grid.on_paste,
+                               self.parent.workflows.edit_paste,
                                icon=Icon("paste"),
                                shortcut='Ctrl+v',
                                statustip='Paste cells from the clipboard')
 
         self["paste_as"] = Action(self.parent, "Paste as...",
-                                  self.parent.grid.on_paste_as,
+                                  self.parent.workflows.edit_paste_as,
                                   icon=Icon("paste_as"),
                                   shortcut='Shift+Ctrl+v',
                                   statustip='Transform clipboard and paste '
@@ -265,7 +267,7 @@ class MainWindowActions(dict):
                                       statustip='Delete current table')
 
         self["resize_grid"] = Action(self.parent, "Resize grid",
-                                     self.parent.grid.on_resize,
+                                     self.parent.workflows.edit_resize,
                                      icon=Icon("resize_grid"),
                                      statustip='Resizes the current grid')
 
@@ -322,7 +324,7 @@ class MainWindowActions(dict):
                    statustip='Show/hide the macro panel')
 
         self["goto_cell"] = Action(self.parent, "Go to cell",
-                                   self.parent.grid.on_goto_cell,
+                                   self.parent.workflows.view_goto_cell,
                                    icon=Icon("goto_cell"),
                                    shortcut='Ctrl+g',
                                    statustip='Select a cell and put it into '
@@ -378,17 +380,17 @@ class MainWindowActions(dict):
         """Adds actions for Format menu"""
 
         self["copy_format"] = Action(self.parent, "&Copy format",
-                                     self.parent.grid.on_copy_format,
+                                     self.parent.workflows.format_copy_format,
                                      icon=Icon("copy_format"),
                                      statustip='Copy format of selection to '
                                                'the clipboard')
 
-        self["paste_format"] = Action(self.parent, "&Paste format",
-                                      self.parent.grid.on_paste_format,
-                                      icon=Icon("paste_format"),
-                                      statustip='Apply format from the '
-                                                'clipboard to the selected '
-                                                'cells')
+        self["paste_format"] = \
+            Action(self.parent, "&Paste format",
+                   self.parent.workflows.format_paste_format,
+                   icon=Icon("paste_format"),
+                   statustip='Apply format from the clipboard to the selected '
+                             'cells')
 
         self["font"] = Action(self.parent, "&Font...", self.parent.on_nothing,
                               icon=Icon("font_dialog"),
