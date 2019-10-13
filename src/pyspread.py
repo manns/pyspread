@@ -375,6 +375,9 @@ class MainWindow(QMainWindow):
         widgets.renderer_button.set_current_action(renderer)
         widgets.renderer_button.set_menu_checked(renderer)
 
+        freeze_action = self.main_window_actions["freeze_cell"]
+        freeze_action.setChecked(attributes["frozen"])
+
         lock_action = self.main_window_actions["lock_cell"]
         lock_action.setChecked(attributes["locked"])
         self.entry_line.setReadOnly(attributes["locked"])

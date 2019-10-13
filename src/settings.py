@@ -55,6 +55,8 @@ class Settings:
     zoom_levels = (0.4, 0.5, 0.6, 0.7, 0.8, 1.0,
                    1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0)
 
+    show_frozen = False  # If True then frozen cell background is striped
+
     # TODO: Adjust in code
     sniff_size = 65536  # Number of bytes for csv sniffer
     #                     sniff_size should be larger than 1st+2nd line

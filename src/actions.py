@@ -370,7 +370,7 @@ class MainWindowActions(dict):
                    statustip='Toggles periodic updates for frozen cells')
 
         self["show_frozen"] = Action(self.parent, "Show frozen",
-                                     self.parent.on_nothing,
+                                     self.parent.grid.on_show_frozen_pressed,
                                      icon=Icon("show_frozen"),
                                      checkable=True,
                                      statustip='Indicates frozen cells with a '

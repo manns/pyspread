@@ -399,6 +399,11 @@ class Grid(QTableView):
 
         self.zoom = 1.0
 
+    def on_show_frozen_pressed(self, toggled):
+        """Show frozen cells event handler"""
+
+        self.main_window.settings.show_frozen = toggled
+
     def on_font(self):
         """Font change event handler"""
 
@@ -777,6 +782,10 @@ class Grid(QTableView):
     def on_freeze_pressed(self, toggled):
         """Freeze cell event handler"""
 
+        current_attr = self.model.code_array.cell_attributes[self.current]
+        if current_attr["frozen"] == toggled:
+            return  # Something is wrong with the GUI update
+
         if toggled:
             # We have an non-frozen cell that has to be frozen
             description = "Freeze cell {}".format(self.current)
@@ -978,7 +987,8 @@ class GridTableModel(QAbstractTableModel):
                         return value
 
         if role == Qt.BackgroundColorRole:
-            if self.code_array.cell_attributes[key]["frozen"]:
+            if self.main_window.settings.show_frozen \
+               and self.code_array.cell_attributes[key]["frozen"]:
                 pattern_rgb = self.grid.palette().highlight().color()
                 bg_color = QBrush(pattern_rgb, Qt.BDiagPattern)
             else:

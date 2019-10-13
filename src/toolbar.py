@@ -77,8 +77,7 @@ class MainToolBar(QToolBar):
         self.addAction(actions["paste"])
         self.addAction(actions["paste"])
         self.addSeparator()
-        self.addAction(actions["sort_ascending"])
-        self.addAction(actions["sort_descending"])
+        self.addAction(actions["freeze_cell"])
         self.addSeparator()
         self.addAction(actions["print"])
 
