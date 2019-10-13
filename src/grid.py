@@ -54,6 +54,7 @@ except ImportError:
     matplotlib_figure = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
+from src.commands import CommandFreezeCell, CommandThawCell
 from src.commands import CommandSetCellMerge
 from src.commands import CommandSetCellRenderer, CommandSetRowHeight
 from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
@@ -773,6 +774,19 @@ class Grid(QTableView):
             except TypeError:
                 pass
 
+    def on_freeze_pressed(self, toggled):
+        """Freeze cell event handler"""
+
+        if toggled:
+            # We have an non-frozen cell that has to be frozen
+            description = "Freeze cell {}".format(self.current)
+            command = CommandFreezeCell(self.model, self.current, description)
+        else:
+            # We have an frozen cell that has to be unfrozen
+            description = "Thaw cell {}".format(self.current)
+            command = CommandThawCell(self.model, self.current, description)
+        self.main_window.undo_stack.push(command)
+
     def on_merge_pressed(self):
         """Merge cells button pressed event handler"""
 
@@ -965,8 +979,8 @@ class GridTableModel(QAbstractTableModel):
 
         if role == Qt.BackgroundColorRole:
             if self.code_array.cell_attributes[key]["frozen"]:
-                pattern_rgb = self.main_window.settings.freeze_color
-                bg_color = QBrush(QColor(*pattern_rgb), Qt.BDiagPattern)
+                pattern_rgb = self.grid.palette().highlight().color()
+                bg_color = QBrush(pattern_rgb, Qt.BDiagPattern)
             else:
                 bg_color_rgb = self.code_array.cell_attributes[key]["bgcolor"]
                 if bg_color_rgb is None:

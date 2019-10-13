@@ -209,18 +209,13 @@ class CommandSetCellFormat(QUndoCommand):
         self.index = index
         self.selected_idx = selected_idx
 
-    def _update_cells(self):
-        """Emits cell cell change event"""
-
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
-
     def redo(self):
         self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
-        self._update_cells()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         self.model.code_array.cell_attributes.pop()
-        self._update_cells()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class CommandSetCellMerge(CommandSetCellFormat):
@@ -239,6 +234,55 @@ class CommandSetCellTextAlignment(CommandSetCellFormat):
     def redo(self):
         self.model.setData(self.selected_idx, self.attr, Qt.TextAlignmentRole)
         self._update_cells()
+
+
+class CommandFreezeCell(QUndoCommand):
+    """Freezes cell in grid"""
+
+    def __init__(self, model, current, description):
+        super().__init__(description)
+
+        self.model = model
+        self.current = current
+
+    def redo(self):
+        row, column, table = self.current
+
+        # Add frozen cache content
+        res_obj = self.model.code_array[self.current]
+        self.model.code_array.frozen_cache[repr(self.current)] = res_obj
+
+        # Set the frozen state
+        selection = Selection([], [], [], [], [(row, column)])
+        attr = selection, table, {"frozen": True}
+        self.model.setData([], attr, Qt.DecorationRole)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def undo(self):
+        self.model.code_array.frozen_cache.pop(repr(self.current))
+        self.model.code_array.cell_attributes.pop()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+
+class CommandThawCell(CommandFreezeCell):
+    """Thaw (unfreezes) cell in grid"""
+
+    def redo(self):
+        row, column, table = current = self.current
+
+        # Remove and store frozen cache content
+        self.res_obj = self.model.code_array.frozen_cache.pop(repr(current))
+
+        # Remove the frozen state
+        selection = Selection([], [], [], [], [(row, column)])
+        attr = selection, table, {"frozen": False}
+        self.model.setData([], attr, Qt.DecorationRole)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def undo(self):
+        self.model.code_array.frozen_cache[repr(self.current)] = self.res_obj
+        self.model.code_array.cell_attributes.pop()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class CommandSetCellRenderer(QUndoCommand):

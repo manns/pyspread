@@ -481,7 +481,7 @@ class MainWindowActions(dict):
             statustip='Lauch background color dialog')
 
         self["freeze_cell"] = Action(self.parent, "Freeze cell",
-                                     self.parent.on_nothing,
+                                     self.parent.grid.on_freeze_pressed,
                                      icon=Icon("freeze"),
                                      checkable=True,
                                      statustip='Freeze the selected cell so '
