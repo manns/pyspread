@@ -1,0 +1,143 @@
+#mainNav {
+  padding: 0;
+  background: #00cc00;
+  background: radial-gradient(circle, rgba(57, 230, 57, 0.1741071429) 0%, rgba(103, 230, 103, 0.1180847339) 60%);
+  border-bottom: 1px dotted #dddddd; }
+  #mainNav .navbar-brand {
+    width: 300px;
+    color: #008500;
+    font-size: 18pt;
+    font-family: Courier, Verdana, sans-serif;
+    height: 50px;
+    margin-left: 20px;
+    padding-top: 8px !important; }
+    #mainNav .navbar-brand .dev_docs {
+      color: #888888;
+      font-size: 12pt; }
+    #mainNav .navbar-brand sup {
+      color: #555555;
+      font-size: 9pt; }
+  #mainNav a.nav-link {
+    margin-top: 0;
+    border-radius: 5px;
+    color: black; }
+  #mainNav a:hover {
+    color: #008500;
+    background-color: #fefefe; }
+
+.related {
+  margin-top: 10px; }
+
+.main {
+  width: 100%;
+  max-width: 1200px; }
+
+.toc_header a {
+  font-size: 10pt; }
+
+.sphinxsidebar {
+  padding: 0;
+  margin: 0;
+  min-height: 600px; }
+
+.sphinxsidebarwrapper {
+  border-right: 1px solid #dddddd;
+  font-size: 0.9em;
+  position: static; }
+  .sphinxsidebarwrapper a {
+    color: #222222; }
+  .sphinxsidebarwrapper a:hover {
+    text-decoration: none; }
+  .sphinxsidebarwrapper a.reference.current {
+    background-color: #CCFFCC !important;
+    color: #222222 !important; }
+  .sphinxsidebarwrapper ul {
+    margin-left: 0;
+    padding: 0; }
+
+.x-slide-img {
+  height: 200px; }
+
+.body {
+  font-size: 0.9em; }
+  .body h1 {
+    font-family: Courier, Verdana, sans-serif;
+    font-size: 2.1em;
+    color: #eeeeee;
+    background: #eeeeee;
+    color: #444444;
+    border-radius: 5px;
+    padding: 4px 5px;
+    box-shadow: 1px 1px 2px #dddddd; }
+  .body h2 {
+    font-size: 1.8em;
+    color: #444444;
+    background-color: #eeeeee;
+    border-radius: 5px; }
+  .body .sig-paren {
+    color: #777777; }
+  .body .sig-param {
+    color: #444444; }
+  .body .viewcode-link {
+    font-size: 0.7em; }
+  .body dl {
+    border-top: 1px dotted #dddddd;
+    margin-top: 30px;
+    background-color: #fefefe;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border-left: 3px solid #dddddd;
+    border-right: 3px solid #dddddd; }
+  .body dl dl {
+    margin-top: 5px;
+    border: none;
+    border-left: 2px solid #eeeeee; }
+  .body dl.class em.property {
+    color: #277200; }
+  .body dl.class code.descclassname {
+    color: #666666; }
+  .body dl.class code.descname {
+    color: #277200;
+    font-size: 1.0em; }
+  .body dl.class code.xref {
+    color: #555555; }
+  .body dl.class dd {
+    margin-left: 50px; }
+  .body dl.class .attribute code.descname {
+    color: #2747A7; }
+  .body dl.class .method code.descname {
+    color: #91473A; }
+  .body dl.class .method .property {
+    color: #8091E0;
+    font-size: 0.7em; }
+  .body dl.attribute code.descname {
+    color: yellow; }
+  .body dl.attribute em.property {
+    color: black; }
+  .body dl.function code.descclassname {
+    color: #666666; }
+  .body dl.function code.descname {
+    color: purple;
+    font-size: 1.2em; }
+  .body dl.data code.descclassname {
+    color: #666666; }
+  .body dl.data code.descname {
+    color: #2747A7;
+    font-size: 1em; }
+  .body dl.field-list dt {
+    border-right: 1px dotted #dddddd;
+    border-top: 1px dotted #dddddd;
+    font-weight: normal;
+    font-size: 0.9em; }
+  .body dl.field-list dd {
+    margin-inline-start: 20px; }
+  .body dl.glossary dt {
+    border-top: 1px dashed #dddddd;
+    border-right: 1px dashed #dddddd; }
+  .body dl.glossary dd {
+    margin-left: 20px;
+    border-right: 1px dashed #dddddd; }
+  .body .py-class {
+    color: #277200 !important; }
+
+/*# sourceMappingURL=pyspread-api.19.css.map */

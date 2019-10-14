@@ -21,17 +21,13 @@
 
 """
 
-hashing
-=======
-
 File hashing services
 
-Provides
---------
+**Provides**
 
- * genkey: Generates hash key
- * sign: Returns a signature for a given file
- * verify: Verifies file against signature
+ * :func:`genkey` - Generates hash key
+ * :func:`sign` - Returns a signature for a given file
+ * :func:`verify` - Verifies file against signature
 
 """
 

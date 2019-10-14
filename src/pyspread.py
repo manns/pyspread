@@ -21,19 +21,15 @@
 
 """
 
-========
-pyspread
-========
+- Main Python spreadsheet application
+- Run this script to start the application.
 
-Python spreadsheet application
-
-Run this script to start the application.
-
-Provides
---------
+**Provides**
 
 * Commandlineparser: Gets command line options and parameters
 * MainApplication: Initial command line operations and application launch
+* :class:`MainWindow`: Main windows class
+
 
 """
 
@@ -262,7 +258,7 @@ class MainWindow(QMainWindow):
             self.safe_mode = False
 
     def on_preferences(self):
-        """Preferences event handler"""
+        """Preferences event handler (:class:`dialogs.PreferencesDialog`) """
 
         data = PreferencesDialog(self).data
 
@@ -304,7 +300,7 @@ class MainWindow(QMainWindow):
         self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar")
 
     def on_toggle_widget_toolbar(self):
-        """Wwidget toolbar toggle event handler"""
+        """Widget toolbar toggle event handler"""
 
         self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar")
 
@@ -339,7 +335,7 @@ class MainWindow(QMainWindow):
             "Documented by:<br>{doc_devs}",
             "Copyright:<br>Martin Manns",
             "License:<br>{license}",
-            '<a href="https://manns.github.io/pyspread/">Pyspread website</a>',
+            '<a href="https://pyspread.gitlab.io">pyspread.gitlab.io</a>',
             ))
 
         devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho"

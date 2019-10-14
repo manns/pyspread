@@ -21,20 +21,18 @@
 
 """
 
-dialogs
--------
 
-Modal dialogs for pyspread
+**Modal dialogs**
 
- * DiscardChangesDialog
- * ApproveWarningDialog
- * DataEntryDialog
- * GridShapeDialog
- * (FileDialogBase)
- * FileOpenDialog
- * FileSaveDialog
- * ImageFileOpenDialog
- * ChartDialog
+ * :class:`DiscardChangesDialog`
+ * :class:`ApproveWarningDialog`
+ * :class:`DataEntryDialog`
+ * :class:`GridShapeDialog`
+ * (:class:`FileDialogBase`)
+ * :class:`FileOpenDialog`
+ * :class:`FileSaveDialog`
+ * :class:`ImageFileOpenDialog`
+ * :class:`ChartDialog`
 
 """
 
@@ -236,7 +234,8 @@ class GridShapeDialog(DataEntryDialog):
 
     """
 
-    def __init__(self, parent, shape, title="Create a new grid"):
+    def __init__(self, parent, shape):
+        title = "Create a new grid"
         groupbox_title = "Grid shape"
         labels = ["Number of rows", "Number of columns", "Number of tables"]
         validator = QIntValidator()

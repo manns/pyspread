@@ -1,0 +1,294 @@
+
+$font_logo: Courier, Verdana, sans-serif;
+// Primary color
+$p_color: #008500;
+
+// color loght, mid + dark
+$c_light: #67E667;
+$c_mid: #39E639;
+$c_dark: #269926;
+
+$font_size: 0.9em;
+
+$class_color:  #277200;
+$method_color: #91473A;
+$function_color: purple;
+$namespace_color: #666666;
+$attribute_color: #2747A7;
+$property_color: #8091E0;
+
+#mainNav {
+
+    padding: 0;
+    background: rgb(0,204,0);
+    background: radial-gradient(circle, rgba($c_mid,0.1741071428571429) 0%, rgba($c_light,0.11808473389355745) 60%);
+    border-bottom: 1px dotted #dddddd;
+
+    .navbar-brand {
+        width: 300px;
+        color: $p_color;
+        //text-shadow: 2px 2px 2px #eeeeee;
+        font-size: 18pt;
+        font-family: $font_logo;
+        height: 50px;
+        margin-left: 20px;
+        padding-top: 8px !important;
+
+        .dev_docs {
+            color: #888888;
+            font-size: 12pt;
+        }
+        sup {
+            color: #555555;
+            font-size: 9pt;
+        }
+    }
+
+    a.nav-link {
+        margin-top: 0;
+        border-radius: 5px;
+        color: black;
+    }
+
+    a:hover {
+        color: $p_color;
+        background-color: #fefefe;
+    }
+
+}
+
+.related {
+    margin-top: 10px;
+}
+
+.main {
+  width: 100%;
+  max-width: 1200px;
+}
+
+ .toc_header a {
+    font-size: 10pt;
+}
+
+.sphinxsidebar {
+    //width: 120px;
+    padding: 0;
+    margin: 0;
+    min-height: 600px;
+}
+
+.sphinxsidebarwrapper {
+    //background-color: #eeeeee;
+    border-right: 1px solid #dddddd;
+    font-size: $font_size;
+    position: static;
+    a {
+        color: #222222;
+    }
+
+    a:hover {
+        text-decoration: none;
+
+    }
+    a.reference.current {
+        background-color: #CCFFCC !important;
+        color: #222222 !important;
+    }
+
+    ul {
+        //background-color: red;
+        margin-left: 0;
+        padding: 0;
+    }
+
+}
+.x-slide-img {
+
+    height: 200px;
+}
+
+.body {
+
+     font-size: $font_size;
+
+    h1 {
+        font-family: $font_logo;
+        font-size: 2.1em;
+        color: #eeeeee;
+        background: #eeeeee;
+        //background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(163,223,117,0.2861519607843137) 100%);
+        color: #444444;
+        border-radius: 5px;
+        padding: 4px 5px;
+        box-shadow: 1px 1px 2px #dddddd;
+
+    }
+
+    h2 {
+        font-size: 1.8em;
+        color: #444444;
+        background-color: #eeeeee;
+         border-radius: 5px;
+    }
+
+     // the (brackets)
+    .sig-paren {
+        color: #777777;
+    }
+
+    // params list
+    .sig-param {
+        //font-size: $font_size;
+         color: #444444;
+    }
+
+    .viewcode-link {
+        font-size: 0.7em;
+    }
+
+    dl {
+        border-top: 1px dotted #dddddd;
+        margin-top: 30px;
+        background-color: #fefefe;
+        padding: 5px 10px;
+        border-radius: 4px;
+        //box-shadow: 3px 3px 3px #dddddd;
+        border-left: 3px solid #dddddd;
+        border-right: 3px solid #dddddd;
+    }
+
+    dl dl {
+        margin-top: 5px;
+        border: none;
+        border-left: 2px solid #eeeeee;
+    }
+
+    dl.class {
+
+        // `class`` text
+        em.property {
+            color: $class_color;
+        }
+
+        // class `path.part.`
+        code.descclassname {
+            color: $namespace_color;
+        }
+        // the `ClassName`
+        code.descname {
+            color: $class_color;
+            font-size: 1.0em;
+        }
+
+        // parent class
+        code.xref {
+            color: #555555;
+        }
+
+
+
+
+
+        dt {
+            //background-color: pink;
+        }
+        dd {
+            //background-color: blue;
+
+            margin-left: 50px;
+        }
+
+        .attribute code.descname {
+            color: $attribute_color;
+            //font-size: $font_size;
+        }
+
+        .method code.descname {
+            color: $method_color;
+
+        }
+        .method .property {
+            color: $property_color;
+            font-size: 0.7em;
+        }
+
+
+    }
+
+    dl.attribute {
+        code.descname {
+            color: yellow;
+        }
+        em.property {
+            color: black;
+        }
+    }
+
+    dl.function {
+        // class `path.part.`
+        code.descclassname {
+            color: $namespace_color;
+        }
+        // the `function_name()`
+        code.descname {
+            color: $function_color;
+            font-size: 1.2em;
+        }
+    }
+
+    // mod constants
+    dl.data {
+        code.descclassname {
+            color: $namespace_color;
+        }
+        // the `CONST`
+        code.descname {
+            color: $attribute_color;
+            font-size: 1em;
+
+        }
+    }
+
+
+    // Params
+    dl.field-list {
+        dt {
+
+            //background-color: red;
+            //flex-basis: 20%;
+            border-right: 1px dotted #dddddd;
+            border-top: 1px dotted #dddddd;
+            font-weight: normal;
+            font-size: 0.9em;
+        }
+
+        dd {
+            margin-inline-start: 20px;
+
+        }
+    }
+
+
+    // glossary
+    dl.glossary {
+
+        dt {
+            border-top: 1px dashed #dddddd;
+            border-right: 1px dashed #dddddd;
+        }
+        dd {
+            margin-left: 20px;
+            border-right: 1px dashed #dddddd;
+        }
+    }
+
+   // this dont work ??
+    .py-class {
+            color: $class_color !important;
+        }
+
+
+
+
+
+}

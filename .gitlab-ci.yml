@@ -1,11 +1,12 @@
-image: python:3.6
+image: debian
 
 before_script:
-- pip3 install -r requirements.txt
+  - apt-get update -qq
+  - apt-get install -y -qq python3-pip python3-dev python3-pil graphviz python3-pyqt5 python3-pyqt5.qtwebengine python3-pyqt5.qtchart
+  - pip3 install -r requirements.txt
 
 pages:
   script:
-  - pip3 install -r requirements.txt
   - pip3 install -r apidocs/requirements.txt
   - mkdir public
   - sphinx-build -a -b html ./apidocs ./public/
@@ -13,4 +14,5 @@ pages:
     paths:
     - public
   only:
-  - py3_docs
+  - master
+

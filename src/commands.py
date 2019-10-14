@@ -21,7 +21,18 @@
 
 """
 Pyspread undoable commands
---------------------------
+
+**Provides**
+
+* :class:`CommandSetGridSize`
+* :class:`CommandSetCellCode`
+* :class:`CommandSetCellFormat`
+* :class:`CommandSetCellMerge`
+* :class:`CommandSetCellRenderer`
+* :class:`CommandSetCellTextAlignment`
+* :class:`CommandSetColumnWidth`
+* :class:`CommandSetRowHeight`
+
 
 """
 

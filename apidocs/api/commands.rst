@@ -1,0 +1,7 @@
+######################
+commands.*
+######################
+
+
+.. automodule:: commands
+    :members:

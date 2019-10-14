@@ -21,9 +21,6 @@
 
 """
 
-pyspread settings
-=================
-
 """
 
 from pathlib import Path
@@ -31,6 +28,7 @@ from pathlib import Path
 from PyQt5.QtCore import QSettings
 
 VERSION = "1.99"
+"""Current pyspread version"""
 
 
 class Settings:

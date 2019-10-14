@@ -21,17 +21,12 @@
 
 """
 
-menubar
-=======
 
-Main menu for pyspread
+**Provides**
 
-Provides
---------
-
-* MenuBar: QMenuBar, the main menubar for pyspread
-* BorderChoiceMenu: QMenu for choosing cell borders that shall be manipulated
-* BorderWidthMenu: QMenu for choosing the cell border width
+* :class:`MenuBar`: QMenuBar, the main menubar for pyspread
+* :class:`BorderChoiceMenu`: QMenu for choosing cell borders that shall be manipulated
+* :class:`BorderWidthMenu`: QMenu for choosing the cell border width
 
 """
 

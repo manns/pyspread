@@ -21,14 +21,10 @@
 
 """
 
-string_helpers
-==============
+**Provides**
 
-Provides
---------
-
- * quote
- * wrap_text
+ * :func:`quote`
+ * :func:`wrap_text`
 
 """
 

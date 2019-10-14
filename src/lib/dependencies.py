@@ -21,9 +21,14 @@
 
 
 def get_enchant_version():
-    """Returns version number string of pyenchant iif it is installed
+    """
+    :rtype: str or None
+    :return: version number string of pyenchant if it is installed else None
 
-    Othervise returns None
+
+    .. note::
+
+        https://pypi.org/project/pyenchant/
 
     """
 
