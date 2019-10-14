@@ -163,19 +163,18 @@ class Workflows:
         code_array = self.main_window.grid.model.code_array
 
         # Get filepath from user
-        file_open_dialog = FileOpenDialog(self.main_window)
-        filepath = file_open_dialog.filepath
-        chosen_filter = file_open_dialog.chosen_filter
-        if not filepath or not chosen_filter:
+        dial = FileOpenDialog(self.main_window)
+        if not dial.file_path:
             return  # Cancel pressed
-        else:
-            filepath = Path(filepath)
+
+        filepath = Path(dial.file_path).with_suffix(dial.suffix)
         filesize = os.path.getsize(filepath)
 
         # Reset grid
         self.main_window.grid.model.reset()
 
-        # Is the file signed properly?
+        # Is the file signed properly ?
+        self.main_window.safe_mode = True
         signature_key = self.main_window.settings.signature_key
         try:
             with open(filepath, "rb") as infile:
@@ -188,7 +187,7 @@ class Workflows:
             self.main_window.safe_mode = True
 
         # File compression handling
-        if chosen_filter == "Pyspread uncompressed (*.pysu)":
+        if filepath.suffix == ".pysu":
             fopen = open
         else:
             fopen = bz2.open
@@ -226,7 +225,7 @@ class Workflows:
         self.main_window.settings.changed_since_save = False
 
     def sign_file(self, filepath):
-        """Signs filepath if pyspread is not in safe mode"""
+        """Signs filepath if not in safe mode"""
 
         if self.main_window.grid.model.code_array.safe_mode:
             msg = "File saved but not signed because it is unapproved."
@@ -318,7 +317,6 @@ class Workflows:
         """File save workflow"""
 
         filepath = self.main_window.settings.last_file_input_path
-
         if filepath.suffix:
             self._save(filepath)
         else:
@@ -329,20 +327,17 @@ class Workflows:
         """File save as workflow"""
 
         # Get filepath from user
-        file_save_dialog = FileSaveDialog(self.main_window)
-        filepath = file_save_dialog.filepath
-        if not filepath:
+        dial = FileSaveDialog(self.main_window)
+        if not dial.file_path:
             return  # Cancel pressed
-        else:
-            filepath = Path(filepath)
-        chosen_filter = file_save_dialog.chosen_filter
-        filter_suffix = chosen_filter[-5:-1]  # e.g. '.pys'
+
+        fp = Path(dial.file_path)
 
         # Extend filepath suffix if needed
-        if filepath.suffix != filter_suffix:
-            filepath = filepath.with_suffix(filepath.suffix + filter_suffix)
+        if fp.suffix != dial.suffix:
+            fp = fp.with_suffix(dial.suffix)
 
-        self._save(filepath)
+        self._save(fp)
 
     @handle_changed_since_save
     def file_quit(self):
@@ -834,17 +829,15 @@ class Workflows:
     def macro_insert_image(self):
         """Insert image workflow"""
 
-        image_file_open_dialog = ImageFileOpenDialog(self.main_window)
-        filepath = image_file_open_dialog.filepath
-        if not filepath:
+        dial = ImageFileOpenDialog(self.main_window)
+        if not dial.file_path:
             return  # Cancel pressed
-        else:
-            filepath = Path(filepath)
-            chosen_filter = image_file_open_dialog.chosen_filter
+
+        filepath = Path(dial.file_path)
 
         index = self.main_window.grid.currentIndex()
 
-        if ".svg" in chosen_filter:
+        if filepath.suffix == ".svg":
             with open(filepath, "r") as svgfile:
                 svg = svgfile.read()
             self._paste_svg(svg, index)

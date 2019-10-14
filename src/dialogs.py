@@ -347,46 +347,65 @@ class FileDialogBase:
     _get_filepath must be overloaded
 
     """
+    file_path = None
+    suffix = None
 
     title = "Choose file"
-    name_filter = "Pyspread uncompressed (*.pysu);;" + \
-                  "Pyspread compressed (*.pys)"
-    filepath = None
-    chosen_filter = None
+
+    filters_list = [
+        "Pyspread un-compressed (*.pysu)",
+        "Pyspread compressed (*.pys)"
+    ]
+    selected_filter = None
+
+    @property
+    def filters(self):
+        """Formatted filters for qt"""
+        return ";;".join(self.filters_list)
+
+    @property
+    def suffix(self):
+        return ".pysu" if self.filters_list.index(self.selected_filter) == 0 else ".pys"
 
     def __init__(self, main_window):
+
         self.main_window = main_window
-        self.filepath, self.chosen_filter = self._get_filepath()
+        self.selected_filter = self.filters_list[0]
+
+        self.show_dialog()
+
+    def show_dialog(self):
+        """Sublasses must overload this method"""
+        raise Exception("show_dialog() - Needs method overload")
 
 
 class FileOpenDialog(FileDialogBase):
-    """Modal dialog for choosing a pyspread file"""
+    """Modal dialog for opening a pyspread file"""
 
     title = "Open"
 
-    def _get_filepath(self):
-        """Returns (filepath, chosen_filter) from modal user dialog"""
-
+    def show_dialog(self):
+        """Present dialog and update values"""
         path = self.main_window.settings.last_file_input_path
-        filepath, chosen_filter = \
-            QFileDialog.getOpenFileName(self.main_window, self.title,
-                                        str(path), self.name_filter)
-        return filepath, chosen_filter
+        self.file_path, self.selected_filter = QFileDialog.getOpenFileName(
+                                                    self.main_window,
+                                                    self.title, str(path),
+                                                    self.filters, self.selected_filter)
 
 
 class FileSaveDialog(FileDialogBase):
-    """Modal dialog for choosing a pyspread save file"""
+    """Modal dialog for saving a pyspread file"""
 
     title = "Save"
 
-    def _get_filepath(self):
-        """Returns (filepath, chosen_filter) from modal user dialog"""
-
+    def show_dialog(self):
+        """Present dialog and update values"""
         path = self.main_window.settings.last_file_output_path
-        filepath, chosen_filter = \
-            QFileDialog.getSaveFileName(self.main_window, self.title,
-                                        str(path), self.name_filter)
-        return filepath, chosen_filter
+        self.file_path, self.selected_filter = QFileDialog.getSaveFileName(
+                                            self.main_window,
+                                            self.title, str(path),
+                                            self.filters, self.selected_filter)
+
 
 
 class ImageFileOpenDialog(FileDialogBase):
@@ -401,16 +420,15 @@ class ImageFileOpenDialog(FileDialogBase):
     name_filter = "Images ({})".format(img_format_string) + ";;" \
                   "Scalable Vector Graphics (*.svg *.svgz)"
 
-    def _get_filepath(self):
-        """Returns (filepath, chosen_filter) from modal user dialog"""
+    def show_dialog(self):
+        """Present dialog and update values"""
 
         path = self.main_window.settings.last_file_input_path
-        filepath, chosen_filter = \
+        self.file_path, self.selected_filter = \
             QFileDialog.getOpenFileName(self.main_window,
                                         self.title,
                                         str(path),
                                         self.name_filter)
-        return filepath, chosen_filter
 
 
 class ChartDialog(QDialog):
