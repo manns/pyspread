@@ -159,7 +159,7 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
-        #TODO: Fix signature key issue
+        # TODO: Fix signature key issue
         code_array = self.main_window.grid.model.code_array
 
         # Get filepath from user
