@@ -1,7 +1,7 @@
 ######################
-lib.hashing.*
+lib.qimage_svg.*
 ######################
 
-.. automodule:: lib.hashing
+.. automodule:: lib.qimage_svg
     :members:
 

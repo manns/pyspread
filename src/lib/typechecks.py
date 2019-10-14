@@ -21,10 +21,7 @@
 
 """
 
-Typechecks
-==========
-
-typechecks.py contains functions for checking type likeness.
+Contains functions for checking type likeness.
 
 """
 

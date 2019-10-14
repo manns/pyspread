@@ -20,8 +20,6 @@
 # --------------------------------------------------------------------
 
 """
-Pyspread actions
-----------------
 
 Provides QT QActions.
 For actions that alter the grid / model see grid_actions.py.
@@ -40,7 +38,7 @@ from lib.dependencies import get_enchant_version
 
 
 class Action(QAction):
-    """Base class for all actions in pyspread
+    """Base class for all actions
 
     Note: Parameter order has changed comparing with QAction
 

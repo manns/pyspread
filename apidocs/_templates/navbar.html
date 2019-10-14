@@ -1,0 +1,38 @@
+<nav id="mainNav" class="navbar  navbar-expand-{{ theme_navbar_collapse }}  navbar-dark bg-light flex-wrap">
+    <button class="navbar-toggler ml-auto py-2" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar2">
+      &#9776;
+    </button>
+    <div class="navbar-collapse collapse" id="exCollapsingNavbar2">
+       <a class="navbar-brand py-1" href="{{ pathto(master_doc) }}">
+          <img class="logo" src="{{pathto('_static/pyspread.png',1)}}" alt=""/>&nbsp;pySpread<span class="dev_docs">.api.docs</span><sup>{{release}}</sup>
+        </a>
+        {%- if version %}
+        <span class="navbar-text navbar-version pb-0 pt-1"><b>{{version}}</b></span>
+        {%- endif %}
+
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="index.html">&#11218;&nbsp;Index</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="{{git_repos_url}}/issues">&#9636;&nbsp;Issues<sup>&#8599;</sup></a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="{{git_repos_url}}">&#8752;&nbsp;Code<sup>&#8599;</sup></a>
+            </li>
+            {% if theme_navbar_show_pages %}
+              <li class="nav-item dropdown d-none d-sm-block" id="navbar-pages">
+                  <a class="nav-link dropdown-toggle" data-toggle="dropdown">&#128209;&nbsp;Pages</a>
+                  <ul class="dropdown-menu">
+                  {{ toctree(maxdepth=4, collapse=False, includehidden=False) }}
+                  </ul>
+              </li>
+            {%- endif -%}
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="/">&#127968;&nbsp;pyspread.gitlab.io<sup>&#8599;</sup></a>
+            </li>
+        </ul>
+        <div class="dropdown-divider d-block d-sm-none mb-4"></div>
+        {% include "navbarsearch.html" %}
+    </div>
+</nav>

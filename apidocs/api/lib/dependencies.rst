@@ -1,6 +1,6 @@
 ######################
-model.unredo.*
+lib.dependencies.*
 ######################
 
-.. automodule:: model.unredo
+.. automodule:: lib.dependencies
     :members:

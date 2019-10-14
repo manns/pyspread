@@ -21,12 +21,9 @@
 
 """
 
-panels
-------
+Window panels
 
-Window panels for pyspread
-
- * MacroPanel
+ * :class:`MacroPanel`
 
 """
 

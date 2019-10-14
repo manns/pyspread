@@ -1,3 +1,11 @@
 sphinx
+
+sphinxcontrib-fulltoc
+sphinxcontrib-autoprogram
+sphinxcontrib-blockdiag
+sphinxcontrib-napoleon
+
+
 recommonmark
+sphinxbootstrap4theme
 

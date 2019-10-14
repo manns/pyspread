@@ -21,10 +21,7 @@
 
 """
 
-qimage_svg
-==========
-
-High resolution svg support for qimage and matplotlib figures
+High resolution svg support for qimage and :mod:`matplotlib.figure`
 
 """
 

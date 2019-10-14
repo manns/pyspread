@@ -19,6 +19,18 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+"""
+
+**Contains:**
+
+* :class:`ChartTemplatesToolBar`
+* :class:`FindToolbar`
+* :class:`FormatToolbar`
+* :class:`MacroToolbar`
+* :class:`WidgetToolbar`
+* :func:`add_toolbutton_widget`
+
+"""
 
 from PyQt5.QtWidgets import QToolBar, QToolButton, QUndoView, QMenu
 from PyQt5.QtWidgets import QHBoxLayout

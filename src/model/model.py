@@ -21,16 +21,14 @@
 
 """
 
-Model
-=====
 
-The model contains the core data structures of pyspread.
-It is divided into layers.
+The model contains the core data structures of pyspread and is divided
+into the following layers.
 
-Layer 3: CodeArray
-Layer 2: DataArray
-Layer 1: DictGrid
-Layer 0: KeyValueStore
+- Layer 3: :class:`CodeArray`
+- Layer 2: :class:`DataArray`
+- Layer 1: :class:`DictGrid`
+- Layer 0: :class:`KeyValueStore`
 
 """
 from __future__ import absolute_import
@@ -1062,7 +1060,7 @@ class DataArray(object):
 
 
 class CodeArray(DataArray):
-    """CodeArray provides objects when accessing cells via __getitem__
+    """CodeArray provides objects when accessing cells via `__getitem__`
 
     Cell code can be accessed via function call
 
@@ -1414,11 +1412,13 @@ class CodeArray(DataArray):
     def string_match(self, datastring, findstring, flags=None):
         """
         Returns position of findstring in datastring or None if not found.
+
         Flags is a list of strings. Supported strings are:
-         * "MATCH_CASE": The case has to match for valid find
-         * "WHOLE_WORD": The word has to be surrounded by whitespace characters
-                         if in the middle of the string
-         * "REG_EXP":    A regular expression is evaluated.
+
+        * MATCH_CASE - The case has to match for valid find
+        * WHOLE_WORD: The word has to be surrounded by whitespace characters
+          if in the middle of the string
+        * REG_EXP:    A regular expression is evaluated.
 
         """
 
@@ -1454,19 +1454,14 @@ class CodeArray(DataArray):
             return pos
 
     def findnextmatch(self, startkey, find_string, flags, search_result=True):
-        """ Returns a tuple with the position of the next match of find_string
+        """the position of the next match of find_string
 
-        Returns None if string not found.
-
-        Parameters:
-        -----------
-        startkey:   Start position of search
-        find_string:String to be searched for
-        flags:      List of strings, out of
-                    ["UP" xor "DOWN", "WHOLE_WORD", "MATCH_CASE", "REG_EXP"]
-        search_result: Bool, defaults to True
-        \tIf True then the search includes the result string (slower)
-
+        :param startkey:   Start position of search
+        :param find_string: String to be searched for
+        :param flags:  List of strings, out of  ["UP" xor "DOWN", "WHOLE_WORD", "MATCH_CASE", "REG_EXP"]
+        :param search_result: Bool, defaults to True. If True then the search includes the result string (slower)
+        :rtype: str or None
+        :return:  Returns a tuple with the position of the next match of find_string
         """
 
         assert "UP" in flags or "DOWN" in flags

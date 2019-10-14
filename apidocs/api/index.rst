@@ -2,17 +2,17 @@ API
 ====================================
 
 
-
 .. toctree::
-    :maxdepth: 1
-    :caption: Contents:
+    :maxdepth: 3
 
     actions.rst
+    commands.rst
     dialogs.rst
     entryline.rst
     grid.rst
     icons.rst
     menubar.rst
+    panels.rst
     pyspread.rst
     settings.rst
     toolbar.rst

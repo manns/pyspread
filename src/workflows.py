@@ -21,9 +21,6 @@
 
 """
 
-workflows
----------
-
 Workflows for pyspread
 
 """

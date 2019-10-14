@@ -81,7 +81,14 @@
 
 #  PythonHighlighter from David Boddie
 #  Modified BSD license --> GPL compatible
+"""
 
+- :class:`PythonEnchantHighlighter`
+- :class:`SpellTextEdit`
+
+
+
+"""
 import sys
 
 try:

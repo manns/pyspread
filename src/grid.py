@@ -21,17 +21,11 @@
 
 """
 
-grid
-====
+**Provides**
 
-Main grid for pyspread
-
-Provides
---------
-
-* Grid: QTableView of the main grid
-* GridTableModel: QAbstractTableModel linking the view to code_array backend
-* GridCellDelegate: QStyledItemDelegate handling custom painting and editors
+* :class:`Grid`: QTableView of the main grid
+* :class:`GridTableModel`: QAbstractTableModel linking the view to code_array backend
+* :class:`GridCellDelegate` QStyledItemDelegate handling custom painting and editors
 
 """
 
