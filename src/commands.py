@@ -118,10 +118,12 @@ class CommandSetCellCode(QUndoCommand):
     def redo(self):
         for index, new_code in zip(self.indices, self.new_codes):
             self.model.setData(index, new_code, Qt.EditRole, raw=True)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         for index, old_code in zip(self.indices, self.old_codes):
             self.model.setData(index, old_code, Qt.EditRole, raw=True)
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class CommandSetRowHeight(QUndoCommand):
@@ -232,9 +234,13 @@ class CommandSetCellFormat(QUndoCommand):
 class CommandSetCellMerge(CommandSetCellFormat):
     """Sets cell merges in grid"""
 
-    def _update_cells(self):
-        """Updates cell spands and emits cell change event"""
+    def redo(self):
+        self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
+        self.model.main_window.grid.update_cell_spans()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
+    def undo(self):
+        self.model.code_array.cell_attributes.pop()
         self.model.main_window.grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
@@ -244,7 +250,7 @@ class CommandSetCellTextAlignment(CommandSetCellFormat):
 
     def redo(self):
         self.model.setData(self.selected_idx, self.attr, Qt.TextAlignmentRole)
-        self._update_cells()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class CommandFreezeCell(QUndoCommand):

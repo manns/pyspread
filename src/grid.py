@@ -111,6 +111,9 @@ class Grid(QTableView):
         self.undo_resizing_row = False
         self.undo_resizing_column = False
 
+        # Initially, select top left cell on table 0
+        self.current = 0, 0, 0
+
     # Properties
 
     @property
