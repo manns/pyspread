@@ -11,11 +11,11 @@ menu: contribute
 Pyspread 1.x only works with Python 2.x. 
 Development concentrates on fixing bugs and maintaining compatibility.
 Its source code currently is located in the 
-[master branch](https://github.com/manns/pyspread/){:target="_blank"}.
+[master branch](https://github.com/manns/pyspread/tree/python2){:target="_blank"}.
 
 Pyspread 2.x will be Python3 compatible. It is under heavy development and
 not yet ready for production use.  Its source code currently is located in the
-[python3 branch](https://github.com/manns/pyspread/tree/python3){:target="_blank"}.
+[python3 branch](https://gitlab.com/pyspread/pyspread){:target="_blank"}.
 New features should be developed against pyspread 2.x. 
 
 The switch to Python3 goes along with changing the GUI toolkit from 
@@ -36,7 +36,7 @@ please refer to the
 Thank you for your interest in improving pyspread.
 Pyspread is non-commercial. It lives from your contributions.
 Do not hesitate to help with small things, e.g. stating a feature wish in the 
-[issue tracker](https://github.com/manns/pyspread/issues).
+[issue tracker](https://gitlab.com/pyspread/pyspread/issues).
 </div>
 </div>
 
@@ -46,7 +46,7 @@ Do not hesitate to help with small things, e.g. stating a feature wish in the
 </div>
 <div markdown="1" class="w3-col l6 m6 s12">
 For bug reports, please use the
-[issue tracker](https://github.com/manns/pyspread/issues).
+[issue tracker](https://gitlab.com/pyspread/pyspread/issues).
 </div>
 </div>
 
@@ -62,6 +62,6 @@ For patches / code contributions,
 
 Please try solving only one issue or realize one feature per branch.
 
-*Last changed: 29. July 2019*
+*Last changed: 19. October 2019*
 </div>
 </div>
