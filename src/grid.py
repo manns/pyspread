@@ -38,7 +38,7 @@ import numpy
 
 from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
-from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView
+from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView, QFontDialog
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QPainter, QPalette
 from PyQt5.QtGui import QImage as BasicQImage
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
@@ -447,6 +447,28 @@ class Grid(QTableView):
 
         self.main_window.settings.show_frozen = toggled
 
+    def on_font_dialog(self):
+        """Font dialog event handler"""
+
+        # Determine currently active font as dialog preset
+        font = self.model.font(self.current)
+        font, ok = QFontDialog().getFont(font, self.main_window)
+        if ok:
+            attr_dict = {}
+            attr_dict["textfont"] = font.family()
+            attr_dict["pointsize"] = font.pointSizeF()
+            attr_dict["fontweight"] = font.weight()
+            attr_dict["fontstyle"] = font.style()
+            attr_dict["underline"] = font.underline()
+            attr_dict["strikethrough"] = font.strikeOut()
+            attr = self.selection, self.table, attr_dict
+            idx_string = self._selected_idx_to_str(self.selected_idx)
+            description = "Set font {} for indices {}".format(font, idx_string)
+            command = CommandSetCellFormat(attr, self.model,
+                                           self.currentIndex(),
+                                           self.selected_idx, description)
+            self.main_window.undo_stack.push(command)
+
     def on_font(self):
         """Font change event handler"""
 
@@ -714,7 +736,8 @@ class Grid(QTableView):
     def on_text_color(self):
         """Text color change event handler"""
 
-        text_color_rgb = self.main_window.widgets.text_color_button.color.getRgb()
+        text_color = self.main_window.widgets.text_color_button.color
+        text_color_rgb = text_color.getRgb()
         attr = self.selection, self.table, {"textcolor": text_color_rgb}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set text color to {} for cells {}"
@@ -988,6 +1011,25 @@ class GridTableModel(QAbstractTableModel):
 
         return self.shape[1]
 
+    def font(self, key):
+        """Returns font for given key"""
+
+        attr = self.code_array.cell_attributes[key]
+        font = QFont()
+        if attr["textfont"] is not None:
+            font.setFamily(attr["textfont"])
+        if attr["pointsize"] is not None:
+            font.setPointSizeF(attr["pointsize"])
+        if attr["fontweight"] is not None:
+            font.setWeight(attr["fontweight"])
+        if attr["fontstyle"] is not None:
+            font.setStyle(attr["fontstyle"])
+        if attr["underline"] is not None:
+            font.setUnderline(attr["underline"])
+        if attr["strikethrough"] is not None:
+            font.setStrikeOut(attr["strikethrough"])
+        return font
+
     def data(self, index, role=Qt.DisplayRole):
         """Overloaded data for code_array backend"""
 
@@ -1049,21 +1091,7 @@ class GridTableModel(QAbstractTableModel):
                 return QColor(*text_color_rgb)
 
         if role == Qt.FontRole:
-            attr = self.code_array.cell_attributes[key]
-            font = QFont()
-            if attr["textfont"] is not None:
-                font.setFamily(attr["textfont"])
-            if attr["pointsize"] is not None:
-                font.setPointSizeF(attr["pointsize"])
-            if attr["fontweight"] is not None:
-                font.setWeight(attr["fontweight"])
-            if attr["fontstyle"] is not None:
-                font.setStyle(attr["fontstyle"])
-            if attr["underline"] is not None:
-                font.setUnderline(attr["underline"])
-            if attr["strikethrough"] is not None:
-                font.setStrikeOut(attr["strikethrough"])
-            return font
+            return self.font(key)
 
         if role == Qt.TextAlignmentRole:
             pys2qt = {

@@ -1309,6 +1309,10 @@ class CodeArray(DataArray):
         if self.safe_mode:
             return '', "Safe mode activated. Code not executed."
 
+        # We need to execute each cell so that assigned globals are updated
+        for key in self:
+            self[key]
+
         # Windows exec does not like Windows newline
         self.macros = self.macros.replace('\r\n', '\n')
 

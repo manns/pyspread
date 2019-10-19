@@ -364,7 +364,8 @@ class MainWindow(QMainWindow):
             '<a href="https://pyspread.gitlab.io">pyspread.gitlab.io</a>',
             ))
 
-        devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho, Pete Morgan"
+        devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho, " \
+               "Pete Morgan"
 
         doc_devs = "Martin Manns, Bosko Markovic, Pete Morgan"
 
@@ -437,7 +438,10 @@ class MainWindow(QMainWindow):
             bgcolor = QColor(*attributes["bgcolor"])
         widgets.background_color_button.color = bgcolor
 
-        widgets.font_combo.font = attributes["textfont"]
+        if attributes["textfont"] is None:
+            widgets.font_combo.font = QFont().family()
+        else:
+            widgets.font_combo.font = attributes["textfont"]
         widgets.font_size_combo.size = attributes["pointsize"]
 
         merge_cells_action = self.main_window_actions["merge_cells"]

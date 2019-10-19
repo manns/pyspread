@@ -124,6 +124,7 @@ class MacroPanel(QDialog):
         """Update macro content"""
 
         self.macro_editor.setPlainText(self.code_array.macros)
+        self.on_apply()
 
     def update_result_viewer(self, result="", err=""):
         """Update event result following execution by main window"""

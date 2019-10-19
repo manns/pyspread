@@ -402,7 +402,7 @@ class MainWindowActions(dict):
                              'cells')
 
         self["font"] = Action(self.parent, "&Font...",
-                              self.parent.on_nothing,
+                              self.parent.grid. on_font_dialog,
                               icon=Icon("font_dialog"),
                               shortcut='Ctrl+n',
                               statustip='Lauch font dialog')
