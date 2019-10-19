@@ -19,9 +19,9 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
-from PyQt5.QtCore import pyqtSignal, QSize
+from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QToolButton, QColorDialog, QFontComboBox, QComboBox
-from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QIcon
+from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QIcon, QCursor
 
 from icons import Icon
 
@@ -166,7 +166,7 @@ class ColorButton(QToolButton):
     """
 
     colorChanged = pyqtSignal()
-    title = "Select color"
+    title = "Select Color"
 
     def __init__(self, color, icon=None, max_size=QSize(28, 28)):
         super().__init__()
@@ -221,9 +221,19 @@ class ColorButton(QToolButton):
 
         """
 
-        dlg = QColorDialog(self)
+        dlg = QColorDialog(self.parent())
+
         dlg.setCurrentColor(self.color)
         dlg.setWindowTitle(self.title)
+
+        dlg.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
+        dlg.setWindowModality(Qt.ApplicationModal)
+        dlg.setOptions(QColorDialog.DontUseNativeDialog)
+
+        p = self.mapFromGlobal(QCursor.pos())
+        p.setX(p.x() + (self.rect().width() / 2))
+        p.setY(p.y() + (self.rect().height() / 2))
+        dlg.move(self.mapToGlobal(p))
 
         if dlg.exec_():
             self.color = dlg.currentColor()

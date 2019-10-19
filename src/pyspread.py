@@ -36,13 +36,14 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSplitter, QMessageBox
 from PyQt5.QtWidgets import QDockWidget, QUndoStack
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QColor, QFont, QPalette
 
-from src.settings import Settings, VERSION
+from src import VERSION, APP_NAME
+from src.settings import Settings
 from src.icons import Icon
 from src.grid import Grid
 from src.entryline import Entryline
@@ -77,6 +78,7 @@ class MainWindow(QMainWindow):
         self.settings = Settings(self)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
+        self.refresh_timer = QTimer()
 
         self._init_widgets()
 
@@ -103,11 +105,11 @@ class MainWindow(QMainWindow):
     def _init_window(self):
         """Initialize main window components"""
 
-        self.setWindowTitle('Pyspread')
+        self.setWindowTitle(APP_NAME)
         self.setWindowIcon(Icon("pyspread"))
 
         self.safe_mode_widget = QSvgWidget(Icon.icon_path["warning"], self)
-        msg = "Pyspread is in safe mode.\nExpressions are not evaluated."
+        msg = "%s is in safe mode.\nExpressions are not evaluated." % APP_NAME
         self.safe_mode_widget.setToolTip(msg)
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
         self.safe_mode_widget.hide()
@@ -153,6 +155,7 @@ class MainWindow(QMainWindow):
         self.macro_dock.installEventFilter(self)
 
         self.gui_update.connect(self.on_gui_update)
+        self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
     def eventFilter(self, source, event):
         """Event filter for handling QDockWidget close events
@@ -279,56 +282,79 @@ class MainWindow(QMainWindow):
 
         self.undo_stack.redo()
 
-    def _toggle_widget(self, widget, action_name):
+    def on_toggle_refresh_timer(self, toggled):
+        """Toggles periodic timer for frozen cells"""
+
+        if toggled:
+            self.refresh_timer.start(self.settings.refresh_timeout)
+        else:
+            self.refresh_timer.stop()
+
+    def on_refresh_timer(self):
+        """Event handler for self.refresh_timer.timeout
+
+        Called for periodic updates of frozen cells.
+        Does nothing if either the entry_line or a cell editor is active.
+
+        """
+
+        if not self.entry_line.hasFocus() \
+           and self.grid.state() != self.grid.EditingState:
+            self.grid.refresh_frozen_cells()
+
+    def _toggle_widget(self, widget, action_name, toggled):
         """Toggles widget visibility and updates toggle actions"""
 
-        if widget.isVisible():
-            widget.hide()
-        else:
+        if toggled:
             widget.show()
+        else:
+            widget.hide()
 
         self.main_window_actions[action_name].setChecked(widget.isVisible())
 
-    def on_toggle_main_toolbar(self):
+    def on_toggle_main_toolbar(self, toggled):
         """Main toolbar toggle event handler"""
 
-        self._toggle_widget(self.main_toolbar, "toggle_main_toolbar")
+        self._toggle_widget(self.main_toolbar, "toggle_main_toolbar", toggled)
 
-    def on_toggle_macro_toolbar(self):
+    def on_toggle_macro_toolbar(self, toggled):
         """Macro toolbar toggle event handler"""
 
-        self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar")
+        self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar",
+                            toggled)
 
-    def on_toggle_widget_toolbar(self):
+    def on_toggle_widget_toolbar(self, toggled):
         """Widget toolbar toggle event handler"""
 
-        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar")
+        self._toggle_widget(self.widget_toolbar, "toggle_widget_toolbar",
+                            toggled)
 
-    def on_toggle_format_toolbar(self):
+    def on_toggle_format_toolbar(self, toggled):
         """Format toolbar toggle event handler"""
 
-        self._toggle_widget(self.format_toolbar, "toggle_format_toolbar")
+        self._toggle_widget(self.format_toolbar, "toggle_format_toolbar",
+                            toggled)
 
-    def on_toggle_find_toolbar(self):
+    def on_toggle_find_toolbar(self, toggled):
         """Find toolbar toggle event handler"""
 
-        self._toggle_widget(self.find_toolbar, "toggle_find_toolbar")
+        self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
-    def on_toggle_entry_line(self):
+    def on_toggle_entry_line(self, toggled):
         """Entryline toggle event handler"""
 
-        self._toggle_widget(self.entry_line, "toggle_entry_line")
+        self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
 
-    def on_toggle_macro_panel(self):
+    def on_toggle_macro_panel(self, toggled):
         """Macro panel toggle event handler"""
 
-        self._toggle_widget(self.macro_dock, "toggle_macro_panel")
+        self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
 
     def on_about(self):
         """Show about message box"""
 
         about_msg_template = "<p>".join((
-            "<b>Pyspread</b>",
+            "<b>%s</b>" % APP_NAME,
             "A non-traditional Python spreadsheet application",
             "Version {version}",
             "Created by:<br>{devs}",
@@ -338,19 +364,19 @@ class MainWindow(QMainWindow):
             '<a href="https://pyspread.gitlab.io">pyspread.gitlab.io</a>',
             ))
 
-        devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho"
+        devs = "Martin Manns, Jason Sexauer<br>Vova Kolobok, mgunyho, Pete Morgan"
 
-        doc_devs = "Martin Manns, Bosko Markovic"
+        doc_devs = "Martin Manns, Bosko Markovic, Pete Morgan"
 
         about_msg = about_msg_template.format(
-            version=VERSION, devs=devs, doc_devs=doc_devs, license=LICENSE)
-        QMessageBox.about(self, "About pyspread", about_msg)
+                    version=VERSION, license=LICENSE,
+                    devs=devs, doc_devs=doc_devs)
+        QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
 
     def on_gui_update(self, attributes):
         """GUI update event handler.
 
-        Emmitted on cell change. Attributes contains current cell_attributes.
-
+        Emitted on cell change. Attributes contains current cell_attributes.
         """
 
         widgets = self.widgets

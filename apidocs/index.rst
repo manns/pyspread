@@ -8,6 +8,7 @@ pySpread api docs
 .. toctree::
     :maxdepth: 3
 
+    dev_quickstart.rst
     api/index.rst
 
 

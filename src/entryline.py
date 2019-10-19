@@ -49,6 +49,9 @@ class Entryline(SpellTextEdit):
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
             self.store_data()
             self.main_window.grid.row += 1
+        elif event.key() == Qt.Key_Tab:
+            self.store_data()
+            self.main_window.grid.column += 1
         else:
             super().keyPressEvent(event)
 

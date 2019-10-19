@@ -233,13 +233,7 @@ class PysReader:
     def _pys2macros(self, line):
         """Updates macros in code_array"""
 
-        if self.code_array.dict_grid.macros and \
-           self.code_array.dict_grid.macros[-1] != "\n":
-            # The last macro line does not end with \n
-            # Therefore, if not new line is inserted, the codeis broken
-            self.code_array.dict_grid.macros += "\n"
-
-        self.code_array.dict_grid.macros += line
+        self.code_array.macros += line
 
 
 class PysWriter(object):
@@ -327,8 +321,6 @@ class PysWriter(object):
         <selection[0]>\t[...]\t<tab>\t<key>\t<value>\t[...]\n
 
         """
-
-        settings = self.code_array.settings
 
         # Remove doublettes
         purged_cell_attributes = []

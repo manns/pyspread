@@ -19,45 +19,59 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
-"""
-
-"""
 
 from pathlib import Path
 
 from PyQt5.QtCore import QSettings
 
-VERSION = "1.99"
-"""Current pyspread version"""
+from src import VERSION, APP_NAME
 
 
 class Settings:
-    """Holds all global application states"""
+    """Contains all global application states."""
+
+    # Note that `safe_mode` is not listed here but inside
+    # :class:`model.model.DataArray`
 
     # Names of widgets with persistant states
     widget_names = ['main_window', "main_toolbar", "find_toolbar",
                     "format_toolbar", "macro_toolbar", "widget_toolbar"]
 
-    # Note that safe_mode is not listed here but inside model.DataArray
+    # Shape of initial grid (rows, columns, tables)
+    shape = 1000, 100, 3
 
-    shape = 1000, 100, 3  # Shape of initial grid (rows, columns, tables)
-    changed_since_save = False  # If True then File actions trigger a dialog
-    last_file_input_path = Path.home()  # Initial path for opening files
-    last_file_output_path = Path.home()  # Initial path for saving files
-    border_choice = "All borders"  # The state of the border choice button
-    timeout = 1.0  # Timeout for cell calculations in seconds
-    signature_key = None  # Key for signing save files
+    # If `True` then File actions trigger a dialog
+    changed_since_save = False
 
-    font_sizes = 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32
+    # Initial :class:`~pathlib.Path` for opening files
+    last_file_input_path = Path.home()
+
+    # Initial :class:`~pathlib.Path` for saving files
+    last_file_output_path = Path.home()
+
+    # The state of the border choice button
+    border_choice = "All borders"
+
+    # Timeout for cell calculations in milliseconds
+    timeout = 1000
+
+    # Timeout for frozen cell updates in milliseconds
+    refresh_timeout = 1000
+
+    # Key for signing save files
+    signature_key = None
+
+    font_sizes = (6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32)
 
     zoom_levels = (0.4, 0.5, 0.6, 0.7, 0.8, 1.0,
                    1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0)
 
-    show_frozen = False  # If True then frozen cell background is striped
+    # If `True` then frozen cell background is striped
+    show_frozen = False
 
-    # TODO: Adjust in code
-    sniff_size = 65536  # Number of bytes for csv sniffer
-    #                     sniff_size should be larger than 1st+2nd line
+    # Number of bytes for csv sniffer
+    # sniff_size should be larger than 1st+2nd line
+    sniff_size = 65536  # TODO
 
     def __init__(self, parent):
         super().__setattr__("parent", parent)
@@ -77,23 +91,25 @@ class Settings:
             setattr(self, cls_attr, getattr(Settings, cls_attr))
 
     def save(self):
-        """Saves application states to QSettings"""
+        """Saves application state to QSettings"""
 
-        settings = QSettings("pyspread", "pyspread")
+        settings = QSettings(APP_NAME, APP_NAME)
 
         # Application state
 
         # Do not store the actual filename. Otherwise, after saving and closing
         # File -> Save would overwrite the last saved file.
+
         settings.setValue("last_file_input_path",
                           self.last_file_input_path.parent)
-        settings.setValue("last_file_output_path",
-                          self.last_file_output_path.parent)
+        if self.last_file_output_path is not None:
+            settings.setValue("last_file_output_path",
+                              self.last_file_output_path.parent)
         settings.setValue("timeout", self.timeout)
+        settings.setValue("refresh_timeout", self.refresh_timeout)
         settings.setValue("signature_key", self.signature_key)
 
         # GUI state
-
         for widget_name in self.widget_names:
             geometry_name = widget_name + '/geometry'
             widget_state_name = widget_name + '/windowState'
@@ -114,16 +130,23 @@ class Settings:
         settings.sync()
 
     def restore(self):
-        """Restores application states from QSettings"""
+        """Restores application state from QSettings"""
 
-        settings = QSettings("pyspread", "pyspread")
+        settings = QSettings(APP_NAME, APP_NAME)
 
         # Application state
 
-        self.last_file_input_path = settings.value("last_file_input_path")
-        self.last_file_output_path = settings.value("last_file_output_path")
-        self.timeout = settings.value("timeout")
-        self.signature_key = settings.value("signature_key")
+        if settings.value("last_file_input_path") is not None:
+            self.last_file_input_path = settings.value("last_file_input_path")
+        if settings.value("last_file_output_path") is not None:
+            self.last_file_output_path = \
+                settings.value("last_file_output_path")
+        if settings.value("timeout") is not None:
+            self.timeout = int(settings.value("timeout"))
+        if settings.value("refresh_timeout") is not None:
+            self.refresh_timeout = int(settings.value("refresh_timeout"))
+        if settings.value("signature_key") is not None:
+            self.signature_key = settings.value("signature_key")
 
         # GUI state
 

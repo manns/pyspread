@@ -20,4 +20,5 @@ API
     workflows.rst
     model/index.rst
     lib/index.rst
+    interfaces/index.rst
 

@@ -24,11 +24,14 @@
 **Provides**
 
 * :class:`Grid`: QTableView of the main grid
-* :class:`GridTableModel`: QAbstractTableModel linking the view to code_array backend
-* :class:`GridCellDelegate` QStyledItemDelegate handling custom painting and editors
+* :class:`GridTableModel`: QAbstractTableModel linking the view to code_array
+  backend
+* :class:`GridCellDelegate` QStyledItemDelegate handling custom painting and
+  editors
 
 """
 
+from ast import literal_eval
 from contextlib import contextmanager
 
 import numpy
@@ -305,7 +308,7 @@ class Grid(QTableView):
         self.resize(w, h)
 
     def _selected_idx_to_str(self, selected_idx):
-        """Converts selected_idx to string wirh cell indices"""
+        """Converts selected_idx to string with cell indices"""
 
         return ", ".join(str(self.model.current(idx)) for idx in selected_idx)
 
@@ -395,6 +398,49 @@ class Grid(QTableView):
         """Sets zoom level ot 1.0"""
 
         self.zoom = 1.0
+
+    def _refresh_frozen_cell(self, key):
+        """Refreshes the frozen cell key
+
+        Does neither emit dataChanged nor clear _attr_cache or _table_cache.
+
+        Parameters
+        ----------
+
+        * key: 3-tuple of int
+        \trow, column, table tuple
+
+        """
+
+        if self.model.code_array.cell_attributes[key]["frozen"]:
+            code = self.model.code_array(key)
+            result = self.model.code_array._eval_cell(key, code)
+            self.model.code_array.frozen_cache[repr(key)] = result
+
+    def refresh_frozen_cells(self):
+        """Refreshes all frozen cells"""
+
+        frozen_cache = self.model.code_array.frozen_cache
+        cell_attributes = self.model.code_array.cell_attributes
+
+        for repr_key in frozen_cache:
+            key = literal_eval(repr_key)
+            self._refresh_frozen_cell(key)
+
+        cell_attributes._attr_cache.clear()
+        cell_attributes._table_cache.clear()
+        self.model.code_array.result_cache.clear()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+    def refresh_selected_frozen_cells(self):
+        """Refreshes selected frozen cells"""
+
+        for idx in self.selected_idx:
+            self._refresh_frozen_cell((idx.row(), idx.column(), self.table))
+
+        self.model.code_array.cell_attributes._attr_cache.clear()
+        self.model.code_array.cell_attributes._table_cache.clear()
+        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def on_show_frozen_pressed(self, toggled):
         """Show frozen cells event handler"""
@@ -668,8 +714,7 @@ class Grid(QTableView):
     def on_text_color(self):
         """Text color change event handler"""
 
-        text_color = self.main_window.widgets.text_color_button.color
-        text_color_rgb = text_color.getRgb()
+        text_color_rgb = self.main_window.widgets.text_color_button.color.getRgb()
         attr = self.selection, self.table, {"textcolor": text_color_rgb}
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description_tpl = "Set text color to {} for cells {}"

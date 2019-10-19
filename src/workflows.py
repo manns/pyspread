@@ -65,7 +65,8 @@ class Workflows:
 
     @contextmanager
     def progress_dialog(self, title, label, maximum, min_duration=3000):
-        """Context manager that displays a file progress dialog"""
+        """:class:`~contextlib.contextmanager` that displays a progress dialog
+        """
 
         progress_dialog = QProgressDialog(self.main_window)
         progress_dialog.setWindowTitle(title)
@@ -82,7 +83,11 @@ class Workflows:
 
     @contextmanager
     def disable_entryline_updates(self):
-        """Context manager for temporarily disabling the entry line"""
+        """Context manager for temporarily disabling the
+
+        :class:`entryline.Entryline`
+
+        """
 
         self.main_window.entry_line.setUpdatesEnabled(False)
         yield
@@ -93,12 +98,15 @@ class Workflows:
 
         If changes are present then a dialog is displayed that asks if the
         changes shall be discarded.
-        If the user selects Cancel then func is not executed.
-        If the user selects Save then the file is saved and func is executed.
-        If the user selects Discard then the file is not saved and func is
-        executed.
-        If no changes are present then func is directly executed.
-        After executing func, reset_changed_since_save is called.
+
+        - If the user selects `Cancel` then `func` is not executed.
+        - If the user selects `Save` then the file is saved and `func` is
+          executed.
+        - If the user selects `Discard` then the file is not saved and `func`
+          is executed.
+
+        If no changes are present then `func` is directly executed.
+        After executing `func`, :func:`reset_changed_since_save` is called.
 
         """
 
@@ -156,7 +164,6 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
-        # TODO: Fix signature key issue
         code_array = self.main_window.grid.model.code_array
 
         # Get filepath from user
@@ -221,8 +228,11 @@ class Workflows:
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
 
+        # Update macro editor
+        self.main_window.macro_panel.update()
+
     def sign_file(self, filepath):
-        """Signs filepath if not in safe mode"""
+        """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
 
         if self.main_window.grid.model.code_array.safe_mode:
             msg = "File saved but not signed because it is unapproved."
@@ -253,7 +263,7 @@ class Workflows:
     def _save(self, filepath):
         """Save filepath using chosen_filter
 
-        Compresses save file if filepath.suffix == '.pys'
+        Compresses save file if filepath.suffix is `.pys`
 
         Parameters
         ----------

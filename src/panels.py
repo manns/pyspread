@@ -53,7 +53,7 @@ class MacroPanel(QDialog):
         self._init_widgets()
         self._layout()
 
-        self.macro_editor.setPlainText(self.code_array.macros)
+        self.update()
 
         self.default_text_color = self.result_viewer.textColor()
         self.error_text_color = QColor("red")
@@ -119,6 +119,11 @@ class MacroPanel(QDialog):
             self.update_result_viewer(*self.code_array.execute_macros())
 
         self.parent.grid.gui_update()
+
+    def update(self):
+        """Update macro content"""
+
+        self.macro_editor.setPlainText(self.code_array.macros)
 
     def update_result_viewer(self, result="", err=""):
         """Update event result following execution by main window"""

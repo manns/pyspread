@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -21,12 +20,13 @@
 
 """
 
-Provides QT QActions.
-For actions that alter the grid / model see grid_actions.py.
+- :class:`Action` is a quick one liner way to create `QAction`
+-
 
 """
 
 from PyQt5.QtWidgets import QAction, QActionGroup
+from PyQt5.QtGui import QKeySequence
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -38,14 +38,24 @@ from lib.dependencies import get_enchant_version
 
 
 class Action(QAction):
-    """Base class for all actions
+    """A convenience class for creating a `QAction`
 
-    Note: Parameter order has changed comparing with QAction
+    .. Note: Parameter order has changed comparing with QAction
 
     """
 
-    def __init__(self, parent, label, *connects,
+    def __init__(self, parent, label, *callbacks,
                  icon=None, shortcut=None, statustip=None, checkable=False):
+        """
+
+        :param parent: The parent object, normally :class:`pyspread.MainWindow`
+        :param label: The text to appear
+        :param callbacks: the callback functions
+        :param icon: the :class:`icons.Icon`
+        :param shortcut: The magic kestrokes if ant
+        :param statustip: The popup message
+        :param checkable: Has a checkbox
+        """
         if icon is None:
             super().__init__(label, parent, checkable=checkable)
         else:
@@ -57,7 +67,7 @@ class Action(QAction):
         if statustip is not None:
             self.setStatusTip(statustip)
 
-        for connect in connects:
+        for connect in callbacks:
             self.triggered.connect(connect)
 
 
@@ -68,17 +78,17 @@ class MainWindowActions(dict):
         super().__init__()
         self.parent = parent
 
-        self._add_file_actions()
-        self._add_edit_actions()
-        self._add_view_actions()
-        self._add_format_actions()
-        self._add_macro_actions()
-        self._add_help_actions()
+        self.create_file_actions()
+        self.create_edit_actions()
+        self.create_view_actions()
+        self.create_format_actions()
+        self.create_macro_actions()
+        self.create_help_actions()
 
         self.disable_unavailable()
 
-    def _add_file_actions(self):
-        """Adds actions for File menu"""
+    def create_file_actions(self):
+        """actions for File menu"""
 
         self["new"] = Action(self.parent, "&New",
                              self.parent.workflows.file_new,
@@ -103,12 +113,14 @@ class MainWindowActions(dict):
                                  shortcut='Shift+Ctrl+s',
                                  statustip='Save spreadsheet to a new file')
 
-        self["import"] = Action(self.parent, "&Import", self.parent.on_nothing,
+        self["import"] = Action(self.parent, "&Import",
+                                self.parent.on_nothing,
                                 icon=Icon("import"),
                                 statustip='Import a file and paste it into '
                                           'the current grid')
 
-        self["export"] = Action(self.parent, "&Export", self.parent.on_nothing,
+        self["export"] = Action(self.parent, "&Export",
+                                self.parent.on_nothing,
                                 icon=Icon("export"),
                                 statustip="Export selection to a file")
 
@@ -135,7 +147,8 @@ class MainWindowActions(dict):
                                        icon=Icon("print_preview"),
                                        statustip='Print preview')
 
-        self["print"] = Action(self.parent, "Print", self.parent.on_nothing,
+        self["print"] = Action(self.parent, "Print",
+                               self.parent.on_nothing,
                                icon=Icon("print"),
                                shortcut='Ctrl+p',
                                statustip='Print current spreadsheet')
@@ -151,8 +164,8 @@ class MainWindowActions(dict):
                               shortcut='Ctrl+Q',
                               statustip='Exit pyspread')
 
-    def _add_edit_actions(self):
-        """Adds actions for Edit menu"""
+    def create_edit_actions(self):
+        """actions for Edit menu"""
 
         self["undo"] = Action(self.parent, "&Undo", self.parent.on_undo,
                               icon=Icon("undo"),
@@ -269,8 +282,8 @@ class MainWindowActions(dict):
                                      icon=Icon("resize_grid"),
                                      statustip='Resizes the current grid')
 
-    def _add_view_actions(self):
-        """Adds actions for View menu"""
+    def create_view_actions(self):
+        """actions for View menu"""
 
         self["fullscreen"] = Action(self.parent, "Fullscreen",
                                     self.parent.on_fullscreen,
@@ -321,12 +334,12 @@ class MainWindowActions(dict):
                    checkable=True, shortcut='F4',
                    statustip='Show/hide the macro panel')
 
-        self["goto_cell"] = Action(self.parent, "Go to cell",
-                                   self.parent.workflows.view_goto_cell,
-                                   icon=Icon("goto_cell"),
-                                   shortcut='Ctrl+g',
-                                   statustip='Select a cell and put it into '
-                                             'view')
+        self["goto_cell"] = \
+            Action(self.parent, "Go to cell",
+                   self.parent.workflows.view_goto_cell,
+                   icon=Icon("goto_cell"),
+                   shortcut='Ctrl+g',
+                   statustip='Select a cell and put it into view')
 
         self["toggle_spell_checker"] = \
             Action(self.parent, "Toggle spell checker",
@@ -353,18 +366,16 @@ class MainWindowActions(dict):
                                 shortcut='Ctrl+0',
                                 statustip='Show grid on standard zoom level')
 
-        self["refresh_cells"] = Action(self.parent, "Refresh selected cells",
-                                       self.parent.on_nothing,
-                                       icon=Icon("refresh"),
-                                       shortcut='F5',
-                                       statustip='Refresh selected cells even '
-                                                 'when frozen')
+        self["refresh_cells"] = \
+            Action(self.parent, "Refresh selected cells",
+                   self.parent.grid.refresh_selected_frozen_cells,
+                   icon=Icon("refresh"), shortcut=QKeySequence.Refresh,
+                   statustip='Refresh selected cells even when frozen')
 
         self["toggle_periodic_updates"] = \
             Action(self.parent, "Toggle periodic updates",
-                   self.parent.on_nothing,
-                   icon=Icon("toggle_periodic_updates"),
-                   checkable=True,
+                   self.parent.on_toggle_refresh_timer,
+                   icon=Icon("toggle_periodic_updates"), checkable=True,
                    statustip='Toggles periodic updates for frozen cells')
 
         self["show_frozen"] = Action(self.parent, "Show frozen",
@@ -374,8 +385,8 @@ class MainWindowActions(dict):
                                      statustip='Indicates frozen cells with a '
                                                'background crosshatch')
 
-    def _add_format_actions(self):
-        """Adds actions for Format menu"""
+    def create_format_actions(self):
+        """actions for Format menu"""
 
         self["copy_format"] = Action(self.parent, "&Copy format",
                                      self.parent.workflows.format_copy_format,
@@ -390,7 +401,8 @@ class MainWindowActions(dict):
                    statustip='Apply format from the clipboard to the selected '
                              'cells')
 
-        self["font"] = Action(self.parent, "&Font...", self.parent.on_nothing,
+        self["font"] = Action(self.parent, "&Font...",
+                              self.parent.on_nothing,
                               icon=Icon("font_dialog"),
                               shortcut='Ctrl+n',
                               statustip='Lauch font dialog')
@@ -427,15 +439,13 @@ class MainWindowActions(dict):
 
         self["text"] = Action(self.parent, "Text renderer",
                               self.parent.grid.on_text_renderer_pressed,
-                              icon=Icon("text"),
-                              checkable=True,
+                              icon=Icon("text"), checkable=True,
                               statustip='Show cell results as text (default). '
                                         'Formats affect the whole cell.')
 
         self["markup"] = Action(self.parent, "Markup renderer",
                                 self.parent.grid.on_markup_renderer_pressed,
-                                icon=Icon("markup"),
-                                checkable=True,
+                                icon=Icon("markup"), checkable=True,
                                 statustip='Show cell results as markup, which '
                                           'allows partly formatted output.')
 
@@ -705,8 +715,8 @@ class MainWindowActions(dict):
         self.border_width_group.addAction(self["format_borders_64"])
         self["format_borders_1"].setChecked(True)
 
-    def _add_macro_actions(self):
-        """Adds actions for Macro menu"""
+    def create_macro_actions(self):
+        """Create actions for Macro menu"""
 
         self["insert_image"] = Action(self.parent, "Insert image...",
                                       self.parent.workflows.macro_insert_image,
@@ -726,8 +736,8 @@ class MainWindowActions(dict):
                                                 'and insert code so that it '
                                                 'is displayed')
 
-    def _add_help_actions(self):
-        """Adds actions for Help menu"""
+    def create_help_actions(self):
+        """actions for Help menu"""
 
         self["first_steps"] = Action(self.parent, "First steps...",
                                      self.parent.on_nothing,
@@ -742,7 +752,8 @@ class MainWindowActions(dict):
                                   icon=Icon("tutorial"),
                                   statustip='Display a pyspread tutorial')
 
-        self["faq"] = Action(self.parent, "FAQ...", self.parent.on_nothing,
+        self["faq"] = Action(self.parent, "FAQ...",
+                             self.parent.on_nothing,
                              icon=Icon("faq"),
                              statustip='Display frequently asked questions')
 
@@ -780,10 +791,10 @@ class ChartDialogActions(dict):
     def _add_chart_template_actions(self):
         """Adds actions for chart dialog toolbar"""
 
-        self["chart_pie_1_1"] = \
-            Action(self.parent, "Pie chart", self.parent.on_template,
-                   icon=Icon("chart_pie_1_1"),
-                   statustip='Insert code for pie chart.')
+        self["chart_pie_1_1"] = Action(self.parent, "Pie chart",
+                                       self.parent.on_template,
+                                       icon=Icon("chart_pie_1_1"),
+                                       statustip='Insert code for pie chart.')
         self["chart_pie_1_1"].setData("chart_pie_1_1.py")
 
         self["chart_ring_1_1"] = \
@@ -812,8 +823,7 @@ class ChartDialogActions(dict):
 
         self["chart_column_1_1"] = \
             Action(self.parent, "Grouped column chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_column_1_1"),
+                   self.parent.on_template, icon=Icon("chart_column_1_1"),
                    statustip='Insert code for grouped column chart.')
         self["chart_column_1_1"].setData("chart_column_1_1.py")
 
@@ -826,72 +836,62 @@ class ChartDialogActions(dict):
 
         self["chart_bar_1_3"] = \
             Action(self.parent, "Normalized stacked bar chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_bar_1_3"),
+                   self.parent.on_template, icon=Icon("chart_bar_1_3"),
                    statustip='Insert code for normalized stacked bar chart.')
         self["chart_bar_1_3"].setData("chart_bar_1_3.py")
 
         self["chart_scatter_1_1"] = \
             Action(self.parent, "Scatter chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_scatter_1_1"),
+                   self.parent.on_template, icon=Icon("chart_scatter_1_1"),
                    statustip='Insert code for a scatter plot.')
         self["chart_scatter_1_1"].setData("chart_scatter_1_1.py")
 
         self["chart_bubble_1_1"] = \
             Action(self.parent, "Bubble chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_bubble_1_1"),
+                   self.parent.on_template, icon=Icon("chart_bubble_1_1"),
                    statustip='Insert code for a bubble plot that is ' +
                              'a scatter plot with individual point sizes.')
         self["chart_bubble_1_1"].setData("chart_bubble_1_1.py")
 
         self["chart_boxplot_2_2"] = \
-            Action(self.parent, "Boxplot chart",
-                   self.parent.on_template,
+            Action(self.parent, "Boxplot chart", self.parent.on_template,
                    icon=Icon("chart_boxplot_2_2"),
                    statustip='Insert code for boxplot chart.')
         self["chart_boxplot_2_2"].setData("chart_boxplot_2_2.py")
 
         self["chart_histogram_1_1"] = \
             Action(self.parent, "Histogram chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_histogram_1_1"),
+                   self.parent.on_template, icon=Icon("chart_histogram_1_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_histogram_1_1"].setData("chart_histogram_1_1.py")
 
         self["chart_histogram_1_4"] = \
             Action(self.parent, "Multiple histogram charts",
-                   self.parent.on_template,
-                   icon=Icon("chart_histogram_1_4"),
+                   self.parent.on_template, icon=Icon("chart_histogram_1_4"),
                    statustip='Insert code for multiple histogram charts.')
         self["chart_histogram_1_4"].setData("chart_histogram_1_4.py")
 
         self["chart_scatterhist_1_1"] = \
             Action(self.parent, "Scatter and histogram chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_scatterhist_1_1"),
+                   self.parent.on_template, icon=Icon("chart_scatterhist_1_1"),
                    statustip='Insert code for a scatter plot with ' +
                              'histograms for each axis.')
         self["chart_scatterhist_1_1"].setData("chart_scatterhist_1_1.py")
 
         self["chart_matrix_1_1"] = \
             Action(self.parent, "Matrix chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_matrix_1_1"),
+                   self.parent.on_template, icon=Icon("chart_matrix_1_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_matrix_1_1"].setData("chart_matrix_1_1.py")
 
         self["chart_contour_1_2"] = \
             Action(self.parent, "Contour chart",
-                   self.parent.on_template,
-                   icon=Icon("chart_contour_1_2"),
+                   self.parent.on_template, icon=Icon("chart_contour_1_2"),
                    statustip='Insert code for contour chart.')
         self["chart_contour_1_2"].setData("chart_contour_1_2.py")
 
         self["chart_surface_2_1"] = \
-            Action(self.parent, "Surface chart",
-                   self.parent.on_template,
+            Action(self.parent, "Surface chart", self.parent.on_template,
                    icon=Icon("chart_surface_2_1"),
                    statustip='Insert code for boxplot chart.')
         self["chart_surface_2_1"].setData("chart_surface_2_1.py")

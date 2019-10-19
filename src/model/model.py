@@ -57,14 +57,15 @@ from lib.selection import Selection
 
 
 class CellAttributes(list):
-    """Stores cell formatting attributes in a list of 3 - tuples
+    """Stores cell formatting attributes in a list of three tuples
 
-    The first element of each tuple is a Selection.
-    The second element is the table
-    The third element is a dict of attributes that are altered.
+    - The first element of each tuple is a Selection.
+    - The second element is the table
+    - The third element is a `dict` of attributes that are altered.
 
-    The class provides attribute read access to single cells via __getitem__
-    Otherwise it behaves similar to a list.
+    The class provides attribute read access to single cells via
+    :meth:`__getitem__`.
+    Otherwise it behaves similar to a `list`.
 
     """
 
@@ -241,13 +242,13 @@ class KeyValueStore(dict):
 
 
 class DictGrid(KeyValueStore):
-    """The core data class with all information that is stored in a pys file.
+    """Core data class with all information that is stored in a `.pys` file.
 
-    Besides grid code access via standard dict operations, it provides
+    Besides grid code access via standard `dict` operations, it provides
     the following attributes:
 
-    * cell_attributes: Stores cell formatting attributes
-    * macros:          String of all macros
+    * :attr:`~DictGrid.cell_attributes` -  Stores cell formatting attributes
+    * :attr:`~DictGrid.macros` - String of all macros
 
     This class represents layer 1 of the model.
 
@@ -264,8 +265,10 @@ class DictGrid(KeyValueStore):
         self.shape = shape
 
         self.cell_attributes = CellAttributes()
+        """Instance of :class:`CellAttributes`"""
 
         self.macros = u""
+        """Macros as string"""
 
         self.row_heights = defaultdict(float)  # Keys have format (row, table)
         self.col_widths = defaultdict(float)  # Keys have format (col, table)
@@ -297,7 +300,8 @@ class DataArray(object):
 
     Enhancements comprise:
      * Slicing
-     * Multi-dimensional operations such as insertion and deletion along 1 axis
+     * Multi-dimensional operations such as insertion and deletion along one
+       axis
 
     This class represents layer 2 of the model.
 
@@ -314,6 +318,10 @@ class DataArray(object):
 
         # Safe mode
         self.safe_mode = False
+        """Whether pyspread is operating in safe_mode
+
+        .. todo:: Explain safe mode
+        """
 
     def __eq__(self, other):
         if not hasattr(other, "dict_grid") or \
@@ -326,15 +334,17 @@ class DataArray(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    # Data is the central content interface for loading / saving data.
-    # It shall be used for loading and saving from and to pys and other files.
-    # It shall be used for loading and saving macros.
-    # It is not used for importing and exporting data because these operations
-    # are partial to the grid.
-
     @property
     def data(self):
-        """Returns dict of data content.
+        """Returns `dict` of data content.
+
+
+        - Data is the central content interface for loading / saving data.
+        - It shall be used for loading and saving from and to `.pys` and other
+          files.
+        - It shall be used for loading and saving macros.
+        - However, it is not used for importing and exporting data because
+          these operations are partial to the grid.
 
         Keys
         ----
@@ -862,21 +872,6 @@ class DataArray(object):
 
             return new_attrs
 
-        def get_ca_with_updated_ma(attrs, merge_area):
-            """Returns cell attributes with updated merge area"""
-
-            new_attrs = copy(attrs)
-
-            if merge_area is None:
-                try:
-                    new_attrs.pop("merge_area")
-                except KeyError:
-                    pass
-            else:
-                new_attrs["merge_area"] = merge_area
-
-            return new_attrs
-
         if axis not in list(range(3)):
             raise ValueError("Axis must be in [0, 1, 2]")
 
@@ -1207,8 +1202,6 @@ class CodeArray(DataArray):
                     'R': key[0], 'C': key[1], 'T': key[2], 'S': self}
         env = self._get_updated_environment(env_dict=env_dict)
 
-        #_old_code = self(key)
-
         # Return cell value if in safe mode
 
         if self.safe_mode:
@@ -1255,7 +1248,7 @@ class CodeArray(DataArray):
                 pass
 
         # Change back cell value for evaluation from other cells
-        #self.dict_grid[key] = _old_code
+        # self.dict_grid[key] = _old_code
 
         return result
 
@@ -1458,10 +1451,13 @@ class CodeArray(DataArray):
 
         :param startkey:   Start position of search
         :param find_string: String to be searched for
-        :param flags:  List of strings, out of  ["UP" xor "DOWN", "WHOLE_WORD", "MATCH_CASE", "REG_EXP"]
-        :param search_result: Bool, defaults to True. If True then the search includes the result string (slower)
+        :param flags:  List of strings, out of
+        ["UP" xor "DOWN", "WHOLE_WORD", "MATCH_CASE", "REG_EXP"]
+        :param search_result: Bool, defaults to True.
+        If True then the search includes the result string (slower)
         :rtype: str or None
-        :return:  Returns a tuple with the position of the next match of find_string
+        :return:  Returns a tuple with the position of the next match of
+        find_string
         """
 
         assert "UP" in flags or "DOWN" in flags
