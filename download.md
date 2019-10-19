@@ -105,7 +105,7 @@ Please follow these instructions. Links point at sites where both 32 bit and to 
 7. Start pyspread by double-clicking on the file pyspread.bat in the extraction 
    directory.
 
-*Last changed: 05. August 2019*
+*Last changed: 19. October 2019*
 </div>
 <div markdown="1" class="w3-col l4 m4 s12">
 [![Screenshot with chart](images/screenshot_apt.png){:width="100%"}](images/screenshot_apt.png)

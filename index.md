@@ -95,9 +95,9 @@ mmanns &lt; at &gt; gmx &lt; dot &gt; net.
 
 For contributions, patches, development discussions and ideas please create
 an issue using the 
-[pyspread issue tracker](https://github.com/manns/pyspread/issues)
+[pyspread issue tracker](https://gitlab.com/pyspread/pyspread/issues)
 
-*Last changed: 29. July 2019*
+*Last changed: 19. October 2019*
 </div>
 <div markdown="1" class="w3-col l4 m4 s12">
 [![Screenshot with Wagner Whitin algorithm](images/screenshot_wagner.png){:width="100%"}](images/screenshot_wagner.png)
