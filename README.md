@@ -1,7 +1,7 @@
 pyspread
 ====================
 
-**pyspread** is a non-traditional spreadsheet that is 
+**pyspread** is a non-traditional spreadsheet that is
 based on and written in the programming language Python.
 
 It is released under the [GPL v3. LICENSE](LICENSE)
@@ -28,3 +28,8 @@ This page gives an overview how to do this:
 
 You can find more more details about code organization at
 - https://pyspread.gitlab.io/pyspread/
+
+## Issues
+
+Please submit issues in the gitlab issue tracker at
+`https://gitlab.com/pyspread/pyspread/issues`
