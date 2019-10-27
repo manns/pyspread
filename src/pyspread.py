@@ -44,7 +44,7 @@ from PyQt5.QtGui import QColor, QFont, QPalette
 
 from src import VERSION, APP_NAME
 from src.settings import Settings
-from src.icons import Icon
+from src.icons import Icon, IconPath
 from src.grid import Grid
 from src.entryline import Entryline
 from src.menubar import MenuBar
@@ -106,9 +106,9 @@ class MainWindow(QMainWindow):
         """Initialize main window components"""
 
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(Icon("pyspread"))
+        self.setWindowIcon(Icon.pyspread)
 
-        self.safe_mode_widget = QSvgWidget(Icon.icon_path["warning"], self)
+        self.safe_mode_widget = QSvgWidget(str(IconPath.warning), self)
         msg = "%s is in safe mode.\nExpressions are not evaluated." % APP_NAME
         self.safe_mode_widget.setToolTip(msg)
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
@@ -121,13 +121,14 @@ class MainWindow(QMainWindow):
         if self._loading:
             return
 
-    def closeEvent(self, event):
+    def closeEvent(self, event=None):
         """Overloaded close event, allows saving changes or canceling close"""
-
+        self.workflows.file_quit()  # has @handle_changed_since_save decorator
         self.settings.save()
-
-        self.workflows.file_quit()
-        event.ignore()
+        if event:
+            event.ignore()
+        # Maybe a warn of closing
+        sys.exit()
 
     def _init_widgets(self):
         """Initialize widgets"""
@@ -139,16 +140,17 @@ class MainWindow(QMainWindow):
 
         self.macro_panel = MacroPanel(self, self.grid.model.code_array)
 
-        main_splitter = QSplitter(Qt.Vertical, self)
-        self.setCentralWidget(main_splitter)
+        self.main_splitter = QSplitter(Qt.Vertical, self)
+        self.setCentralWidget(self.main_splitter)
 
-        main_splitter.addWidget(self.entry_line)
-        main_splitter.addWidget(self.grid)
-        main_splitter.addWidget(self.grid.table_choice)
-        main_splitter.setSizes([self.entry_line.minimumHeight(), 9999, 20])
+        self.main_splitter.addWidget(self.entry_line)
+        self.main_splitter.addWidget(self.grid)
+        self.main_splitter.addWidget(self.grid.table_choice)
+        self.main_splitter.setSizes([self.entry_line.minimumHeight(),
+                                     9999, 20])
 
         self.macro_dock = QDockWidget("Macros", self)
-        self.macro_dock.setObjectName("Macro panel")
+        self.macro_dock.setObjectName("Macro Panel")
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 
@@ -167,7 +169,7 @@ class MainWindow(QMainWindow):
         if event.type() == QEvent.Close \
            and isinstance(source, QDockWidget) \
            and source.windowTitle() == "Macros":
-            self.main_window_actions["toggle_macro_panel"].setChecked(False)
+            self.main_window_actions.toggle_macro_panel.setChecked(False)
         return super().eventFilter(source, event)
 
     def _init_toolbars(self):
@@ -189,25 +191,25 @@ class MainWindow(QMainWindow):
     def _update_action_toggles(self):
         """Updates the toggle menu check states"""
 
-        self.main_window_actions["toggle_main_toolbar"].setChecked(
+        self.main_window_actions.toggle_main_toolbar.setChecked(
                 self.main_toolbar.isVisible())
 
-        self.main_window_actions["toggle_macro_toolbar"].setChecked(
+        self.main_window_actions.toggle_macro_toolbar.setChecked(
                 self.macro_toolbar.isVisible())
 
-        self.main_window_actions["toggle_widget_toolbar"].setChecked(
+        self.main_window_actions.toggle_widget_toolbar.setChecked(
                 self.widget_toolbar.isVisible())
 
-        self.main_window_actions["toggle_format_toolbar"].setChecked(
+        self.main_window_actions.toggle_format_toolbar.setChecked(
                 self.format_toolbar.isVisible())
 
-        self.main_window_actions["toggle_find_toolbar"].setChecked(
+        self.main_window_actions.toggle_find_toolbar.setChecked(
                 self.find_toolbar.isVisible())
 
-        self.main_window_actions["toggle_entry_line"].setChecked(
+        self.main_window_actions.toggle_entry_line.setChecked(
                 self.entry_line.isVisible())
 
-        self.main_window_actions["toggle_macro_panel"].setChecked(
+        self.main_window_actions.toggle_macro_panel.setChecked(
                 self.macro_dock.isVisible())
 
     @property
@@ -243,7 +245,9 @@ class MainWindow(QMainWindow):
 
     def on_nothing(self):
         """Dummy action that does nothing"""
-        pass
+
+        sender = self.sender()
+        print("on_nothing > ", sender.text(), sender)
 
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""
@@ -383,25 +387,25 @@ class MainWindow(QMainWindow):
         widgets = self.widgets
 
         is_bold = attributes["fontweight"] == QFont.Bold
-        self.main_window_actions["bold"].setChecked(is_bold)
+        self.main_window_actions.bold.setChecked(is_bold)
 
         is_italic = attributes["fontstyle"] == QFont.StyleItalic
-        self.main_window_actions["italics"].setChecked(is_italic)
+        self.main_window_actions.italics.setChecked(is_italic)
 
-        underline_action = self.main_window_actions["underline"]
+        underline_action = self.main_window_actions.underline
         underline_action.setChecked(attributes["underline"])
 
-        strikethrough_action = self.main_window_actions["strikethrough"]
+        strikethrough_action = self.main_window_actions.strikethrough
         strikethrough_action.setChecked(attributes["strikethrough"])
 
         renderer = attributes["renderer"]
         widgets.renderer_button.set_current_action(renderer)
         widgets.renderer_button.set_menu_checked(renderer)
 
-        freeze_action = self.main_window_actions["freeze_cell"]
+        freeze_action = self.main_window_actions.freeze_cell
         freeze_action.setChecked(attributes["frozen"])
 
-        lock_action = self.main_window_actions["lock_cell"]
+        lock_action = self.main_window_actions.lock_cell
         lock_action.setChecked(attributes["locked"])
         self.entry_line.setReadOnly(attributes["locked"])
 
@@ -444,7 +448,7 @@ class MainWindow(QMainWindow):
             widgets.font_combo.font = attributes["textfont"]
         widgets.font_size_combo.size = attributes["pointsize"]
 
-        merge_cells_action = self.main_window_actions["merge_cells"]
+        merge_cells_action = self.main_window_actions.merge_cells
         merge_cells_action.setChecked(attributes["merge_area"] is not None)
 
 

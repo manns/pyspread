@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -51,16 +50,20 @@ except ImportError:
     matplotlib_figure = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
-from src.commands import CommandFreezeCell, CommandThawCell
-from src.commands import CommandSetCellMerge
-from src.commands import CommandSetCellRenderer, CommandSetRowHeight
-from src.commands import CommandSetColumnWidth, CommandSetCellTextAlignment
+from src.commands import CommandFreezeCell, CommandThawCell, CommandInsertRows
+from src.commands import CommandInsertColumns, CommandDeleteRows
+from src.commands import CommandInsertTable, CommandDeleteTable
+from src.commands import CommandDeleteColumns, CommandSetCellMerge
+from src.commands import CommandSetCellRenderer, CommandSetRowsHeight
+from src.commands import CommandSetColumnsWidth, CommandSetCellTextAlignment
 from src.model.model import CodeArray
 from src.lib.selection import Selection
 from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
 from src.lib.qimage2ndarray import array2qimage
 from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
+from src.menubar import GridContextMenu, TableChoiceContextMenu
+from src.menubar import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
 
 
 class Grid(QTableView):
@@ -111,13 +114,23 @@ class Grid(QTableView):
         self.reset_selection()
 
         # Locking states for operations by undo and redo operations
-        self.undo_resizing_row = False
-        self.undo_resizing_column = False
+        self.__undo_resizing_row = False
+        self.__undo_resizing_column = False
 
         # Initially, select top left cell on table 0
         self.current = 0, 0, 0
 
-    # Properties
+    @contextmanager
+    def undo_resizing_row(self):
+        self.__undo_resizing_row = True
+        yield
+        self.__undo_resizing_row = False
+
+    @contextmanager
+    def undo_resizing_column(self):
+        self.__undo_resizing_column = True
+        yield
+        self.__undo_resizing_column = False
 
     @property
     def row(self):
@@ -287,6 +300,12 @@ class Grid(QTableView):
         else:
             super().wheelEvent(event)
 
+    def contextMenuEvent(self, event):
+        """Overrides contextMenuEvent to install GridContextMenu"""
+
+        menu = GridContextMenu(self.main_window.main_window_actions)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
     # Helpers
 
     def reset_selection(self):
@@ -361,21 +380,35 @@ class Grid(QTableView):
     def on_row_resized(self, row, old_height, new_height):
         """Row resized event handler"""
 
-        if self.undo_resizing_row:  # Resize from undo or redo command
+        if self.__undo_resizing_row:  # Resize from undo or redo command
             return
-        description = "Resize row {} to {}".format(row, new_height)
-        command = CommandSetRowHeight(self, row, self.table, old_height,
-                                      new_height, description)
+
+        (top, _), (bottom, _) = self.selection.get_grid_bbox(self.model.shape)
+        if bottom - top > 1 and top <= row <= bottom:
+            rows = list(range(top, bottom + 1))
+        else:
+            rows = [row]
+
+        description = "Resize rows {} to {}".format(rows, new_height)
+        command = CommandSetRowsHeight(self, rows, self.table, old_height,
+                                       new_height, description)
         self.main_window.undo_stack.push(command)
 
     def on_column_resized(self, column, old_width, new_width):
         """Column resized event handler"""
 
-        if self.undo_resizing_column:  # Resize from undo or redo command
+        if self.__undo_resizing_column:  # Resize from undo or redo command
             return
-        description = "Resize column {} to {}".format(column, new_width)
-        command = CommandSetColumnWidth(self, column, self.table, old_width,
-                                        new_width, description)
+
+        (_, left), (_, right) = self.selection.get_grid_bbox(self.model.shape)
+        if right - left > 1 and left <= column <= right:
+            columns = list(range(left, right + 1))
+        else:
+            columns = [column]
+
+        description = "Resize columns {} to {}".format(columns, new_width)
+        command = CommandSetColumnsWidth(self, columns, self.table, old_width,
+                                         new_width, description)
         self.main_window.undo_stack.push(command)
 
     def on_zoom_in(self):
@@ -908,27 +941,101 @@ class Grid(QTableView):
                                          description)
             self.main_window.undo_stack.push(command)
 
+    def on_insert_rows(self):
+        """Insert rows event handler"""
+
+        try:
+            (top, _), (bottom, _) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+        count = bottom - top + 1
+
+        index = self.currentIndex()
+        description_tpl = "Insert {} rows above row {}"
+        description = description_tpl.format(count, top)
+        command = CommandInsertRows(self.main_window.grid, self.model,
+                                    index, top, count, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_delete_rows(self):
+        """Delete rows event handler"""
+
+        try:
+            (top, _), (bottom, _) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            top = bottom = self.row
+        count = bottom - top + 1
+
+        index = self.currentIndex()
+        description_tpl = "Delete {} rows starting from row {}"
+        description = description_tpl.format(count, top)
+        command = CommandDeleteRows(self.main_window.grid, self.model,
+                                    index, top, count, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_insert_columns(self):
+        """Insert columns event handler"""
+
+        try:
+            (_, left), (_, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            left = right = self.column
+        count = right - left + 1
+
+        index = self.currentIndex()
+        description_tpl = "Insert {} columns left of column {}"
+        description = description_tpl.format(count, self.column)
+        command = CommandInsertColumns(self.main_window.grid, self.model,
+                                       index, left, count, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_delete_columns(self):
+        """Delete columns event handler"""
+
+        try:
+            (_, left), (_, right) = \
+                self.selection.get_grid_bbox(self.model.shape)
+        except TypeError:
+            left = right = self.column
+        count = right - left + 1
+
+        index = self.currentIndex()
+        description_tpl = "Delete {} columns starting from column {}"
+        description = description_tpl.format(count, self.column)
+        command = CommandDeleteColumns(self.main_window.grid, self.model,
+                                       index, left, count, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_insert_table(self):
+        """Insert table event handler"""
+
+        description = "Insert table in front of table {}".format(self.table)
+        command = CommandInsertTable(self.main_window.grid, self.model,
+                                     self.table, description)
+        self.main_window.undo_stack.push(command)
+
+    def on_delete_table(self):
+        """Delete table event handler"""
+
+        description = "Delete table {}".format(self.table)
+        command = CommandDeleteTable(self.main_window.grid, self.model,
+                                     self.table, description)
+        self.main_window.undo_stack.push(command)
+
 
 class GridHeaderView(QHeaderView):
     """QHeaderView with zoom support"""
 
-    def __init__(self, orientation, parent):
-        super().__init__(orientation, parent)
+    def __init__(self, orientation, grid):
+        super().__init__(orientation, grid)
+        self.setSectionsClickable(True)
         self.default_section_size = self.defaultSectionSize()
-        self.grid = parent
+        self.grid = grid
 
-    def update_zoom(self):
-        """Updates zoom for the section sizes"""
-
-        self.setDefaultSectionSize(self.default_section_size * self.grid.zoom)
-
-        if self.orientation() == Qt.Horizontal:
-            section_sizes = self.grid.column_widths
-        else:
-            section_sizes = self.grid.row_heights
-
-        for section, size in section_sizes:
-            self.resizeSection(section, size * self.grid.zoom)
+    # Overrides
 
     def sizeHint(self):
         """Overrides sizeHint, which supports zoom"""
@@ -955,6 +1062,39 @@ class GridHeaderView(QHeaderView):
         super().paintSection(painter, unzoomed_rect, logicalIndex)
         painter.restore()
 
+    def contextMenuEvent(self, event):
+        """Overrides contextMenuEvent
+
+        Installs HorizontalHeaderContextMenu or VerticalHeaderContextMenu
+        depending on self.orientation().
+
+        """
+
+        actions = self.grid.main_window.main_window_actions
+        if self.orientation() == Qt.Horizontal:
+            menu = HorizontalHeaderContextMenu(actions)
+        else:
+            menu = VerticalHeaderContextMenu(actions)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    # End of overrides
+
+    def update_zoom(self):
+        """Updates zoom for the section sizes"""
+
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.setDefaultSectionSize(self.default_section_size
+                                           * self.grid.zoom)
+
+                if self.orientation() == Qt.Horizontal:
+                    section_sizes = self.grid.column_widths
+                else:
+                    section_sizes = self.grid.row_heights
+
+                for section, size in section_sizes:
+                    self.resizeSection(section, size * self.grid.zoom)
+
 
 class GridTableModel(QAbstractTableModel):
     """QAbstractTableModel for Grid"""
@@ -965,10 +1105,6 @@ class GridTableModel(QAbstractTableModel):
         self.main_window = main_window
         self.code_array = CodeArray(dimensions, main_window.settings)
 
-    @property
-    def grid(self):
-        return self.main_window.grid
-
     @contextmanager
     def model_reset(self):
         """Context manager for handle changing/resetting model data"""
@@ -976,6 +1112,42 @@ class GridTableModel(QAbstractTableModel):
         self.beginResetModel()
         yield
         self.endResetModel()
+
+    @contextmanager
+    def inserting_rows(self, index, first, last):
+        """Context manager for inserting rows"""
+
+        self.beginInsertRows(index, first, last)
+        yield
+        self.endInsertRows()
+
+    @contextmanager
+    def inserting_columns(self, index, first, last):
+        """Context manager for inserting columns"""
+
+        self.beginInsertColumns(index, first, last)
+        yield
+        self.endInsertColumns()
+
+    @contextmanager
+    def removing_rows(self, index, first, last):
+        """Context manager for removing rows"""
+
+        self.beginRemoveRows(index, first, last)
+        yield
+        self.endRemoveRows()
+
+    @contextmanager
+    def removing_columns(self, index, first, last):
+        """Context manager for removing columns"""
+
+        self.beginRemoveColumns(index, first, last)
+        yield
+        self.endRemoveColumns()
+
+    @property
+    def grid(self):
+        return self.main_window.grid
 
     @property
     def shape(self):
@@ -1010,6 +1182,46 @@ class GridTableModel(QAbstractTableModel):
         """Overloaded columnCount for code_array backend"""
 
         return self.shape[1]
+
+    def insertRows(self, row, count):
+        """Overloaded insertRows for code_array backend"""
+
+        self.code_array.insert(row, count, axis=0, tab=self.grid.table)
+        return True
+
+    def removeRows(self, row, count):
+        """Overloaded removeRows for code_array backend"""
+
+        try:
+            self.code_array.delete(row, count, axis=0, tab=self.grid.table)
+        except ValueError:
+            return False
+        return True
+
+    def insertColumns(self, column, count):
+        """Overloaded insertColumns for code_array backend"""
+
+        self.code_array.insert(column, count, axis=1, tab=self.grid.table)
+        return True
+
+    def removeColumns(self, column, count):
+        """Overloaded removeColumns for code_array backend"""
+
+        try:
+            self.code_array.delete(column, count, axis=1, tab=self.grid.table)
+        except ValueError:
+            return False
+        return True
+
+    def insertTable(self, table, count=1):
+        """Inserts a table"""
+
+        self.code_array.insert(table, count, axis=2)
+
+    def removeTable(self, table, count=1):
+        """Inserts a table"""
+
+        self.code_array.delete(table, count, axis=2)
 
     def font(self, key):
         """Returns font for given key"""
@@ -1585,9 +1797,23 @@ class TableChoice(QTabBar):
 
         self.setCurrentIndex(value)
 
+    # Overrides
+
+    def contextMenuEvent(self, event):
+        """Overrides contextMenuEvent to install GridContextMenu"""
+
+        actions = self.grid.main_window.main_window_actions
+
+        menu = TableChoiceContextMenu(actions)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    # Event handlers
+
     def on_table_changed(self, current):
         """Event handler for table changes"""
 
-        self.grid.update_cell_spans()
-        self.grid.update_zoom()
+        with self.grid.undo_resizing_row():
+            with self.grid.undo_resizing_column():
+                self.grid.update_cell_spans()
+                self.grid.update_zoom()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())

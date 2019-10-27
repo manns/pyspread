@@ -1,8 +1,17 @@
+
+# pyspread
+
+*.sig
+*.pys
+*.pysu
+
+#-----------------
+
 *.pyc
 dist
 build
 MANIFEST
-*.sig
+
 *.psproj
 .cache
 pyspread.egg-info

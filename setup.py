@@ -24,6 +24,8 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 import sys
 
+from src import VERSION
+
 
 class PyTest(TestCommand):
     user_options = [("pytest-args=", "a", "Arguments to pass to pytest")]
@@ -44,7 +46,7 @@ class PyTest(TestCommand):
 
 setup(
     name='pyspread',
-    version='1.99',
+    version=VERSION,
     description='Python spreadsheet',
     long_description='Pyspread is a non-traditional spreadsheet application'
     ' that is based on and written in the programming language Python.',

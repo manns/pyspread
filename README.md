@@ -1,19 +1,19 @@
-pySpread
+pyspread
 ====================
 
-**Installation**
+**pyspread** is a non-traditional spreadsheet that is 
+based on and written in the programming language Python.
 
-
-See INSTALL file for installation and COPYING file for license
+It is released under the [GPL v3. LICENSE](LICENSE)
 
 - Homepage: https://pyspread.gitlab.io/
 - Repository: https://gitlab.com/pyspread/pyspread
 - API Docs: https://pyspread.gitlab.io/pyspread/
 
 
-**How to start hacking**
+## Install
 
-Fork the github repo at `https://gitlab.com/pyspread/pyspread.git`
+Fork the git repo at `https://gitlab.com/pyspread/pyspread.git`
 
 In order to start pyspread without installation run
 ```

@@ -140,8 +140,10 @@ class PysReader:
 
         row, col, tab, code = self._split_tidy(line, maxsplit=3)
         key = self._get_key(row, col, tab)
-
-        self.code_array.dict_grid[key] = str(code)
+        if self.version <= 1.0:
+            self.code_array.dict_grid[key] = str(code)
+        else:
+            self.code_array.dict_grid[key] = ast.literal_eval(code)
 
     def _pys2attributes(self, line):
         """Updates attributes in code_array"""
@@ -252,6 +254,8 @@ class PysWriter(object):
     def __init__(self, code_array):
         self.code_array = code_array
 
+        self.version = 2.0
+
         self._section2writer = OrderedDict([
             ("[Pyspread save file version]\n", self._version2pys),
             ("[shape]\n", self._shape2pys),
@@ -289,7 +293,7 @@ class PysWriter(object):
 
         """
 
-        yield "2.0\n"
+        yield repr(self.version) + "\n"
 
     def _shape2pys(self):
         """Writes shape to pys file
@@ -309,7 +313,10 @@ class PysWriter(object):
 
         for key in self.code_array:
             key_str = u"\t".join(repr(ele) for ele in key)
-            code_str = self.code_array(key)
+            if self.version <= 1.0:
+                code_str = self.code_array(key)
+            else:
+                code_str = repr(self.code_array(key))
             out_str = key_str + u"\t" + code_str + u"\n"
 
             yield out_str

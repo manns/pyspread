@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -557,8 +556,8 @@ class Selection(object):
 
         (top, left), (bottom, right) = self.get_grid_bbox(shape)
 
-        for row in range(top, bottom + 1):
-            for column in range(left, right + 1):
+        for row in range(top, bottom):
+            for column in range(left, right):
                 if (row, column) in self:
                     if table is None:
                         yield row, column

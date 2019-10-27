@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -24,8 +23,8 @@
 
 **Provides**
 
-* :class:`MenuBar`: QMenuBar, the main menubar for pyspread
-* :class:`BorderChoiceMenu`: QMenu for choosing cell borders that shall be manipulated
+* :class:`MenuBar`: QMenuBar, the main menubar
+* :class:`BorderChoiceMenu`: QMenu for choosing cell borders
 * :class:`BorderWidthMenu`: QMenu for choosing the cell border width
 
 """
@@ -41,7 +40,7 @@ from icons import Icon
 
 
 class MenuBar(QMenuBar):
-    """The main menubar for pyspread"""
+    """The main menubar """
 
     def __init__(self, main_window):
         super().__init__()
@@ -65,26 +64,26 @@ class MenuBar(QMenuBar):
 
         file_menu = self.addMenu('&File')
 
-        file_menu.addAction(self.actions["new"])
-        file_menu.addAction(self.actions["open"])
+        file_menu.addAction(self.actions.new)
+        file_menu.addAction(self.actions.open)
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["save"])
-        file_menu.addAction(self.actions["save_as"])
+        file_menu.addAction(self.actions.save)
+        file_menu.addAction(self.actions.save_as)
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["import"])
-        file_menu.addAction(self.actions["export"])
+        file_menu.addAction(self.actions.imprt)
+        file_menu.addAction(self.actions.export)
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["approve"])
+        file_menu.addAction(self.actions.approve)
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["clear_globals"])
+        file_menu.addAction(self.actions.clear_globals)
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["page_setup"])
-        file_menu.addAction(self.actions["print_preview"])
-        file_menu.addAction(self.actions["print"])
+        file_menu.addAction(self.actions.page_setup)
+        file_menu.addAction(self.actions.print_preview)
+        file_menu.addAction(self.actions.print)
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["preferences"])
+        file_menu.addAction(self.actions.preferences)
         file_menu.addSeparator()
-        file_menu.addAction(self.actions["quit"])
+        file_menu.addAction(self.actions.quit)
 
         return file_menu
 
@@ -93,32 +92,32 @@ class MenuBar(QMenuBar):
 
         edit_menu = self.addMenu('&Edit')
 
-        edit_menu.addAction(self.actions["undo"])
-        edit_menu.addAction(self.actions["redo"])
+        edit_menu.addAction(self.actions.undo)
+        edit_menu.addAction(self.actions.redo)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.actions["cut"])
-        edit_menu.addAction(self.actions["copy"])
-        edit_menu.addAction(self.actions["copy_results"])
-        edit_menu.addAction(self.actions["paste"])
-        edit_menu.addAction(self.actions["paste_as"])
+        edit_menu.addAction(self.actions.cut)
+        edit_menu.addAction(self.actions.copy)
+        edit_menu.addAction(self.actions.copy_results)
+        edit_menu.addAction(self.actions.paste)
+        edit_menu.addAction(self.actions.paste_as)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.actions["find"])
-        edit_menu.addAction(self.actions["replace"])
+        edit_menu.addAction(self.actions.find)
+        edit_menu.addAction(self.actions.replace)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.actions["quote"])
+        edit_menu.addAction(self.actions.quote)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.actions["sort_ascending"])
-        edit_menu.addAction(self.actions["sort_descending"])
+        edit_menu.addAction(self.actions.sort_ascending)
+        edit_menu.addAction(self.actions.sort_descending)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.actions["insert_rows"])
-        edit_menu.addAction(self.actions["insert_columns"])
-        edit_menu.addAction(self.actions["insert_table"])
+        edit_menu.addAction(self.actions.insert_rows)
+        edit_menu.addAction(self.actions.insert_columns)
+        edit_menu.addAction(self.actions.insert_table)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.actions["delete_rows"])
-        edit_menu.addAction(self.actions["delete_columns"])
-        edit_menu.addAction(self.actions["delete_table"])
+        edit_menu.addAction(self.actions.delete_rows)
+        edit_menu.addAction(self.actions.delete_columns)
+        edit_menu.addAction(self.actions.delete_table)
         edit_menu.addSeparator()
-        edit_menu.addAction(self.actions["resize_grid"])
+        edit_menu.addAction(self.actions.resize_grid)
 
         return edit_menu
 
@@ -127,31 +126,31 @@ class MenuBar(QMenuBar):
 
         view_menu = self.addMenu('&View')
 
-        view_menu.addAction(self.actions["fullscreen"])
+        view_menu.addAction(self.actions.fullscreen)
         view_menu.addSeparator()
 
         toolbar_submenu = view_menu.addMenu('Toolbars')
-        toolbar_submenu.addAction(self.actions["toggle_main_toolbar"])
-        toolbar_submenu.addAction(self.actions["toggle_macro_toolbar"])
-        toolbar_submenu.addAction(self.actions["toggle_widget_toolbar"])
-        toolbar_submenu.addAction(self.actions["toggle_format_toolbar"])
-        toolbar_submenu.addAction(self.actions["toggle_find_toolbar"])
+        toolbar_submenu.addAction(self.actions.toggle_main_toolbar)
+        toolbar_submenu.addAction(self.actions.toggle_macro_toolbar)
+        toolbar_submenu.addAction(self.actions.toggle_widget_toolbar)
+        toolbar_submenu.addAction(self.actions.toggle_format_toolbar)
+        toolbar_submenu.addAction(self.actions.toggle_find_toolbar)
 
-        view_menu.addAction(self.actions["toggle_entry_line"])
-        view_menu.addAction(self.actions["toggle_macro_panel"])
+        view_menu.addAction(self.actions.toggle_entry_line)
+        view_menu.addAction(self.actions.toggle_macro_panel)
         view_menu.addSeparator()
-        view_menu.addAction(self.actions["goto_cell"])
+        view_menu.addAction(self.actions.goto_cell)
         view_menu.addSeparator()
-        view_menu.addAction(self.actions["toggle_spell_checker"])
+        view_menu.addAction(self.actions.toggle_spell_checker)
         view_menu.addSeparator()
-        view_menu.addAction(self.actions["zoom_in"])
-        view_menu.addAction(self.actions["zoom_out"])
-        view_menu.addAction(self.actions["zoom_1"])
+        view_menu.addAction(self.actions.zoom_in)
+        view_menu.addAction(self.actions.zoom_out)
+        view_menu.addAction(self.actions.zoom_1)
         view_menu.addSeparator()
-        view_menu.addAction(self.actions["refresh_cells"])
-        view_menu.addAction(self.actions["toggle_periodic_updates"])
+        view_menu.addAction(self.actions.refresh_cells)
+        view_menu.addAction(self.actions.toggle_periodic_updates)
         view_menu.addSeparator()
-        view_menu.addAction(self.actions["show_frozen"])
+        view_menu.addAction(self.actions.show_frozen)
 
         return view_menu
 
@@ -160,44 +159,44 @@ class MenuBar(QMenuBar):
 
         format_menu = self.addMenu('&Format')
 
-        format_menu.addAction(self.actions["copy_format"])
-        format_menu.addAction(self.actions["paste_format"])
+        format_menu.addAction(self.actions.copy_format)
+        format_menu.addAction(self.actions.paste_format)
         format_menu.addSeparator()
-        format_menu.addAction(self.actions["font"])
-        format_menu.addAction(self.actions["bold"])
-        format_menu.addAction(self.actions["italics"])
-        format_menu.addAction(self.actions["underline"])
-        format_menu.addAction(self.actions["strikethrough"])
+        format_menu.addAction(self.actions.font)
+        format_menu.addAction(self.actions.bold)
+        format_menu.addAction(self.actions.italics)
+        format_menu.addAction(self.actions.underline)
+        format_menu.addAction(self.actions.strikethrough)
         format_menu.addSeparator()
 
         renderer_submenu = format_menu.addMenu('Cell renderer')
-        renderer_submenu.addAction(self.actions["text"])
-        renderer_submenu.addAction(self.actions["image"])
-        renderer_submenu.addAction(self.actions["markup"])
+        renderer_submenu.addAction(self.actions.text)
+        renderer_submenu.addAction(self.actions.image)
+        renderer_submenu.addAction(self.actions.markup)
         if matplotlib_figure is not None:
-            renderer_submenu.addAction(self.actions["matplotlib"])
+            renderer_submenu.addAction(self.actions.matplotlib)
 
-        format_menu.addAction(self.actions["freeze_cell"])
-        format_menu.addAction(self.actions["lock_cell"])
-        format_menu.addAction(self.actions["merge_cells"])
+        format_menu.addAction(self.actions.freeze_cell)
+        format_menu.addAction(self.actions.lock_cell)
+        format_menu.addAction(self.actions.merge_cells)
         format_menu.addSeparator()
 
         rotation_submenu = format_menu.addMenu('Rotation')
-        rotation_submenu.addAction(self.actions["rotate_0"])
-        rotation_submenu.addAction(self.actions["rotate_90"])
-        rotation_submenu.addAction(self.actions["rotate_180"])
-        rotation_submenu.addAction(self.actions["rotate_270"])
+        rotation_submenu.addAction(self.actions.rotate_0)
+        rotation_submenu.addAction(self.actions.rotate_90)
+        rotation_submenu.addAction(self.actions.rotate_180)
+        rotation_submenu.addAction(self.actions.rotate_270)
 
         justification_submenu = format_menu.addMenu('Justification')
-        justification_submenu.addAction(self.actions["justify_left"])
-        justification_submenu.addAction(self.actions["justify_center"])
-        justification_submenu.addAction(self.actions["justify_right"])
-        justification_submenu.addAction(self.actions["justify_fill"])
+        justification_submenu.addAction(self.actions.justify_left)
+        justification_submenu.addAction(self.actions.justify_center)
+        justification_submenu.addAction(self.actions.justify_right)
+        justification_submenu.addAction(self.actions.justify_fill)
 
         alignment_submenu = format_menu.addMenu('Alignment')
-        alignment_submenu.addAction(self.actions["align_top"])
-        alignment_submenu.addAction(self.actions["align_center"])
-        alignment_submenu.addAction(self.actions["align_bottom"])
+        alignment_submenu.addAction(self.actions.align_top)
+        alignment_submenu.addAction(self.actions.align_center)
+        alignment_submenu.addAction(self.actions.align_bottom)
 
         format_menu.addSeparator()
 
@@ -208,9 +207,9 @@ class MenuBar(QMenuBar):
         format_menu.addMenu(self.line_width_submenu)
 
         format_menu.addSeparator()
-        format_menu.addAction(self.actions["text_color"])
-        format_menu.addAction(self.actions["line_color"])
-        format_menu.addAction(self.actions["background_color"])
+        format_menu.addAction(self.actions.text_color)
+        format_menu.addAction(self.actions.line_color)
+        format_menu.addAction(self.actions.background_color)
 
         return format_menu
 
@@ -219,10 +218,10 @@ class MenuBar(QMenuBar):
 
         macro_menu = self.addMenu('&Macro')
 
-        macro_menu.addAction(self.actions["insert_image"])
-        macro_menu.addAction(self.actions["link_image"])
+        macro_menu.addAction(self.actions.insert_image)
+        macro_menu.addAction(self.actions.link_image)
         if matplotlib_figure is not None:
-            macro_menu.addAction(self.actions["insert_chart"])
+            macro_menu.addAction(self.actions.insert_chart)
 
         return macro_menu
 
@@ -231,13 +230,13 @@ class MenuBar(QMenuBar):
 
         help_menu = self.addMenu('&Help')
 
-        help_menu.addAction(self.actions["first_steps"])
-        help_menu.addAction(self.actions["tutorial"])
-        help_menu.addAction(self.actions["faq"])
+        help_menu.addAction(self.actions.first_steps)
+        help_menu.addAction(self.actions.tutorial)
+        help_menu.addAction(self.actions.faq)
         help_menu.addSeparator()
-        help_menu.addAction(self.actions["dependencies"])
+        help_menu.addAction(self.actions.dependencies)
         help_menu.addSeparator()
-        help_menu.addAction(self.actions["about"])
+        help_menu.addAction(self.actions.about)
 
         return help_menu
 
@@ -249,16 +248,16 @@ class BorderChoiceMenu(QMenu):
         super().__init__()
 
         self.setTitle("Formatted borders")
-        self.setIcon(Icon("border_menu"))
+        self.setIcon(Icon.border_menu)
 
-        self.addAction(actions["format_borders_all"])
-        self.addAction(actions["format_borders_top"])
-        self.addAction(actions["format_borders_bottom"])
-        self.addAction(actions["format_borders_left"])
-        self.addAction(actions["format_borders_right"])
-        self.addAction(actions["format_borders_outer"])
-        self.addAction(actions["format_borders_inner"])
-        self.addAction(actions["format_borders_top_bottom"])
+        self.addAction(actions.format_borders_all)
+        self.addAction(actions.format_borders_top)
+        self.addAction(actions.format_borders_bottom)
+        self.addAction(actions.format_borders_left)
+        self.addAction(actions.format_borders_right)
+        self.addAction(actions.format_borders_outer)
+        self.addAction(actions.format_borders_inner)
+        self.addAction(actions.format_borders_top_bottom)
 
 
 class BorderWidthMenu(QMenu):
@@ -268,13 +267,66 @@ class BorderWidthMenu(QMenu):
         super().__init__()
 
         self.setTitle("Border width")
-        self.setIcon(Icon("format_borders"))
+        self.setIcon(Icon.format_borders)
 
-        self.addAction(actions["format_borders_0"])
-        self.addAction(actions["format_borders_1"])
-        self.addAction(actions["format_borders_2"])
-        self.addAction(actions["format_borders_4"])
-        self.addAction(actions["format_borders_8"])
-        self.addAction(actions["format_borders_16"])
-        self.addAction(actions["format_borders_32"])
-        self.addAction(actions["format_borders_64"])
+        self.addAction(actions.format_borders_0)
+        self.addAction(actions.format_borders_1)
+        self.addAction(actions.format_borders_2)
+        self.addAction(actions.format_borders_4)
+        self.addAction(actions.format_borders_8)
+        self.addAction(actions.format_borders_16)
+        self.addAction(actions.format_borders_32)
+        self.addAction(actions.format_borders_64)
+
+
+class GridContextMenu(QMenu):
+    """Context menu for grid"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.cut)
+        self.addAction(actions.copy)
+        self.addAction(actions.copy_results)
+        self.addAction(actions.paste)
+        self.addAction(actions.paste_as)
+        self.addSeparator()
+        self.addAction(actions.quote)
+        self.addSeparator()
+        self.addAction(actions.insert_rows)
+        self.addAction(actions.insert_columns)
+        self.addAction(actions.insert_table)
+        self.addSeparator()
+        self.addAction(actions.delete_rows)
+        self.addAction(actions.delete_columns)
+        self.addAction(actions.delete_table)
+
+
+class HorizontalHeaderContextMenu(QMenu):
+    """Context menu for horizontal grid header"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.insert_columns)
+        self.addAction(actions.delete_columns)
+
+
+class VerticalHeaderContextMenu(QMenu):
+    """Context menu for vertical grid header"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.insert_rows)
+        self.addAction(actions.delete_rows)
+
+
+class TableChoiceContextMenu(QMenu):
+    """Context menu for table choice"""
+
+    def __init__(self, actions):
+        super().__init__()
+
+        self.addAction(actions.insert_table)
+        self.addAction(actions.delete_table)

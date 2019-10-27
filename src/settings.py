@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -34,8 +33,9 @@ class Settings:
     # :class:`model.model.DataArray`
 
     # Names of widgets with persistant states
-    widget_names = ['main_window', "main_toolbar", "find_toolbar",
-                    "format_toolbar", "macro_toolbar", "widget_toolbar"]
+    widget_names = ["main_window", "main_toolbar", "find_toolbar",
+                    "format_toolbar", "macro_toolbar", "widget_toolbar",
+                    "entry_line", "main_splitter"]
 
     # Shape of initial grid (rows, columns, tables)
     shape = 1000, 100, 3
@@ -111,21 +111,27 @@ class Settings:
 
         # GUI state
         for widget_name in self.widget_names:
-            geometry_name = widget_name + '/geometry'
-            widget_state_name = widget_name + '/windowState'
 
             if widget_name == "main_window":
                 widget = self.parent
             else:
                 widget = getattr(self.parent, widget_name)
+
+            # geometry
+            geometry_name = widget_name + '/geometry'
             try:
                 settings.setValue(geometry_name, widget.saveGeometry())
             except AttributeError:
                 pass
+
+            # state
+            widget_state_name = widget_name + '/windowState'
             try:
                 settings.setValue(widget_state_name, widget.saveState())
             except AttributeError:
                 pass
+            if widget_name == "entry_line":
+                settings.setValue("entry_line_isvisible", widget.isVisible())
 
         settings.sync()
 
@@ -165,3 +171,8 @@ class Settings:
             widget_state = settings.value(widget_state_name)
             if widget_state:
                 widget.restoreState(widget_state)
+
+            if widget_name == "entry_line" \
+               and settings.value("entry_line_isvisible") is not None:
+                visible = settings.value("entry_line_isvisible") == "true"
+                widget.setVisible(visible)

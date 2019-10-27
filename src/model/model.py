@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright Martin Manns
@@ -326,7 +325,7 @@ class DataArray(object):
     def __eq__(self, other):
         if not hasattr(other, "dict_grid") or \
            not hasattr(other, "cell_attributes"):
-            return NotImplemented
+            return False
 
         return self.dict_grid == other.dict_grid and \
             self.cell_attributes == other.cell_attributes
@@ -710,7 +709,7 @@ class DataArray(object):
         del_row_heights = []
 
         for row, tab in self.row_heights:
-            if tab > insertion_point:
+            if tab >= insertion_point:
                 new_row_heights[(row, tab + no_to_insert)] = \
                     self.row_heights[(row, tab)]
                 del_row_heights.append((row, tab))
@@ -728,7 +727,7 @@ class DataArray(object):
         del_col_widths = []
 
         for col, tab in self.col_widths:
-            if tab > insertion_point:
+            if tab >= insertion_point:
                 new_col_widths[(col, tab + no_to_insert)] = \
                     self.col_widths[(col, tab)]
                 del_col_widths.append((col, tab))
@@ -956,7 +955,7 @@ class DataArray(object):
         del_keys = []
 
         for key in list(self.dict_grid.keys()):
-            if key[axis] > insertion_point and (tab is None or tab == key[2]):
+            if key[axis] >= insertion_point and (tab is None or tab == key[2]):
                 new_key = list(key)
                 new_key[axis] += no_to_insert
                 if 0 <= new_key[axis] < self.shape[axis]:
