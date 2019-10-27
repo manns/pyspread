@@ -32,4 +32,4 @@ You can find more more details about code organization at
 ## Issues
 
 Please submit issues in the gitlab issue tracker at
-`https://gitlab.com/pyspread/pyspread/issues`
+- https://gitlab.com/pyspread/pyspread/issues
