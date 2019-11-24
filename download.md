@@ -5,7 +5,7 @@ menu: download
 
 <div markdown="1" class="w3-container">
 <div markdown="1" class="w3-col l2 m2 s12">
-# Dependencies 
+# Dependencies
 </div>
 <div markdown="1" class="w3-col l6 m6 s12">
 Pyspread works on Linux and other GTK platforms as well as on Windows.
@@ -68,11 +68,11 @@ For version 1.1, a Windows 32 bit installer is available (Windows XP or later).
 Note that the installer does not comprise all libraries that are used in the examples,
 i.e. maps and videos in the grid will not work out of the box.
 
-1. Download and install gnupg ([Gpg4win](https://www.gpg4win.org), supports
-   32&amp;64bit). Note that version 2.2.6 works and version 3.x does not. 
+1. Download and install gnupg ([Gpg4win](https://files.gpg4win.org/gpg4win-2.2.6.exe), supports
+   32&amp;64bit). Note that version 2.2.6 works and version 3.x does not.
    If you encounter issues please downgrade to 2.2.6.
 2. Download the [pyspread installer](https://github.com/manns/pyspread/releases/download/v1.1.1/setup_pyspread_1.1.1.exe)
-   (32MB download, 
+   (32MB download,
    [gpg sig](https://github.com/manns/pyspread/releases/download/v1.1.1/setup_pyspread_1.1.1.exe.sig)).
 3. Run the Setup file.
 
@@ -84,28 +84,28 @@ Please follow these instructions. Links point at sites where both 32 bit and to 
    You can find 32bit and 64bit packages of WinPython [here](http://winpython.sourceforge.net).
    Make sure to get the Python2 version.
    If WinPython is used then the WinPython control panel is recommended for all installations.
-2. Download and install Cairo and pycairo. Working binaries are available 
-   [here](http://www.lfd.uci.edu/%7Egohlke/pythonlibs). 
-   Note that Cairo has to be installed by manually copying it. 
+2. Download and install Cairo and pycairo. Working binaries are available
+   [here](http://www.lfd.uci.edu/%7Egohlke/pythonlibs).
+   Note that Cairo has to be installed by manually copying it.
    Make sure to read the installation instructions.
 3. Download and install [wxPython 2.8.x or 3.x](http://www.wxpython.org/download.php#stable).
 4. Download and install gnupg [Gpg4win](https://www.gpg4win.org) (supports
       32&amp;64bit)
 5. Download and install
       [python-gnupg](http://pythonhosted.org/python-gnupg/#download).
-      
+  
       For **32 bit systems**, an exe installer
       (python-gnupg-0.3.4.win32.exe) is provided on the linked
-      page. 
-      
+      page.
+  
       For **64 bit systems**,
       the python-gnupg tarball (python-gnupg-0.3.4.tar.gz) has
-      to be extracted (e.g. with 7zip) 
+      to be extracted (e.g. with 7zip)
 6. Download and install the source distribution of pyspread
-7. Start pyspread by double-clicking on the file pyspread.bat in the extraction 
+7. Start pyspread by double-clicking on the file pyspread.bat in the extraction
    directory.
 
-*Last changed: 19. October 2019*
+*Last changed: 24. November 2019*
 </div>
 <div markdown="1" class="w3-col l4 m4 s12">
 [![Screenshot with chart](images/screenshot_apt.png){:width="100%"}](images/screenshot_apt.png)
