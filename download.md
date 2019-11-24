@@ -89,7 +89,7 @@ Please follow these instructions. Links point at sites where both 32 bit and to 
    Note that Cairo has to be installed by manually copying it.
    Make sure to read the installation instructions.
 3. Download and install [wxPython 2.8.x or 3.x](http://www.wxpython.org/download.php#stable).
-4. Download and install gnupg [Gpg4win](https://www.gpg4win.org) (supports
+4. Download and install gnupg [Gpg4win](https://files.gpg4win.org/gpg4win-2.2.6.exe) (supports
       32&amp;64bit)
 5. Download and install
       [python-gnupg](http://pythonhosted.org/python-gnupg/#download).
