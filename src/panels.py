@@ -36,8 +36,8 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QSplitter
 from PyQt5.QtWidgets import QTextEdit
 
-from lib.spelltextedit import SpellTextEdit
-from lib.exception_handling import get_user_codeframe
+from src.lib.spelltextedit import SpellTextEdit
+from src.lib.exception_handling import get_user_codeframe
 
 
 class MacroPanel(QDialog):

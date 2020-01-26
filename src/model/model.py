@@ -40,7 +40,6 @@ from builtins import object
 import ast
 import base64
 import bz2
-from collections import defaultdict
 from copy import copy
 import datetime
 from inspect import isgenerator
@@ -51,8 +50,9 @@ import sys
 import numpy
 from PyQt5.QtGui import QImage, QPixmap
 
-from lib.typechecks import isslice, isstring
-from lib.selection import Selection
+import src.lib.charts as charts
+from src.lib.typechecks import isslice, isstring
+from src.lib.selection import Selection
 
 
 class CellAttributes(list):
@@ -117,7 +117,18 @@ class CellAttributes(list):
     def append(self, value):
         """append that clears caches"""
 
-        super().append(value)
+        # We need to clean up merge areas
+        selection, table, attr = value
+        if "merge_area" in attr:
+            for i, ele in enumerate(reversed(self)):
+                if ele[0] == selection and ele[1] == table \
+                   and "merge_area" in ele[2]:
+                    self.pop(-1 - i)
+            if attr["merge_area"] is not None:
+                super().append(value)
+        else:
+            super().append(value)
+
         self._attr_cache.clear()
         self._table_cache.clear()
 
@@ -188,20 +199,19 @@ class CellAttributes(list):
 
         or None if cell key not merged
 
-        Parameters
-        ----------
-        key: 3-tuple of Integer
-        \tThe key of the cell that is merged
+        :param key: Key of the cell that is merged
+        :type key: tuple
 
         """
 
         row, col, tab = key
 
         # Is cell merged
-        merge_area = self[key]["merge_area"]
-
-        if merge_area:
-            return merge_area[0], merge_area[1], tab
+        for selection, table, attr in self:
+            if tab == table and "merge_area" in attr:
+                top, left, bottom, right = attr["merge_area"]
+                if top <= row <= bottom and left <= col <= right:
+                    return top, left, tab
 
     def for_table(self, table):
         """Return cell attributes for a given table"""
@@ -251,10 +261,8 @@ class DictGrid(KeyValueStore):
 
     This class represents layer 1 of the model.
 
-    Parameters
-    ----------
-    shape: n-tuple of integer
-    \tShape of the grid
+    :param shape: Shape of the grid
+    :type shape: tuple
 
     """
 
@@ -268,6 +276,9 @@ class DictGrid(KeyValueStore):
 
         self.macros = u""
         """Macros as string"""
+
+        # We need to import this here for the unit tests to work
+        from collections import defaultdict
 
         self.row_heights = defaultdict(float)  # Keys have format (row, table)
         self.col_widths = defaultdict(float)  # Keys have format (col, table)
@@ -294,7 +305,7 @@ class DictGrid(KeyValueStore):
 # -----------------------------------------------------------------------------
 
 
-class DataArray(object):
+class DataArray:
     """DataArray provides enhanced grid read/write access.
 
     Enhancements comprise:
@@ -304,10 +315,8 @@ class DataArray(object):
 
     This class represents layer 2 of the model.
 
-    Parameters
-    ----------
-    shape: n-tuple of integer
-    \tShape of the grid
+    :param shape: Shape of the grid
+    :type shape: tuple
 
     """
 
@@ -345,8 +354,7 @@ class DataArray(object):
         - However, it is not used for importing and exporting data because
           these operations are partial to the grid.
 
-        Keys
-        ----
+        Keys:
 
         shape: 3-tuple of Integer
         \tGrid shape
@@ -381,21 +389,18 @@ class DataArray(object):
         Old values are deleted.
         If a paremeter is not given, nothing is changed.
 
-        Parameters
-        ----------
-
-        shape: 3-tuple of Integer
-        \tGrid shape
-        grid: Dict of 3-tuples to strings
-        \tCell content
-        attributes: List of 3-tuples
-        \tCell attributes
-        row_heights: Dict of 2-tuples to float
-        \t(row, tab): row_height
-        col_widths: Dict of 2-tuples to float
-        \t(col, tab): col_width
-        macros: String
-        \tMacros from macro list
+        :param shape: Grid shape
+        :type shape: tuple
+        :param grid: Cell content
+        :type grid: dict
+        :param attributes: Cell attributes
+        :type attributes: CellAttributes
+        :param row_heights: Dict (row, tab): row_height
+        :type row_heights: dict
+        :param col_widths: Dict (col, tab): col_width
+        :type col_widths: dict
+        :param macros: Macros from macro list
+        :type macros: str
 
         """
 
@@ -480,10 +485,8 @@ class DataArray(object):
 
         Returns a dict of the deleted cells' contents
 
-        Parameters
-        ----------
-        shape: 3-tuple of Integer
-        \tTarget shape for grid
+        :param shape: Target shape for grid
+        :type shape: tuple
 
         """
 
@@ -532,10 +535,8 @@ class DataArray(object):
 
         The cells are returned as a generator of generators, of ... of unicode.
 
-        Parameters
-        ----------
-        key: n-tuple of integer or slice
-        \tKeys of the cell code that is returned
+        :param key: Keys of the cell code that is returned
+        :type key:  tuple of integer or slice
 
         Note
         ----
@@ -561,12 +562,10 @@ class DataArray(object):
     def __setitem__(self, key, value):
         """Accepts index and slice keys
 
-        Parameters
-        ----------
-        key: 3-tuple of Integer or Slice object
-        \tCell key(s) that shall be set
-        value: Object (should be Unicode or similar)
-        \tCode for cell(s) to be set
+        :param key: Cell key(s) that shall be set
+        :type key: tuple of 3 int or 3 slice
+        :param value: Code for cell(s) to be set
+        :type value: str
 
         """
 
@@ -649,10 +648,8 @@ class DataArray(object):
     def get_last_filled_cell(self, table=None):
         """Returns key for the bottommost rightmost cell with content
 
-        Parameters
-        ----------
-        table: Integer, defaults to None
-        \tLimit search to this table
+        :param table: Limit search to this table
+        :type table: int, optional
 
         """
 
@@ -669,10 +666,8 @@ class DataArray(object):
     def cell_array_generator(self, key):
         """Generator traversing cells specified in key
 
-        Parameters
-        ----------
-        key: Iterable of Integer or slice
-        \tThe key specifies the cell keys of the generator
+        :param key: Specifies the cell keys of the generator
+        :type key: Iterable of Integer or slice
 
         """
 
@@ -771,16 +766,14 @@ class DataArray(object):
     def _adjust_merge_area(self, attrs, insertion_point, no_to_insert, axis):
         """Returns an updated merge area
 
-        Parameters
-        ----------
-        attrs: Dict
-        \tCell attribute dictionary that shall be adjusted
-        insertion_point: Integer
-        \tPont on axis, before which insertion takes place
-        no_to_insert: Integer >= 0
-        \tNumber of rows/cols/tabs that shall be inserted
-        axis: Integer in range(2)
-        \tSpecifies number of dimension, i.e. 0 == row, 1 == col
+        :param attrs: Cell attribute dictionary that shall be adjusted
+        :type attrs: dict
+        :param insertion_point: Point on axis before insertion takes place
+        :type insertion_point: int
+        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
+        :type no_to_insert: int, >=0
+        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col
+        :type axis: int in range(2)
 
         """
 
@@ -834,27 +827,25 @@ class DataArray(object):
                                 tab=None, cell_attrs=None):
         """Adjusts cell attributes on insertion/deletion
 
-        Parameters
-        ----------
-        insertion_point: Integer
-        \tPont on axis, before which insertion takes place
-        no_to_insert: Integer >= 0
-        \tNumber of rows/cols/tabs that shall be inserted
-        axis: Integer in range(3)
-        \tSpecifies number of dimension, i.e. 0 == row, 1 == col, ...
-        tab: Integer, defaults to None
-        \tIf given then insertion is limited to this tab for axis < 2
-        cell_attrs: List, defaults to []
-        \tIf not empty then the given cell attributes replace the existing ones
+        :param insertion_point: Point on axis before insertion
+        :type insertion_point: int
+        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
+        :type no_to_insert: int, >=0
+        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col ...
+        :type axis: int in range(3)
+        :param tab: Limits insertion to tab for axis < 2
+        :type tab: int, optional
+        :param cell_attrs: If given replaces the existing CellAttributes
+        :type cell_attrs: CellAttributes, optional
 
         """
 
         def replace_cell_attributes_table(index, new_table):
             """Replaces table in cell_attributes item"""
 
-            ca = list(self.cell_attributes.get_item(index))
+            ca = list(list.__getitem__(self.cell_attributes, index))
             ca[1] = new_table
-            self.cell_attributes.__setitem__(index, tuple(ca))
+            self.cell_attributes[index] = tuple(ca)
 
         def get_ca_with_updated_ma(attrs, merge_area):
             """Returns cell attributes with updated merge area"""
@@ -930,17 +921,14 @@ class DataArray(object):
     def insert(self, insertion_point, no_to_insert, axis, tab=None):
         """Inserts no_to_insert rows/cols/tabs/... before insertion_point
 
-        Parameters
-        ----------
-
-        insertion_point: Integer
-        \tPont on axis, before which insertion takes place
-        no_to_insert: Integer >= 0
-        \tNumber of rows/cols/tabs that shall be inserted
-        axis: Integer
-        \tSpecifies number of dimension, i.e. 0 == row, 1 == col, ...
-        tab: Integer, defaults to None
-        \tIf given then insertion is limited to this tab for axis < 2
+        :param insertion_point: Point on axis before insertion
+        :type insertion_point: int
+        :param no_to_insert: Number of rows/cols/tabs that shall be inserted
+        :type no_to_insert: int, >= 0,
+        :param axis: Specifies number of dimension, i.e. 0 == row, 1 == col ...
+        :type axis: int
+        :param tab: If given then insertion is limited to this tab for axis < 2
+        :type tab: int, optional
 
         """
 
@@ -1095,8 +1083,11 @@ class CodeArray(DataArray):
     def __getitem__(self, key):
         """Returns _eval_cell"""
 
-        # Frozen cell handling
         if all(type(k) is not slice for k in key):
+            # Button cell handling
+            if self.cell_attributes[key]["button_cell"] is not False:
+                return
+            # Frozen cell handling
             frozen_res = self.cell_attributes[key]["frozen"]
             if frozen_res:
                 if repr(key) in self.frozen_cache:
@@ -1140,10 +1131,8 @@ class CodeArray(DataArray):
     def _get_updated_environment(self, env_dict=None):
         """Returns globals environment with 'magic' variable
 
-        Parameters
-        ----------
-        env_dict: Dict, defaults to {'S': self}
-        \tDict that maps global variable name to value
+        :param env_dict: Maps global variable name to value
+        :type env_dict: dict, optional, defaults to {'S': self}
 
         """
 
@@ -1254,10 +1243,8 @@ class CodeArray(DataArray):
     def pop(self, key):
         """pop with cache support
 
-        Parameters
-        ----------
-        key: 3-tuple of Integer
-        \tCell key that shall be popped
+        :param key: Cell key that shall be popped
+        :type key: tuple
 
         """
 
@@ -1283,7 +1270,7 @@ class CodeArray(DataArray):
 
         base_keys = ['cStringIO', 'KeyValueStore', 'UnRedo',
                      'isgenerator', 'isstring', 'bz2', 'base64',
-                     '__package__', 're', '__doc__', 'QPixmap',
+                     '__package__', 're', '__doc__', 'QPixmap', 'charts',
                      'CellAttributes', 'product', 'ast', '__builtins__',
                      '__file__', 'sys', 'isslice', '__name__', 'QImage',
                      'copy', 'imap', 'ifilter', 'Selection', 'DictGrid',
@@ -1375,15 +1362,12 @@ class CodeArray(DataArray):
     def _sorted_keys(self, keys, startkey, reverse=False):
         """Generator that yields sorted keys starting with startkey
 
-        Parameters
-        ----------
-
-        keys: Iterable of tuple/list
-        \tKey sequence that is sorted
-        startkey: Tuple/list
-        \tFirst key to be yielded
-        reverse: Bool
-        \tSort direction reversed if True
+        :param keys: Key sequence that is sorted
+        :type keys: Iterable of tuple
+        :param startkey: First key to be yielded
+        :type startkey: tuple
+        :param reverse: Sort direction reversed if True
+        :type reverse: bool, optional, defaults to False
 
         """
 
@@ -1405,37 +1389,34 @@ class CodeArray(DataArray):
         for key in searchkeys:
             yield key
 
-    def string_match(self, datastring, findstring, flags=None):
+    def string_match(self, datastring, findstring, word, case, regexp):
+        """Returns position of findstring in datastring or None if not found
+
+        :param word: Search full words only if True
+        :type word: bool
+        :param case: Search case sensitively if True
+        :type case: bool
+        :param regexp: Regular expression search if True
+        :rtype: int or None
+        :return: Position of findstring in datastring or None if not found
+
         """
-        Returns position of findstring in datastring or None if not found.
 
-        Flags is a list of strings. Supported strings are:
+        if not isinstance(datastring, str):  # Empty cell
+            return
 
-        * MATCH_CASE - The case has to match for valid find
-        * WHOLE_WORD: The word has to be surrounded by whitespace characters
-          if in the middle of the string
-        * REG_EXP:    A regular expression is evaluated.
-
-        """
-
-        if type(datastring) is int:  # Empty cell
-            return None
-
-        if flags is None:
-            flags = []
-
-        if "REG_EXP" in flags:
+        if regexp:
             match = re.search(findstring, datastring)
             if match is None:
                 pos = -1
             else:
                 pos = match.start()
         else:
-            if "MATCH_CASE" not in flags:
+            if not case:
                 datastring = datastring.lower()
                 findstring = findstring.lower()
 
-            if "WHOLE_WORD" in flags:
+            if word:
                 pos = -1
                 matchstring = r'\b' + findstring + r'+\b'
                 for match in re.finditer(matchstring, datastring):
@@ -1449,46 +1430,55 @@ class CodeArray(DataArray):
         else:
             return pos
 
-    def findnextmatch(self, startkey, find_string, flags, search_result=True):
+    def findnextmatch(self, startkey, find_string, up=False, word=False,
+                      case=False, regexp=False, results=True):
         """the position of the next match of find_string
 
-        :param startkey:   Start position of search
+        :param startkey: Start position of search
+        :type startkey: tuple
         :param find_string: String to be searched for
-        :param flags:  List of strings, out of
-        ["UP" xor "DOWN", "WHOLE_WORD", "MATCH_CASE", "REG_EXP"]
-        :param search_result: Bool, defaults to True.
-        If True then the search includes the result string (slower)
+        :type startkey: str
+        :param up: Search up instead of down if True
+        :type up: bool, optional, defaults to False
+        :param word: Search full words only if True
+        :type word: bool, optional, defaults to False
+        :param case: Search case sensitively if True
+        :type case: bool, optional, defaults to False
+        :param regexp: Reg. expression search if True
+        :type regexp: bool, optional, defaults to False
+        :param results: Search includes result string if True (slower)
+        :type results: bool, optional, defaults to True
         :rtype: str or None
-        :return:  Returns a tuple with the position of the next match of
-        find_string
+        :return:  Returns tuple with position of the next match of find_string
+
         """
 
-        assert "UP" in flags or "DOWN" in flags
-        assert not ("UP" in flags and "DOWN" in flags)
-
-        if search_result:
-            def is_matching(key, find_string, flags):
+        if results:
+            def is_matching(key, find_string, word, case, regexp):
                 code = self(key)
-                if self.string_match(code, find_string, flags) is not None:
+                pos = self.string_match(code, find_string, word, case, regexp)
+                if pos is not None:
                     return True
                 else:
                     res_str = str(self[key])
-                    return self.string_match(res_str, find_string, flags) \
-                        is not None
+                    pos = self.string_match(res_str, find_string, word, case,
+                                            regexp)
+                    return pos is not None
 
         else:
-            def is_matching(code, find_string, flags):
+            def is_matching(code, find_string, word, case, regexp):
                 code = self(key)
-                return self.string_match(code, find_string, flags) is not None
+                pos = self.string_match(code, find_string, word, case, regexp)
+                return pos is not None
 
         # List of keys in sgrid in search order
 
-        reverse = "UP" in flags
+        table = startkey[2]
+        keys = [key for key in self.keys() if key[2] == table]
 
-        for key in self._sorted_keys(list(self.keys()), startkey,
-                                     reverse=reverse):
+        for key in self._sorted_keys(keys, startkey, reverse=up):
             try:
-                if is_matching(key, find_string, flags):
+                if is_matching(key, find_string, word, case, regexp):
                     return key
 
             except Exception:

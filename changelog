@@ -1,9 +1,71 @@
 Changelog for pyspread
 ======================
 
-Note: This changelog starts at version 2.0
+Note: This changelog does not comprise development of pyspread for Python2
+      It starts with the first Alpha release 1.99.0.0
 
-2.0
----
+1.99.0.2
+--------
 
- * Initial release of pyspread v2.0 for Python 3.7+
+New Dependency PyQt5.QtWebKit.
+
+Dependencies now are:
+ * Mandatory: Python (≥ 3.7), PyQt5 (≥ 5.10), PyQt5.Svg (≥ 5.10), PyQt5.QtWebEngine (≥ 5.10)
+ * Recommended: matplotlib, pyenchant
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+New functionality:
+ * Macro editor now converts tabs into 4 spaces
+ * Speed up of entry line
+ * Long code text in entry line now displays busy cursor
+ * Markup is now rendered using cell font, alignment and colors
+ * Required dependencies are checked during startup
+ * Toolbars are now sorted similar to menus
+ * Help browser improved
+
+Bug fixes:
+ * Button cells now behave as intended and can be opened correctly from pys
+ * pyspread now quits correctly
+ * Progress dialog now closes more reliably
+
+1.99.0.1
+--------
+
+New functionality:
+ * Command line interface
+ * Basic help system
+ * Button cell functionality
+ * svg file export
+ * csv file export
+ * csv file import
+
+Missing features:
+ * Better help browser dialog
+
+Known issues:
+ * Figures and images are printed in low resolution
+ * Operations in large grids take too long
+
+1.99.0.0
+--------
+
+Initial Alpha release of pyspread v2.0 for Python 3.7+
+
+Basic functionality is present.
+However, the code is neither complete nor thoroughly tested.
+DO NOT USE FOR IMPORTANT WORK!
+
+Dependencies:
+ * Mandatory: Python3.7+, PyQt5, PyQt5.Svg
+ * Optional: matplotlib, pyenchant
+ * For building the apidocs with Sphinx see apidics/requirements.txt
+
+Missing features:
+ * Import and export of data
+ * Help system
+ * Button cells
+ * Command line interface
+
+Known issues:
+ * Figures and images are printed in low resolution
+ * The topmost and leftmost lines of grid are not printed

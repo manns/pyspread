@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Macro actions | pyspread</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="apple-touch-icon" href="../images/pyspread.png"/>
+  <link rel="shortcut icon" href="../images/pyspread.png"/>
+
+  <link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../static/css/code_highlight.css"/>
+  <link rel="stylesheet" href="../static/css/pyspread.2019.css"/>
+
+</head>
+<body>
+
+
+<a class="btn btn-light" href="overview.html">&nbsp;&nbsp;Overview</a>
+<a class="btn btn-light" href="basic_concepts.html">&nbsp;&nbsp;Basic Concepts</a>
+<a class="btn btn-light" href="workspace.html">&nbsp;The Workspace</a>
+<a class="btn btn-light" href="file_menu.html">&nbsp;&nbsp;File actions</a>
+<a class="btn btn-light" href="edit_menu.html">&nbsp;&nbsp;Edit actions</a>
+<a class="btn btn-light" href="view_menu.html">&nbsp;&nbsp;View Actions</a>
+<a class="btn btn-light" href="format_menu.html">&nbsp;&nbsp;Format actions</a>
+<a class="btn btn-light" href="macro_menu.html">&#8658;&nbsp;&nbsp;Macro Actions</a>
+<a class="btn btn-light" href="advanced_topics.html">&nbsp;&nbsp;Advanced Topics</a>
+
+
+<div class="container main">
+	<div class="row no-gutters">
+    	<div class="col-md-11">
+        	<h1 class="manual">Macro actions</h1>
+    	</div>
+    	<div class="col-md-1">
+    	</div>
+	</div>
+
+        <h5 id="--insert-image">-&gt; Insert image</h5>
+
+<p>The <strong><code class="highlighter-rouge">Insert bitmap</code></strong> option in the Macros menu lets the user choose an image file and creates cell code that represents an image and chooses the image cell renderer.</p>
+
+<h5 id="--insert-chart">-&gt; Insert chart</h5>
+
+<p>The <strong><code class="highlighter-rouge">Macros -&gt; Insert chart...</code></strong> option provides an easy way of generating
+matplotlib figures. They generate multi-line code. The last line is an expression that yields a <code class="highlighter-rouge">matplotlib.figure.Figure</code> object.</p>
+
+<p><img class="img-fluid" src="../images/screenshot_chartdialog.png" /></p>
+
+<p>The dialog comprises a toolbar with several chart types, an editor on the left and a chart preview on the right side.</p>
+
+<p>Clicking on a chart button inserts code for the respective chart at the current cursor position. The code is meant as template for users, who want to quickly create and edit common chart types. However, any matplotlib chart can be created in the editor.</p>
+
+<p>The preview is updated when pressing the <code class="highlighter-rouge">Apply</code> button. If an exception occurs of if no Figure object could be retrieved then an error message is displayed.</p>
+
+<p>Pressing the <code class="highlighter-rouge">Ok</code> button puts the code in the editor in the current cell and activates the matplotlib renderer.</p>
+
+<a href="advanced_topics.html" class="btn btn-light">Advanced Topics&nbsp;&#8611;</a>
+
+    <footer>
+        <div class="container">
+            <p>&copy; Martin Manns and the pyspread team</p>
+        </div>
+    </footer>
+</body>
+</html>

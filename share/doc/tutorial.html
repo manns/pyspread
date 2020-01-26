@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Tutorial | pyspread</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="apple-touch-icon" href="images/pyspread.png"/>
+  <link rel="shortcut icon" href="images/pyspread.png"/>
+
+  <link href="static/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="static/css/code_highlight.css"/>
+  <link rel="stylesheet" href="static/css/pyspread.2019.css"/>
+
+</head>
+<body>
+
+
+
+
+    <div class="container main">
+
+
+
+
+
+
+
+        <h1 id="tutorial">Tutorial</h1>
+
+<p>Run pyspread with</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pyspread
+</code></pre></div></div>
+
+<p>Select the Menu File → New Enter 200 rows, 10 columns and 5 tables in the pop-up menu.</p>
+
+<p><img src="images/Tutorial1.png" alt="Tutorial1" class="img-fluid" /></p>
+
+<p>After clicking OK, you get a new table with the typed-in dimensions.</p>
+
+<h2 id="standard-cell-commands">Standard cell commands</h2>
+
+<p>Select the top-left cell and type:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">2</span>
+</code></pre></div></div>
+
+<p>The spreadsheet evaluates this Python statement and displays the result: <code class="highlighter-rouge">11</code></p>
+
+<p>In the cell that is one row below (cell (1, 0, 0)), type <code class="highlighter-rouge">S</code></p>
+
+<p>As we see from the result, <code class="highlighter-rouge">S</code> is a known object. In fact, it is the grid object that we are currently working in.</p>
+
+<h2 id="absolute-addressing-of-cells">Absolute addressing of cells</h2>
+
+<p>To access a cell, we can index the grid. Replace <code class="highlighter-rouge">S</code> with</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">S</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>and the same result as in the top-left cell that has the index (0, 0, 0) is displayed.</p>
+<ul>
+  <li>The first index is the row,</li>
+  <li>the second parameter is the column</li>
+  <li>and the third parameter is the table.</li>
+</ul>
+
+<p>Now replace the expression in the top-left cell by <code class="highlighter-rouge">1</code>.
+Both cells change immediately because all visible cells are updated.</p>
+
+<p><img src="images/Tutorial2.png" alt="Tutorial2"  class="img-fluid"/></p>
+
+<p>The main grid S can be sliced, too. Write into cell (3, 0, 0): <code class="highlighter-rouge">S[:2, 0, 0]</code>
+It now displays <code class="highlighter-rouge">[1 1]</code>, which is a list of the results of the cells in <code class="highlighter-rouge">[:2, 0, 0]</code>.</p>
+
+<h2 id="relative-addressing-of-cells">Relative addressing of cells</h2>
+
+<p>Since cells are addressed via slicing, the cell content behaves similar to absolute addressing in
+other spreadsheets. In order to achieve relative addressing, three magic variables X (row), Y (column) and Z (table) are used. These
+magic variables correspond to the position of the current cell in the grid.</p>
+
+<p>Change to table 2 by selecting 2 in the iconbar combobox. Type into cell `(1, 2, 2):</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>The result is <code class="highlighter-rouge">[1 2 2]</code> as expected. Now copy the cell (Crtl-C) and paste it into
+the next lower cell (Ctrl-V). <code class="highlighter-rouge">[2 2 2]</code> is displayed. Therefore, relative addressing is achieved. Note that if
+cells are called from within other cells, the innermost cell is considered the current cell and its position is returned.</p>
+
+<h2 id="filling-cells">Filling cells</h2>
+
+<p>The easiest method for filling cells with sequences is using the X variable.</p>
+
+<ul>
+  <li>Write into cell (1, 1, 2):<code class="highlighter-rouge">X - 1</code></li>
+</ul>
+
+<p>Then copy cell (1, 1, 2), select the cells (2, 1, 2) to (99, 1, 2) and paste via <Crtl> + V. Now
+the cells (1, 1, 2) to (99, 1, 2) contain consecutive values.</Crtl></p>
+
+<h2 id="named-cells">Named cells</h2>
+
+<p>Cells can be named by preceding the Python expression with “<name> =”.</name></p>
+
+<p>Type into cell (2, 4, 2):</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">5</span>
+</code></pre></div></div>
+<p>and in cell (3, 4, 2):</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">**</span> <span class="mi">2</span>
+</code></pre></div></div>
+
+<p>The results 15 and 225 appear. <code class="highlighter-rouge">a</code> is globally available in all cells.</p>
+
+<h2 id="external-modules">External modules</h2>
+
+<p>External modules can be imported into pyspread. Therefore, powerful types and manipulation methods are available.</p>
+
+<p>Open the macro panel with <code class="highlighter-rouge">&lt;F4&gt;</code> and type</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">franctions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+</code></pre></div></div>
+
+<p>Then press  the <code class="highlighter-rouge">Apply</code> button.</p>
+
+<p>Now we define a rational number object in cell (6, 2, 2) :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="s">"1/37"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>and in cell (7, 2, 2)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span><span class="o">**</span><span class="mi">2</span>
+</code></pre></div></div>
+
+<p>The result 1/1369 appears.</p>
+
+<p><img src="images/Tutorial3.png" alt="Tutorial3"  class="img-fluid" /></p>
+
+<h2 id="working-with-cells">Working with cells</h2>
+
+<p>Summing up cells: The sum function sums up cell values. Enter into cell (16,2,2):</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sum</span><span class="p">(</span><span class="n">S</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</code></pre></div></div>
+<p>yields <code class="highlighter-rouge">36</code> as expected.</p>
+
+<p>However, if there are more columns (or tables) to sum up, each row is summed up individually.
+Switch to table 1 and enter</p>
+<ul>
+  <li><code class="highlighter-rouge">1</code> into cell (0, 0, 1)</li>
+  <li><code class="highlighter-rouge">2</code> into cell (1, 0, 1)</li>
+  <li><code class="highlighter-rouge">3</code> into cell (0, 1, 1)</li>
+  <li><code class="highlighter-rouge">4</code> into cell (1, 1, 1)</li>
+  <li><code class="highlighter-rouge">sum(S[:2, :2, 1])</code> into cell (0, 4, 1)</li>
+</ul>
+
+<p>Cell (0, 4, 1) yields <code class="highlighter-rouge">[3 7]</code>, which may not be intended. If everything shall be summed, the numpy.sum function has to be used:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">numpy</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">S</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</code></pre></div></div>
+<p>which yields <code class="highlighter-rouge">10</code>.</p>
+
+<h2 id="plotting">Plotting</h2>
+
+<p>Pyspread renders a plot in any cell that returns a matplotlib figure. Merging the cell with
+other cells can increase plot size. In order to make generating plots easier, a chart dialog
+has been added to the Macros menu. This chart dialog generates a formula
+for the current cell. This formula uses a pyspread specific function that returns a
+ matplotlib figure. You can use the object S inside the chart dialog window.</p>
+
+<p>Switch to table 3. Select cell (0,0,3).</p>
+
+<p>Select <code class="highlighter-rouge">Insert chart</code> from the <code class="highlighter-rouge">Macro</code> menu.</p>
+
+<p>On the left side, Python code can be edited. On the right side, a chart can be displayed as soon as the code delivers a matplotlib figure in the last line.</p>
+
+<p>In order to make things easier, examples are provided that can be inserted into the editor by clicking on one of the toolbar buttons.</p>
+
+<p>Select the rightmost button (Pie chart) and press the <code class="highlighter-rouge">Apply</code> button. A pie chart is displayed on the right panel.</p>
+
+<p><img src="images/Tutorial4.png" alt="Tutorial3" class="img-fluid" /></p>
+
+<p>Press the <code class="highlighter-rouge">Ok</code> button. Now the chart appears in cell (0, 0, 3). However, it is tiny. To increase size, select all cells from (0, 0, 3) to (8, 4, 3) and select <code class="highlighter-rouge">Merge cells</code> from the <code class="highlighter-rouge">Format</code> menu.</p>
+
+
+
+
+    </div>
+
+    <footer>
+        <div class="container">
+            <!--<p><small><a href="https://gitlab.com/pyspread/pyspread.gitlab.io/blob/master/tutorial.md">Edit this page: tutorial.md</a></small></p>-->
+            <p>&copy; Martin Manns and the pyspread team</p>
+        </div>
+    </footer>
+</body>
+</html>

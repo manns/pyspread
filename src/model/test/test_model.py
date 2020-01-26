@@ -33,31 +33,22 @@ from builtins import str
 from builtins import range
 from builtins import object
 
-import ast
-from copy import deepcopy
-import fractions  ## Yes, it is required
-import math  ## Yes, it is required
-import os
-import sys
+import fractions  # Yes, it is required
+import math  # Yes, it is required
 
 import py.test as pytest
 import numpy
-
-import wx
-app = wx.App()
-
-TESTPATH = os.sep.join(os.path.realpath(__file__).split(os.sep)[:-1]) + os.sep
-sys.path.insert(0, TESTPATH)
-sys.path.insert(0, TESTPATH + (os.sep + os.pardir) * 3)
-sys.path.insert(0, TESTPATH + (os.sep + os.pardir) * 2)
-
-from src.lib.testlib import params, pytest_generate_tests, undotest_model
 
 from src.model.model import KeyValueStore, CellAttributes, DictGrid
 from src.model.model import DataArray, CodeArray
 
 from src.lib.selection import Selection
-from src.lib.undo import stack as undo_stack
+
+
+class Settings:
+    """Simulates settings class"""
+
+    timeout = 1000
 
 
 class TestKeyValueStore(object):
@@ -86,7 +77,6 @@ class TestCellAttributes(object):
         """Creates empty CellAttributes"""
 
         self.cell_attr = CellAttributes()
-        undo_stack().clear()
 
     def test_append(self):
         """Test append"""
@@ -98,7 +88,6 @@ class TestCellAttributes(object):
         self.cell_attr.append((selection, table, attr))
 
         # Check if 1 item - the actual action has been added
-        assert undo_stack().undocount() == 1
         assert not self.cell_attr._attr_cache
 
     def test_getitem(self):
@@ -128,7 +117,7 @@ class TestCellAttributes(object):
         assert self.cell_attr.get_merging_cell((1, 1, 0)) is None
 
         # Cell 3. 3, 0 is merged to cell 3, 2, 0
-        assert self.cell_attr.get_merging_cell((3, 3, 0)) == (3, 2, 0)
+        assert self.cell_attr.get_merging_cell((3, 3, 0)) == (2, 2, 0)
 
         # Cell 2. 2, 0 is merged to cell 2, 2, 0
         assert self.cell_attr.get_merging_cell((2, 2, 0)) == (2, 2, 0)
@@ -158,7 +147,7 @@ class TestDataArray(object):
     def setup_method(self, method):
         """Creates empty DataArray"""
 
-        self.data_array = DataArray((100, 100, 100))
+        self.data_array = DataArray((100, 100, 100), Settings())
 
     def test_iter(self):
         """Unit test for __iter__"""
@@ -180,7 +169,6 @@ class TestDataArray(object):
 
         assert sorted(self.data_array.keys()) == [(1, 2, 3), (1, 2, 4)]
 
-    @undotest_model
     def test_pop(self):
         """Unit test for pop"""
 
@@ -196,7 +184,6 @@ class TestDataArray(object):
 
         assert self.data_array.shape == (100, 100, 100)
 
-    @undotest_model
     def test_set_shape(self):
         """Unit test for _set_shape"""
 
@@ -204,14 +191,14 @@ class TestDataArray(object):
         assert self.data_array.shape == (10000, 100, 100)
 
     param_get_last_filled_cell = [
-        {'content': {(0, 0, 0): "2"}, 'table': 0, 'res': (0, 0)},
-        {'content': {(2, 0, 2): "2"}, 'table': 0, 'res': (0, 0)},
-        {'content': {(2, 0, 2): "2"}, 'table': None, 'res': (2, 0)},
-        {'content': {(2, 0, 2): "2"}, 'table': 2, 'res': (2, 0)},
-        {'content': {(32, 30, 0): "432"}, 'table': 0, 'res': (32, 30)},
+        ({(0, 0, 0): "2"}, 0, (0, 0)),
+        ({(2, 0, 2): "2"}, 0, (0, 0)),
+        ({(2, 0, 2): "2"}, None, (2, 0)),
+        ({(2, 0, 2): "2"}, 2, (2, 0)),
+        ({(32, 30, 0): "432"}, 0, (32, 30)),
     ]
 
-    @params(param_get_last_filled_cell)
+    @pytest.mark.parametrize("content,table,res", param_get_last_filled_cell)
     def test_get_last_filled_cell(self, content, table, res):
         """Unit test for get_last_filled_cellet_end"""
 
@@ -253,97 +240,21 @@ class TestDataArray(object):
         """Unit test for _set_cell_attributes"""
 
         cell_attributes = ["Test"]
-        self.data_array._set_cell_attributes(cell_attributes)
+        self.data_array.cell_attributes[:] = cell_attributes
         assert self.data_array.cell_attributes == cell_attributes
 
-    param_get_adjusted_merge_area = [
-        {'attrs': {},
-         'insertion_point': 0, 'no_to_insert': 1, 'axis': 0,
-         'res': None,
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 5, 'no_to_insert': 1, 'axis': 0,
-         'res': (2, 2, 3, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 1, 'axis': 0,
-         'res': (3, 2, 4, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 10, 'axis': 0,
-         'res': (12, 2, 13, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 2, 'no_to_insert': 1, 'axis': 0,
-         'res': (2, 2, 4, 4),
-         },
-        {'attrs': {'merge_area': (992, 2, 993, 4)},
-         'insertion_point': 5, 'no_to_insert': 10, 'axis': 0,
-         'res': None,
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -1, 'axis': 0,
-         'res': (1, 2, 2, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 5, 'no_to_insert': -1, 'axis': 0,
-         'res': (2, 2, 3, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 2, 'no_to_insert': -1, 'axis': 0,
-         'res': (2, 2, 2, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -2, 'axis': 0,
-         'res': (0, 2, 1, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -3, 'axis': 0,
-         'res': (0, 2, 0, 4),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 1, 'axis': 1,
-         'res': (2, 3, 3, 5),
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': 200, 'axis': 1,
-         'res': None,
-         },
-        {'attrs': {'merge_area': (2, 2, 3, 4)},
-         'insertion_point': 0, 'no_to_insert': -2, 'axis': 1,
-         'res': (2, 0, 3, 2),
-         },
-    ]
-
-    @params(param_get_adjusted_merge_area)
-    def test_get_adjusted_merge_area(self, attrs, insertion_point,
-                                     no_to_insert, axis, res):
-        """Unit test for _get_adjusted_merge_area"""
-
-        merge_area = self.data_array._get_adjusted_merge_area(attrs,
-                                                              insertion_point,
-                                                              no_to_insert,
-                                                              axis)
-        assert merge_area == res
-
     param_adjust_cell_attributes = [
-        {'inspoint': 0, 'noins': 5, 'axis': 0,
-         'src': (4, 3, 0), 'target': (9, 3, 0)},
-        {'inspoint': 34, 'noins': 5, 'axis': 0,
-         'src': (4, 3, 0), 'target': (4, 3, 0)},
-        {'inspoint': 0, 'noins': 0, 'axis': 0,
-         'src': (4, 3, 0), 'target': (4, 3, 0)},
-        {'inspoint': 1, 'noins': 5, 'axis': 1,
-         'src': (4, 3, 0), 'target': (4, 8, 0)},
-        {'inspoint': 1, 'noins': 5, 'axis': 1,
-         'src': (4, 3, 1), 'target': (4, 8, 1)},
-        {'inspoint': 0, 'noins': -1, 'axis': 2,
-         'src': (4, 3, 1), 'target': None},
-        {'inspoint': 0, 'noins': -1, 'axis': 2,
-         'src': (4, 3, 2), 'target': (4, 3, 1)},
+        (0, 5, 0, (4, 3, 0), (9, 3, 0)),
+        (34, 5, 0, (4, 3, 0), (4, 3, 0)),
+        (0, 0, 0, (4, 3, 0), (4, 3, 0)),
+        (1, 5, 1, (4, 3, 0), (4, 8, 0)),
+        (1, 5, 1, (4, 3, 1), (4, 8, 1)),
+        (0, -1, 2, (4, 3, 1), None),
+        (0, -1, 2, (4, 3, 2), (4, 3, 1)),
     ]
 
-    @params(param_adjust_cell_attributes)
+    @pytest.mark.parametrize("inspoint, noins, axis, src, target",
+                             param_adjust_cell_attributes)
     def test_adjust_cell_attributes(self, inspoint, noins, axis, src, target):
         """Unit test for _adjust_cell_attributes"""
 
@@ -352,7 +263,7 @@ class TestDataArray(object):
         val = {"angle": 0.2}
 
         attrs = [(Selection([], [], [], [], [(row, col)]), tab, val)]
-        self.data_array._set_cell_attributes(attrs)
+        self.data_array.cell_attributes[:] = attrs
         self.data_array._adjust_cell_attributes(inspoint, noins, axis)
 
         if target is None:
@@ -366,19 +277,14 @@ class TestDataArray(object):
                 assert self.data_array.cell_attributes[target][key] == val[key]
 
     param_test_insert = [
-        {
-            "data": {(2, 3, 0): "42"},
-            "inspoint": 1, "notoins": 1, "axis": 0, "tab": None,
-            "res": {(2, 3, 0): None, (3, 3, 0): "42"},
-         },
-        {
-            "data": {(0, 0, 0): "0", (0, 0, 2): "2"},
-            "inspoint": 1, "notoins": 1, "axis": 2, "tab": None,
-            "res": {(0, 0, 3): "2", (0, 0, 4): None},
-         },
+        ({(2, 3, 0): "42"}, 1, 1, 0,  None,
+         {(2, 3, 0): None, (3, 3, 0): "42"}),
+        ({(0, 0, 0): "0", (0, 0, 2): "2"}, 1, 1, 2, None,
+         {(0, 0, 3): "2", (0, 0, 4): None}),
     ]
 
-    @params(param_test_insert)
+    @pytest.mark.parametrize("data, inspoint, notoins, axis, tab, res",
+                             param_test_insert)
     def test_insert(self, data, inspoint, notoins, axis, tab, res):
         """Unit test for insert operation"""
 
@@ -389,39 +295,16 @@ class TestDataArray(object):
             assert self.data_array[key] == res[key]
 
     param_test_delete = [
-        {
-            "data": {(2, 3, 4): "42"},
-            "delpoint": 1, "notodel": 1, "axis": 0, "tab": None,
-            "res": {(1, 3, 4): "42"},
-         },
-        {
-            "data": {(0, 0, 0): "1"},
-            "delpoint": 0, "notodel": 1, "axis": 0, "tab": 0,
-            "res": {(0, 0, 0): None},
-         },
-        {
-            "data": {(0, 0, 1): "1"},
-            "delpoint": 0, "notodel": 1, "axis": 2, "tab": None,
-            "res": {(0, 0, 0): "1"},
-         },
-        {
-            "data": {(3, 3, 2): "3"},
-            "delpoint": 0, "notodel": 2, "axis": 2, "tab": None,
-            "res": {(3, 3, 0): "3"},
-         },
-        {
-            "data": {(4, 2, 1): "3"},
-            "delpoint": 2, "notodel": 1, "axis": 1, "tab": 1,
-            "res": {(4, 2, 1): None},
-         },
-        {
-            "data": {(10, 0, 0): "1"},
-            "delpoint": 0, "notodel": 10, "axis": 0, "tab": 0,
-            "res": {(0, 0, 0): "1"},
-         },
+        ({(2, 3, 4): "42"}, 1, 1, 0, None, {(1, 3, 4): "42"}),
+        ({(0, 0, 0): "1"}, 0, 1, 0, 0, {(0, 0, 0): None}),
+        ({(0, 0, 1): "1"}, 0, 1, 2, None, {(0, 0, 0): "1"}),
+        ({(3, 3, 2): "3"}, 0, 2, 2, None, {(3, 3, 0): "3"}),
+        ({(4, 2, 1): "3"}, 2, 1, 1, 1, {(4, 2, 1): None}),
+        ({(10, 0, 0): "1"}, 0, 10, 0, 0, {(0, 0, 0): "1"}),
     ]
 
-    @params(param_test_delete)
+    @pytest.mark.parametrize("data, delpoint, notodel, axis, tab, res",
+                             param_test_delete)
     def test_delete(self, data, delpoint, notodel, axis, tab, res):
         """Tests delete operation"""
 
@@ -461,16 +344,14 @@ class TestCodeArray(object):
     def setup_method(self, method):
         """Creates empty DataArray"""
 
-        self.code_array = CodeArray((100, 10, 3))
+        self.code_array = CodeArray((100, 10, 3), Settings())
 
     param_test_setitem = [
-        {"data": {(2, 3, 2): "42"},
-         "items": {(1, 3, 2): "42"},
-         "res_data": {(1, 3, 2): "42", (2, 3, 2): "42"},
-         },
+        ({(2, 3, 2): "42"}, {(1, 3, 2): "42"},
+         {(1, 3, 2): "42", (2, 3, 2): "42"}),
     ]
 
-    @params(param_test_setitem)
+    @pytest.mark.parametrize("data, items, res_data", param_test_setitem)
     def test_setitem(self, data, items, res_data):
         """Unit test for __setitem__"""
 
@@ -499,7 +380,7 @@ class TestCodeArray(object):
         assert get_shape == orig_shape
 
         gridsize = 100
-        filled_grid = CodeArray((gridsize, 10, 1))
+        filled_grid = CodeArray((gridsize, 10, 1), Settings())
         for i in [-2**99, 2**99, 0]:
             for j in range(gridsize):
                 filled_grid[j, 0, 0] = str(i)
@@ -547,43 +428,13 @@ class TestCodeArray(object):
 
         assert res == [[["Test" for _ in range(2)] for _ in range(2)]]
 
-    param_get_assignment_target_end = [
-        {'code': "a=5", 'res': 1},
-        {'code': "a = 5", 'res': 1},
-        {'code': "5", 'res': -1},
-        {'code': "a == 5", 'res': -1},
-        {'code': "", 'res': -1},
-        {'code': "fractions = __import__('fractions')", 'res': 9},
-        {'code': "math = __import__('math')", 'res': 4},
-        {'code': "a = 3==4", 'res': 1},
-        {'code': "a == 3 < 44", 'res': -1},
-        {'code': "a != 3 < 44", 'res': -1},
-        {'code': "a >= 3 < 44", 'res': -1},
-        {'code': "a = 3 ; a < 44", 'res': None},
+    data_eval_cell = [
+        ((0, 0, 0), "2 + 4", 6),
+        ((1, 0, 0), "S[0, 0, 0]", None),
+        ((43, 2, 1), "X, Y, Z", (43, 2, 1)),
     ]
 
-    @params(param_get_assignment_target_end)
-    def test_get_assignment_target_end(self, code, res):
-        """Unit test for _get_assignment_target_end"""
-
-        module = ast.parse(code)
-
-        if res is None:
-            try:
-                self.code_array._get_assignment_target_end(module)
-                raise ValueError("Multiple expressions cell not identified")
-            except ValueError:
-                pass
-        else:
-            assert self.code_array._get_assignment_target_end(module) == res
-
-    param_eval_cell = [
-        {'key': (0, 0, 0), 'code': "2 + 4", 'res': 6},
-        {'key': (1, 0, 0), 'code': "S[0, 0, 0]", 'res': None},
-        {'key': (43, 2, 1), 'code': "X, Y, Z", 'res': (43, 2, 1)},
-    ]
-
-    @params(param_eval_cell)
+    @pytest.mark.parametrize("key, code, res", data_eval_cell)
     def test_eval_cell(self, key, code, res):
         """Unit test for _eval_cell"""
 
@@ -605,12 +456,18 @@ class TestCodeArray(object):
 
         keys = [(1, 0, 0), (2, 0, 0), (0, 1, 0), (0, 99, 0), (0, 0, 0),
                 (0, 0, 99), (1, 2, 3)]
-        assert list(code_array._sorted_keys(keys, (0, 1, 0))) == \
-            [(0, 1, 0), (0, 99, 0), (1, 2, 3), (0, 0, 99), (0, 0, 0),
-             (1, 0, 0), (2, 0, 0)]
-        sk = list(code_array._sorted_keys(keys, (0, 3, 0), reverse=True))
-        assert sk == [(0, 1, 0), (2, 0, 0), (1, 0, 0), (0, 0, 0), (0, 0, 99),
-                      (1, 2, 3), (0, 99, 0)]
+        sorted_keys = [(0, 1, 0), (0, 99, 0), (1, 2, 3), (0, 0, 99), (0, 0, 0),
+                       (1, 0, 0), (2, 0, 0)]
+        rev_sorted_keys = [(0, 1, 0), (2, 0, 0), (1, 0, 0), (0, 0, 0),
+                           (0, 0, 99), (1, 2, 3), (0, 99, 0)]
+
+        sort_gen = code_array._sorted_keys(keys, (0, 1, 0))
+        for result, expected_result in zip(sort_gen, sorted_keys):
+            assert result == expected_result
+
+        rev_sort_gen = code_array._sorted_keys(keys, (0, 3, 0), reverse=True)
+        for result, expected_result in zip(rev_sort_gen, rev_sorted_keys):
+            assert result == expected_result
 
     def test_string_match(self):
         """Tests creation of string_match"""
@@ -625,22 +482,24 @@ class TestCodeArray(object):
         search_string = "Hello"
 
         # Normal search
-        flags = []
+        flags = False, False, False
         results = [None, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, None]
         for test_string, result in zip(test_strings, results):
-            res = code_array.string_match(test_string, search_string, flags)
+            res = code_array.string_match(test_string, search_string, *flags)
             assert res == result
 
-        flags = ["MATCH_CASE"]
+        # Case sensitive
+        flags = False, True, False
         results = [None, 0, 1, 0, 1, 0, 1, 1, 1, None, None, None]
         for test_string, result in zip(test_strings, results):
-            res = code_array.string_match(test_string, search_string, flags)
+            res = code_array.string_match(test_string, search_string, *flags)
             assert res == result
 
-        flags = ["WHOLE_WORD"]
+        # Word search
+        flags = True, False, False
         results = [None, 0, 1, 0, 1, 0, None, None, None, 0, 0, None]
         for test_string, result in zip(test_strings, results):
-            res = code_array.string_match(test_string, search_string, flags)
+            res = code_array.string_match(test_string, search_string, *flags)
             assert res == result
 
     def test_findnextmatch(self):
@@ -652,5 +511,5 @@ class TestCodeArray(object):
             code_array[i, 0, 0] = str(i)
 
         assert code_array[3, 0, 0] == 3
-        assert code_array.findnextmatch((0, 0, 0), "3", "DOWN") == (3, 0, 0)
-        assert code_array.findnextmatch((0, 0, 0), "99", "DOWN") == (99, 0, 0)
+        assert code_array.findnextmatch((0, 0, 0), "3", False) == (3, 0, 0)
+        assert code_array.findnextmatch((0, 0, 0), "99", True) == (99, 0, 0)

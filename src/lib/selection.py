@@ -20,6 +20,9 @@
 
 """
 Grid selection representation
+==============================
+
+* :class:`Selection`: Represents grid selection independently from PyQt
 
 """
 from builtins import zip
@@ -70,8 +73,6 @@ class Selection(object):
         because order precedence may change the selection outcome in the grid.
 
         """
-
-        assert type(other) is type(self)
 
         attrs = ("block_tl", "block_br", "rows", "cols", "cells")
 
@@ -275,6 +276,9 @@ class Selection(object):
 
             return target_list
 
+        if number == 0:
+            return
+
         self.block_tl = build_tuple_list(self.block_tl, point, number, axis)
 
         self.block_br = build_tuple_list(self.block_br, point, number, axis)
@@ -343,8 +347,11 @@ class Selection(object):
             if bb_right is None or bb_right < cell_col:
                 bb_right = cell_col
 
-        if all(val is None for val in [bb_top, bb_left, bb_bottom, bb_right]):
-            return None
+        if self.rows:
+            bb_left = bb_right = None
+
+        if self.cols:
+            bb_top = bb_bottom = None
 
         return ((bb_top, bb_left), (bb_bottom, bb_right))
 
@@ -543,23 +550,23 @@ class Selection(object):
     def cell_generator(self, shape, table=None):
         """Returns a generator of cell key tuples
 
-        Parameters:
-        -----------
-         * shape: 3-tuple of int
-        \tGrid shape
-         * table: int, defaults to None
-        \tThird component of each returned key
+        :param shape: Grid shape
+        :param table: Third component of each returned key
 
         If table is None 2-tuples (row, column) are yielded else 3-tuples
 
         """
 
-        (top, left), (bottom, right) = self.get_grid_bbox(shape)
+        rows, columns, tables = shape
 
-        for row in range(top, bottom):
-            for column in range(left, right):
+        (top, left), (bottom, right) = self.get_grid_bbox(shape)
+        bottom = min(bottom, rows - 1)
+        right = min(right, columns - 1)
+
+        for row in range(top, bottom + 1):
+            for column in range(left, right + 1):
                 if (row, column) in self:
                     if table is None:
                         yield row, column
-                    else:
+                    elif table < tables - 1:
                         yield row, column, table

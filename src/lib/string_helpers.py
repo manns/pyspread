@@ -38,7 +38,7 @@ def quote(code):
     ----------
 
     * code: String
-    \tCode that is quoted
+    \tCode that is to be quoted
 
     """
 
@@ -47,9 +47,13 @@ def quote(code):
         ('"', '"'),
         ("u'", "'"),
         ('u"', '"'),
+        ("b'", "'"),
+        ('b"', '"'),
+        ("r'", "'"),
+        ('r"', '"'),
     ]
 
-    if code is None or not isinstance(code, str):
+    if code is None or not (isinstance(code, bytes) or isinstance(code, str)):
         return code
 
     code = code.strip()
@@ -84,8 +88,8 @@ def wrap_text(text, width=80, maxlen=2000):
     return "\n".join(textwrap.wrap(text, width=width))
 
 
-def get_svg_aspect(svg_bytes):
-    """Returns width / height ratio"""
+def get_svg_size(svg_bytes):
+    """Returns width, height tuple from svg"""
 
     tree = ET.fromstring(svg_bytes)
     width_str = tree.get("width")
@@ -94,5 +98,4 @@ def get_svg_aspect(svg_bytes):
                               if n.isdigit() or n == '.')))
     height = int(float(''.join(n for n in height_str
                                if n.isdigit() or n == '.')))
-
-    return width / height
+    return width, height

@@ -33,8 +33,9 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
-from lib.dependencies import get_enchant_version
+from src.icons import Icon
+from src.lib.attrdict import AttrDict
+from src.lib.dependencies import get_enchant_version
 
 
 class Action(QAction):
@@ -69,14 +70,6 @@ class Action(QAction):
 
         for connect in callbacks:
             self.triggered.connect(connect)
-
-
-class AttrDict(dict):
-    """Dictionary with attribute access"""
-
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
 
 
 class MainWindowActions(AttrDict):
@@ -120,13 +113,13 @@ class MainWindowActions(AttrDict):
                               statustip='Save spreadsheet to a new file')
 
         self.imprt = Action(self.parent, "&Import",
-                            self.parent.on_nothing,
+                            self.parent.workflows.file_import,
                             icon=Icon.imprt,
                             statustip='Import a file and paste it into the '
                                       'current grid')
 
         self.export = Action(self.parent, "&Export",
-                             self.parent.on_nothing,
+                             self.parent.workflows.file_export,
                              icon=Icon.export,
                              statustip="Export selection to a file")
 
@@ -137,22 +130,17 @@ class MainWindowActions(AttrDict):
                                         'current file')
 
         self.clear_globals = Action(self.parent, "&Clear globals",
-                                    self.parent.on_nothing,
+                                    self.parent.on_clear_globals,
                                     icon=Icon.clear_globals,
                                     statustip='Deletes global variables '
                                               'and reloads base modules')
 
-        self.page_setup = Action(self.parent, "Page setup",
-                                 self.parent.on_nothing,
-                                 icon=Icon.page_setup,
-                                 statustip='Setup printer page')
-
         self.print_preview = Action(self.parent, "Print preview",
-                                    self.parent.on_nothing,
+                                    self.parent.on_preview,
                                     icon=Icon.print_preview,
                                     statustip='Print preview')
 
-        self.print = Action(self.parent, "Print", self.parent.on_nothing,
+        self.print = Action(self.parent, "Print", self.parent.on_print,
                             icon=Icon.print,
                             shortcut='Ctrl+p',
                             statustip='Print current spreadsheet')
@@ -213,15 +201,22 @@ class MainWindowActions(AttrDict):
                                icon=Icon.paste_as,
                                shortcut='Shift+Ctrl+v',
                                statustip='Transform clipboard and paste '
-                                            'results')
+                                         'results')
 
-        self.find = Action(self.parent, "&Find", self.parent.on_nothing,
+        self.find = Action(self.parent, "&Find...",
+                           self.parent.workflows.edit_find,
                            icon=Icon.find,
                            shortcut='Ctrl+f',
-                           statustip='Find cell by content')
+                           statustip='Find dialog')
+
+        self.find_next = Action(self.parent, "&Find next",
+                                self.parent.workflows.edit_find_next,
+                                icon=Icon.find_next,
+                                shortcut='F3',
+                                statustip='Find next matching cell')
 
         self.replace = Action(self.parent, "&Replace...",
-                              self.parent.on_nothing,
+                              self.parent.workflows.edit_replace,
                               icon=Icon.replace,
                               shortcut='Shift+Ctrl+f',
                               statustip='Replace sub-strings in cells')
@@ -232,20 +227,6 @@ class MainWindowActions(AttrDict):
                             shortcut='Ctrl+Return',
                             statustip="Convert cells' code to strings by "
                                       "addding quotes")
-
-        self.sort_ascending = Action(self.parent, "Sort ascending",
-                                     self.parent.on_nothing,
-                                     icon=Icon.sort_ascending,
-                                     statustip='Sort selected columns (or '
-                                               'all if none selected) in '
-                                               'ascending order')
-
-        self.sort_descending = Action(self.parent, "Sort descending",
-                                      self.parent.on_nothing,
-                                      icon=Icon.sort_descending,
-                                      statustip='Sort selected columns (or '
-                                                'all if none selected) in '
-                                                'descending order')
 
         self.insert_rows = Action(self.parent, "Insert rows",
                                   self.parent.grid.on_insert_rows,
@@ -308,12 +289,6 @@ class MainWindowActions(AttrDict):
                                            checkable=True,
                                            statustip='Show/hide the macro '
                                                      'toolbar')
-
-        self.toggle_widget_toolbar = \
-            Action(self.parent, "Widget toolbar",
-                   self.parent.on_toggle_widget_toolbar,
-                   checkable=True,
-                   statustip='Show/hide the widget toolbar')
 
         self.toggle_format_toolbar = \
             Action(self.parent, "Format toolbar",
@@ -508,6 +483,13 @@ class MainWindowActions(AttrDict):
                                 statustip='Lock cell so that its code '
                                           'cannot be changed')
 
+        self.button_cell = Action(self.parent, "Button cell",
+                                  self.parent.grid.on_button_cell_pressed,
+                                  icon=Icon.button,
+                                  checkable=True,
+                                  statustip='Make cell a button cell that is '
+                                            'executed only when pressed')
+
         self.merge_cells = Action(self.parent, "Merge cells",
                                   self.parent.grid.on_merge_pressed,
                                   icon=Icon.merge_cells,
@@ -666,49 +648,41 @@ class MainWindowActions(AttrDict):
         self.format_borders_0 = Action(self.parent, "Border width 0",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_0,
-                                       checkable=True,
                                        statustip='Set border width to 0')
 
         self.format_borders_1 = Action(self.parent, "Border width 1",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_1,
-                                       checkable=True,
                                        statustip='Set border width to 1')
 
         self.format_borders_2 = Action(self.parent, "Border width 2",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_2,
-                                       checkable=True,
                                        statustip='Set border width to 2')
 
         self.format_borders_4 = Action(self.parent, "Border width 4",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_4,
-                                       checkable=True,
                                        statustip='Set border width to 4')
 
         self.format_borders_8 = Action(self.parent, "Border width 8",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_8,
-                                       checkable=True,
                                        statustip='Set border width to 8')
 
         self.format_borders_16 = Action(self.parent, "Border width 16",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_16,
-                                        checkable=True,
                                         statustip='Set border width to 16')
 
         self.format_borders_32 = Action(self.parent, "Border width 32",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_32,
-                                        checkable=True,
                                         statustip='Set border width to 32')
 
         self.format_borders_64 = Action(self.parent, "Border width 64",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_64,
-                                        checkable=True,
                                         statustip='Set border width to 64')
 
         self.border_width_group = QActionGroup(self.parent)
@@ -731,11 +705,6 @@ class MainWindowActions(AttrDict):
                                    statustip='Load an image from a file '
                                              'into a cell')
 
-        self.link_image = Action(self.parent, "Link image...",
-                                 self.parent.on_nothing,
-                                 icon=Icon.link_image,
-                                 statustip='Link an image file from a cell')
-
         self.insert_chart = Action(self.parent, "Insert chart...",
                                    self.parent.workflows.macro_insert_chart,
                                    icon=Icon.insert_chart,
@@ -745,28 +714,21 @@ class MainWindowActions(AttrDict):
     def create_help_actions(self):
         """actions for Help menu"""
 
-        self.first_steps = Action(self.parent, "First steps...",
-                                  self.parent.on_nothing,
-                                  icon=Icon.help,
-                                  shortcut='F1',
-                                  statustip='Display the first steps document '
-                                            'with an overview of pyspread')
+        self.manual = Action(self.parent, "Manual...",
+                             self.parent.on_manual,
+                             icon=Icon.help,
+                             shortcut='F1',
+                             statustip='Display the pyspread manual')
 
         self.tutorial = Action(self.parent, "Tutorial...",
-                               self.parent.on_nothing,
+                               self.parent.on_tutorial,
                                icon=Icon.tutorial,
                                statustip='Display a pyspread tutorial')
 
-        self.faq = Action(self.parent, "FAQ...",
-                          self.parent.on_nothing,
-                          icon=Icon.faq,
-                          statustip='Display frequently asked questions')
-
         self.dependencies = Action(self.parent, "Dependencies...",
-                                   self.parent.on_nothing,
+                                   self.parent.on_dependencies,
                                    icon=Icon.dependencies,
-                                   statustip='Overview of installed '
-                                             'dependencies')
+                                   statustip='List and install dependencies')
 
         self.about = Action(self.parent, "About pyspread...",
                             self.parent.on_about,

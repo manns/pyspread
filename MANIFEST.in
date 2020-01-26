@@ -1,0 +1,5 @@
+include AUTHORS changelog LICENSE MANIFEST.in README.md THANKS
+include *.py *.pth *.bat *.desktop
+recursive-include share *.py *.svg *.ico *.html *.png *.css COPYING LICENSE
+recursive-include src *.pysu *.py
+recursive-exclude src *.pyc

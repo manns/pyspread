@@ -1,0 +1,141 @@
+.pyspread {
+  color: #008500;
+  font-family: sans-serif;
+  font-style: oblique; }
+
+.container {
+  max-width: 1000px; }
+
+#mainNav {
+  padding: 0;
+  border-bottom: 1px dotted #000000; }
+  #mainNav .navbar-brand {
+    width: 200px;
+    color: #008500;
+    text-shadow: 1px 1px 1px #cccccc;
+    font-size: 18pt;
+    font-family: Courier, Verdana, sans-serif;
+    height: 50px;
+    margin-left: 20px; }
+  #mainNav .navbar-toggler {
+    color: #008500 !important; }
+  #mainNav a.nav-link {
+    margin-top: 0;
+    border-radius: 5px;
+    color: #444444; }
+  #mainNav a:hover {
+    color: #008500;
+    background-color: #fefefe; }
+
+.x-slide-img {
+  height: 200px; }
+
+.homepage_slides {
+  background-color: #444444;
+  border-radius: 10px; }
+  .homepage_slides .carousel-item > img {
+    margin: 0 auto; }
+
+.main {
+  min-height: 700px;
+  margin-top: 30px;
+  font-size: 1em; }
+  .main .ximg-right {
+    float: right;
+    margin: 0 0 20px 40px; }
+  .main p, .main ul {
+    margin-left: 50px;
+    margin-top: 10px;
+    max-width: 800px; }
+  .main ul ul {
+    margin-left: 0; }
+  .main h1 {
+    font-size: 2.1em;
+    color: #eeeeee;
+    background: rgba(103, 230, 103, 0.2);
+    color: #008500;
+    border-radius: 5px;
+    padding: 5px 10px;
+    box-shadow: 1px 1px 1px #eeeeee;
+    margin-bottom: 20px; }
+  .main h1.manual {
+    background: rgba(230, 103, 175, 0.2);
+    color: #992667; }
+  .main h2 {
+    font-size: 1.5em;
+    color: #333333;
+    background-color: rgba(255, 178, 115, 0.2);
+    border-bottom: 1px solid #eeeeee;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-top: 20px;
+    margin-bottom: 10px; }
+  .main h2.manual {
+    background: rgba(230, 103, 175, 0.2);
+    color: #992667; }
+  .main h3 {
+    font-size: 1.3em;
+    color: #333333;
+    background-color: rgba(221, 221, 221, 0.2);
+    border-bottom: 1px solid #eeeeee;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-top: 20px;
+    margin-bottom: 10px; }
+  .main h4 {
+    font-size: 1.0em;
+    color: #1E51BD;
+    background-color: rgba(221, 221, 221, 0.5);
+    border-bottom: 1px solid #eeeeee;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    font-family: monospace;
+    border-left: 8px solid #1E51BD; }
+  .main h5 {
+    font-size: 1.0em;
+    color: #1E51BD;
+    background-color: rgba(221, 221, 221, 0.5);
+    border-bottom: 1px solid #eeeeee;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    margin-left: 30px;
+    font-family: monospace;
+    border-left: 8px solid #1E51BD; }
+  .main pre {
+    margin: 0; }
+  .main div.highlight {
+    margin-left: 50px; }
+    .main div.highlight pre {
+      margin: 0;
+      background-color: #eeeeee;
+      border-radius: 5px;
+      padding: 8px;
+      font-family: monospace; }
+  .main code.highlighter-rouge {
+    background-color: #eeeeee;
+    padding-left: 3px;
+    padding-right: 3px; }
+  .main strong[data-value="pyspread"] {
+    color: red; }
+  .main strong code {
+    color: #1E51BD;
+    font-style: oblique;
+    font-weight: normal;
+    background-color: #E9F0FF !important;
+    font-family: sans-serif;
+    padding-left: 4px;
+    padding-right: 4px; }
+
+footer {
+  margin-top: 40px;
+  padding: 10px;
+  border-top: 1px dotted #000000; }
+  footer p {
+    text-align: center; }
+
+/*# sourceMappingURL=pyspread.2019.css.map */

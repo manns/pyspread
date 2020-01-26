@@ -18,12 +18,11 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
-import os
-from pathlib import PurePath
+
 from PyQt5.QtGui import QIcon
 
-PYSPREAD_PATH = \
-    PurePath(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from src.settings import PYSPREAD_PATH
+
 ICON_PATH = PYSPREAD_PATH / 'share/icons'
 ACTION_PATH = ICON_PATH / 'actions'
 STATUS_PATH = ICON_PATH / 'status'
@@ -64,6 +63,7 @@ class IconPath:
     paste_as = ACTION_PATH / 'edit-paste-as.svg'
     select_all = ACTION_PATH / 'edit-select-all.svg'
     find = ACTION_PATH / 'edit-find.svg'
+    find_next = ACTION_PATH / 'edit-find-next.svg'
     replace = ACTION_PATH / 'edit-find-replace.svg'
     quote = ACTION_PATH / 'edit-quote.svg'
     sort_ascending = ACTION_PATH / 'edit-sort-ascending.svg'
@@ -134,6 +134,7 @@ class IconPath:
 
     freeze = ACTION_PATH / 'format-freeze.svg'
     lock = ACTION_PATH / 'format-lock.svg'
+    button = ACTION_PATH / 'format-button.svg'
     merge_cells = ACTION_PATH / 'format-merge-cells.svg'
 
     # Macro menu icons
@@ -146,6 +147,9 @@ class IconPath:
     tutorial = ACTION_PATH / 'help-tutorial.svg'
     faq = ACTION_PATH / 'help-faq.svg'
     dependencies = ACTION_PATH / 'help-dependencies.svg'
+
+    # Toolbar icons
+    menu_manager = ACTION_PATH / 'menu-manager.svg'
 
     # Chart dialog template icons
     chart_pie_1_1 = CHARTS_PATH / 'chart_pie_1_1.svg'
@@ -170,7 +174,7 @@ class IconPath:
 class IconConverter(type):
     """Meta class that provides QIcons for IconPaths icons"""
 
-    def __getattribute__(cls, name):
+    def __getattr__(cls, name):
         return QIcon(str(getattr(IconPath, name)))
 
 

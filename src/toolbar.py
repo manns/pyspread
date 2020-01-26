@@ -26,17 +26,12 @@
 * :class:`FindToolbar`
 * :class:`FormatToolbar`
 * :class:`MacroToolbar`
-* :class:`WidgetToolbar`
 * :func:`add_toolbutton_widget`
 
 """
 
-import functools
-from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import QToolBar, QToolButton, QMenu
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout,  QUndoView
-from PyQt5.QtWidgets import QWidget, QWidgetAction, QCheckBox, QLabel
-
+from PyQt5.QtWidgets import QHBoxLayout, QUndoView
 
 try:
     import matplotlib.figure as matplotlib_figure
@@ -44,7 +39,8 @@ except ImportError:
     matplotlib_figure = None
 
 from src.icons import Icon
-from src.actions import Action
+from src.menus import ToolbarManagerMenu
+from src.widgets import FindEditor
 
 
 def add_toolbutton_widget(button, widget, minsize=(300, 200),
@@ -61,7 +57,34 @@ def add_toolbutton_widget(button, widget, minsize=(300, 200),
     menu.layout()
 
 
-class MainToolBar(QToolBar):
+class ToolBarBase(QToolBar):
+    """Base toolbar class that provides toolbar manager button method"""
+
+    def add_widget(self, widget):
+        """Adds widget with addWidget and assigns action text and icon
+
+        The widget must have a label attribute and an icon method.
+
+        """
+
+        self.addWidget(widget)
+        self.actions()[-1].setText(widget.label)
+        self.actions()[-1].setIcon(widget.icon())
+
+    def get_manager_button(self):
+        """Returns QToolButton for managing the toolbar"""
+
+        button = QToolButton(self)
+        button.setText("Add/remove toolbar icons")
+        button.setMenu(ToolbarManagerMenu(self))
+        button.setIcon(Icon.menu_manager)
+        button.setFixedWidth(button.height()/3)
+        button.setPopupMode(QToolButton.InstantPopup)
+
+        return button
+
+
+class MainToolBar(ToolBarBase):
     """The main toolbar"""
 
     def __init__(self, main_window):
@@ -78,17 +101,20 @@ class MainToolBar(QToolBar):
         self.addAction(actions.open)
         self.addAction(actions.save)
         self.addAction(actions.export)
+
+        self.addSeparator()
+
+        self.addAction(actions.print)
+
         self.addSeparator()
 
         self.addAction(actions.undo)
+        undo_button = self.widgetForAction(actions.undo)
+        undo_view = QUndoView(self.main_window.undo_stack)
+        add_toolbutton_widget(undo_button, undo_view)
+
         self.addAction(actions.redo)
-        self.addSeparator()
 
-        self.addAction(actions.toggle_spell_checker)
-        self.addSeparator()
-
-        self.addAction(actions.find)
-        self.addAction(actions.replace)
         self.addSeparator()
 
         self.addAction(actions.cut)
@@ -96,205 +122,15 @@ class MainToolBar(QToolBar):
         self.addAction(actions.copy_results)
         self.addAction(actions.paste)
         self.addAction(actions.paste)
-        self.addSeparator()
-
-        self.addAction(actions.freeze_cell)
-        self.addSeparator()
-
-        self.addAction(actions.print)
-
-        undo_button = self.widgetForAction(actions.undo)
-        undo_view = QUndoView(self.main_window.undo_stack)
-        add_toolbutton_widget(undo_button, undo_view)
-
-        self.addWidget(ToolBarManager(self))
-
-
-class FindToolbar(QToolBar):
-    """The find toolbar for pyspread"""
-
-    def __init__(self, main_window):
-        super().__init__("Find Toolbar", main_window)
-
-        self.setObjectName("Find Toolbar")
-        self._create_toolbar(main_window.main_window_actions)
-
-    def _create_toolbar(self, actions):
-        """Fills the find toolbar with QActions"""
 
         self.addSeparator()
 
+        self.addAction(actions.toggle_spell_checker)
 
-class FormatToolbar(QToolBar):
-    """The format toolbar for pyspread"""
-
-    def __init__(self, main_window):
-        super().__init__("Format Toolbar", main_window)
-
-        self.main_window = main_window
-        self.setObjectName("Format Toolbar")
-        self._create_toolbar(main_window.main_window_actions)
-
-    def _create_toolbar(self, actions):
-        """Fills the format toolbar with QActions"""
-
-        self.addWidget(self.main_window.widgets.font_combo)
-        self.addWidget(self.main_window.widgets.font_size_combo)
-
-        self.addAction(actions.bold)
-        self.addAction(actions.italics)
-        self.addAction(actions.underline)
-        self.addAction(actions.strikethrough)
-
-        self.addSeparator()
-
-        self.addWidget(self.main_window.widgets.renderer_button)
-        self.addAction(actions.merge_cells)
-
-        self.addSeparator()
-
-        self.addWidget(self.main_window.widgets.rotate_button)
-        self.addWidget(self.main_window.widgets.justify_button)
-        self.addWidget(self.main_window.widgets.align_button)
-
-        self.addSeparator()
-
-        self.border_menu_button = QToolButton(self)
-        self.border_menu_button.setText("Borders")
-        border_submenu = self.main_window.menuBar().border_submenu
-        self.border_menu_button.setMenu(border_submenu)
-        self.border_menu_button.setIcon(Icon.border_menu)
-        self.addWidget(self.border_menu_button)
-        self.border_menu_button.setPopupMode(
-            QToolButton.InstantPopup)
-
-        self.line_width_button = QToolButton(self)
-        self.line_width_button.setText("Border Width")
-        line_width_submenu = self.main_window.menuBar().line_width_submenu
-        self.line_width_button.setMenu(line_width_submenu)
-        self.line_width_button.setIcon(Icon.format_borders)
-        self.addWidget(self.line_width_button)
-        self.line_width_button.setPopupMode(
-            QToolButton.InstantPopup)
-
-        self.addSeparator()
-
-        text_color_button = self.main_window.widgets.text_color_button
-        text_color_button.set_max_size(self.iconSize())
-        self.addWidget(text_color_button)
-
-        line_color_button = self.main_window.widgets.line_color_button
-        line_color_button.set_max_size(self.iconSize())
-        self.addWidget(line_color_button)
-
-        background_color_button = \
-            self.main_window.widgets.background_color_button
-        background_color_button.set_max_size(self.iconSize())
-        self.addWidget(background_color_button)
-
-        self.addSeparator()
-
-        self.addAction(actions.copy_format)
-        self.addAction(actions.paste_format)
-
-        self.addSeparator()
-
-        self.addWidget(ToolBarManager(self))
+        self.addWidget(self.get_manager_button())
 
 
-class ToolBarManager(QToolButton):
-
-    def __init__(self, parentToolBar):
-        super().__init__()
-
-        self.parentToolBar = parentToolBar
-
-        self.setToolTip("Toggle item visibility")
-        self.setMenu(QMenu(self))
-        self.setPopupMode(QToolButton.InstantPopup)
-        #  self.setIcon(Icon("TODO"))
-        self.setFixedWidth(16)
-
-        m = 0
-        mainWidget = QWidget()
-        mainlay = QVBoxLayout()
-        mainlay.setContentsMargins(m, m, m, m)
-        mainWidget.setLayout(mainlay)
-
-        lbl = QLabel("Set preferences for visibility")
-        lbl.setStyleSheet("background-color: #FFFDC3; padding: 4px;")
-        mainlay.addWidget(lbl)
-
-        m = 5
-        self.grid = QGridLayout()
-        self.grid.setContentsMargins(m, m, m, m)
-        mainlay.addLayout(self.grid)
-
-        self.create_widgets()
-
-        widget_action = QWidgetAction(self)
-        widget_action.setDefaultWidget(mainWidget)
-        self.menu().addAction(widget_action)
-
-    def create_widgets(self):
-
-        for ridx, obj in enumerate(self.parentToolBar.actions()):
-
-            if obj.isSeparator():
-                # its a separator so draw a litle line
-                linelbl = QLabel()
-                linelbl.setStyleSheet("background-color: #dddddd")
-                linelbl.setFixedHeight(1)
-                self.grid.addWidget(linelbl, ridx, 0, 1, 3)
-                continue
-
-            # Viz toggle
-            chk = QCheckBox()
-            self.grid.addWidget(chk, ridx, 0)
-            chk.setChecked(obj.isVisible())
-            chk.toggled.connect(functools.partial(self.on_toggle, chk, obj))
-
-            if isinstance(obj, Action):
-                icon = QLabel()
-                icon.setPixmap(obj.icon().pixmap(QSize(16, 16)))
-                self.grid.addWidget(icon, ridx, 1)
-                lbl = QLabel(self)
-                lbl.setText(obj.text())
-                self.grid.addWidget(lbl, ridx, 2)
-
-            elif isinstance(obj, QWidgetAction):
-
-                wid = obj.defaultWidget()
-                name = None
-
-                if hasattr(wid, "label"):  # eg Custom Combos
-                    name = wid.label
-
-                elif isinstance(wid, QToolButton):
-                    name = wid.text()
-
-                else:
-                    print("ERROR: Not handled. set_toolbar()", wid.text(),
-                          self)
-
-                if hasattr(wid, "icon"):
-                    icon = QLabel()
-                    icon.setPixmap(wid.icon().pixmap(QSize(16, 16)))
-                    self.grid.addWidget(icon, ridx, 1)
-
-                lbl = QLabel(self)
-                lbl.setText(name)
-                self.grid.addWidget(lbl, ridx, 2)
-
-        self.grid.setRowStretch(0, 0)
-        self.grid.setRowStretch(1, 0)
-        self.grid.setRowStretch(2, 3)
-
-    def on_toggle(self, checkBox, srcObject):
-        srcObject.setVisible(checkBox.isChecked())
-
-
-class MacroToolbar(QToolBar):
+class MacroToolbar(ToolBarBase):
     """The macro toolbar for pyspread"""
 
     def __init__(self, main_window):
@@ -307,29 +143,124 @@ class MacroToolbar(QToolBar):
         """Fills the macro toolbar with QActions"""
 
         self.addAction(actions.insert_image)
-        self.addAction(actions.link_image)
         if matplotlib_figure is not None:
             self.addAction(actions.insert_chart)
 
-        self.addWidget(ToolBarManager(self))
+        self.addWidget(self.get_manager_button())
 
 
-class WidgetToolbar(QToolBar):
-    """The widget toolbar for pyspread"""
+class FindToolbar(ToolBarBase):
+    """The find toolbar for pyspread"""
 
     def __init__(self, main_window):
-        super().__init__("Widget toolbar", main_window)
+        super().__init__("Find Toolbar", main_window)
 
-        self.setObjectName("Widget toolbar")
+        self.main_window = main_window
+        self.setObjectName("Find Toolbar")
         self._create_toolbar(main_window.main_window_actions)
 
     def _create_toolbar(self, actions):
-        """Fills the widget toolbar with QActions"""
+        """Fills the find toolbar with QActions"""
+
+        self.find_editor = FindEditor(self)
+
+        self.add_widget(self.find_editor)
+
+        self.addAction(actions.find)
+        self.addAction(actions.replace)
+
+        self.addWidget(self.get_manager_button())
+
+
+class FormatToolbar(ToolBarBase):
+    """The format toolbar for pyspread"""
+
+    def __init__(self, main_window):
+        super().__init__("Format Toolbar", main_window)
+
+        self.main_window = main_window
+        self.setObjectName("Format Toolbar")
+        self._create_toolbar(main_window.main_window_actions)
+
+    def _create_toolbar(self, actions):
+        """Fills the format toolbar with QActions"""
+
+        menubar = self.main_window.menuBar()
+
+        self.add_widget(self.main_window.widgets.font_combo)
+        self.add_widget(self.main_window.widgets.font_size_combo)
+
+        self.addAction(actions.bold)
+        self.addAction(actions.italics)
+        self.addAction(actions.underline)
+        self.addAction(actions.strikethrough)
 
         self.addSeparator()
 
+        self.add_widget(self.main_window.widgets.renderer_button)
 
-class ChartTemplatesToolBar(QToolBar):
+        self.addSeparator()
+
+        self.addAction(actions.freeze_cell)
+        self.addAction(actions.lock_cell)
+        self.addAction(actions.button_cell)
+
+        self.addSeparator()
+
+        self.addAction(actions.merge_cells)
+
+        self.addSeparator()
+
+        self.add_widget(self.main_window.widgets.rotate_button)
+        self.add_widget(self.main_window.widgets.justify_button)
+        self.add_widget(self.main_window.widgets.align_button)
+
+        self.addSeparator()
+
+        self.border_menu_button = QToolButton(self)
+        self.border_menu_button.setText("Borders")
+        self.border_menu_button.label = "Borders"
+        border_submenu = menubar.format_menu.border_submenu
+        self.border_menu_button.setMenu(border_submenu)
+        self.border_menu_button.setIcon(Icon.border_menu)
+        self.add_widget(self.border_menu_button)
+        self.border_menu_button.setPopupMode(QToolButton.InstantPopup)
+
+        self.line_width_button = QToolButton(self)
+        self.line_width_button.setText("Border Width")
+        self.line_width_button.label = "Border Width"
+        line_width_submenu = menubar.format_menu.line_width_submenu
+        self.line_width_button.setMenu(line_width_submenu)
+        self.line_width_button.setIcon(Icon.format_borders)
+        self.add_widget(self.line_width_button)
+        self.line_width_button.setPopupMode(QToolButton.InstantPopup)
+
+        self.addSeparator()
+
+        text_color_button = self.main_window.widgets.text_color_button
+        text_color_button.set_max_size(self.iconSize())
+        self.add_widget(text_color_button)
+
+        line_color_button = self.main_window.widgets.line_color_button
+        line_color_button.set_max_size(self.iconSize())
+        self.add_widget(line_color_button)
+
+        background_color_button = \
+            self.main_window.widgets.background_color_button
+        background_color_button.set_max_size(self.iconSize())
+        self.add_widget(background_color_button)
+
+        self.addSeparator()
+
+        self.addAction(actions.copy_format)
+        self.addAction(actions.paste_format)
+
+        self.addSeparator()
+
+        self.addWidget(self.get_manager_button())
+
+
+class ChartTemplatesToolBar(ToolBarBase):
     """Toolbar for chart dialog for inserting template chart code"""
 
     def __init__(self, parent):
@@ -358,3 +289,5 @@ class ChartTemplatesToolBar(QToolBar):
         self.addAction(actions.chart_matrix_1_1)
         self.addAction(actions.chart_contour_1_2)
         self.addAction(actions.chart_surface_2_1)
+
+        self.addWidget(self.get_manager_button())

@@ -20,7 +20,7 @@
 # --------------------------------------------------------------------
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 
@@ -32,7 +32,7 @@ class PyTest(TestCommand):
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
-        self.pytest_args = ""
+        self.pytest_args = "--capture=sys"
 
     def run_tests(self):
         import shlex
@@ -47,6 +47,10 @@ class PyTest(TestCommand):
 setup(
     name='pyspread',
     version=VERSION,
+    packages=find_packages(),
+    package_dir={'': '.'},
+    scripts=['pyspread.sh'],
+    include_package_data=True,
     description='Python spreadsheet',
     long_description='Pyspread is a non-traditional spreadsheet application'
     ' that is based on and written in the programming language Python.',
@@ -54,55 +58,21 @@ setup(
     keywords=['spreadsheet', 'pyspread'],
     author='Martin Manns',
     author_email='mmanns@gmx.net',
-    url='http://manns.github.io/pyspread/',
-    requires=['numpy (>=1.1)', 'PyQt5 (>=5.11.3)', 'matplotlib (>=1.1.1)'],
-#    extras_require = {
-#        'GPG': ['gnupg>=0.3.0'],
-#        'SVG': [],  # May require python_rsvg if not shipped with pyCairo
-#        'XLS': ['xlrd>=0.9.1', 'xlwt>=0.7.5'],
-#        'code_completion': ['jedi>=0.8'],
-#        'basemap': ['basemap>=1.0.7'],
-#    },
+    url='https://pyspread.gitlab.io/',
+    project_urls={
+        "Bug Tracker": "https://gitlab.com/pyspread/pyspread/issues",
+        "Documentation": "https://pyspread.gitlab.io/docs.html",
+        "Source Code": "https://gitlab.com/pyspread/pyspread",
+    },
+    requires=['numpy (>=1.1)', 'PyQt5 (>=5.11.3)'],
+    extras_require={
+        'matplotlib': ['matplotlib (>=1.1.1)'],
+        'pyenchant': ['pyenchant (>=1.1)'],
+    },
     tests_require=["pytest"],
     cmdclass={"pytest": PyTest},
-    packages=['pyspread'],
-    scripts=['src/pyspread.py'],
-    cmdclass={'test': PyTest},
-    package_data={'pyspread': [
-            '*.py',
-            '../pyspread.sh',
-            '../pyspread.bat',
-            '../runtests.py',
-            'src/*.py',
-            'src/pyspread',
-            'src/*/*.py',
-            'src/*/test/*.py',
-            'src/*/test/*.pys*',
-            'src/*/test/*.sig',
-            'src/*/test/*.csv',
-            'src/*/test/*.xls',
-            'src/*/test/*.txt',
-            'src/*/test/*.svg',
-            'src/*/test/*.pys*',
-            'share/icons/*.svg',
-            'share/icons/*.ico',
-            'share/icons/actions/*.svg',
-            'share/icons/status/*.svg',
-            'doc/help/*.html',
-            'doc/help/images/*.png',
-            'share/templates/*/*.py',
-            'COPYING',
-            'thanks',
-            'faq',
-            '*.1',
-            'authors',
-            '../pyspread.pth',
-            '../README',
-            '../changelog'
-        ],
-    },
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 3 - Alpha',
         'Environment :: X11 Applications :: GTK',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: End Users/Desktop',

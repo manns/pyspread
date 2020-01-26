@@ -18,6 +18,7 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+from contextlib import contextmanager
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QTextOption
@@ -38,14 +39,23 @@ class Entryline(SpellTextEdit):
         self.setMinimumHeight(min_height)
 
         self.setWordWrapMode(QTextOption.WrapAnywhere)
-        # self.setWordWrapMode(QTextOption.NoWrap)
 
-        self.highlighter.setDocument(self.document())
+        # self.highlighter.setDocument(self.document())
+
+    @contextmanager
+    def disable_highlighter(self):
+        """Disables highlighter"""
+
+        doc = self.highlighter.document()
+        self.highlighter.setDocument(None)
+        yield
+        self.highlighter.setDocument(doc)
 
     def keyPressEvent(self, event):
         """Key press event filter"""
 
-        if event.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if event.key() in (Qt.Key_Enter, Qt.Key_Return) \
+           and not event.modifiers() == Qt.ShiftModifier:
             self.store_data()
             self.main_window.grid.row += 1
         elif event.key() == Qt.Key_Tab:
@@ -69,3 +79,24 @@ class Entryline(SpellTextEdit):
         """Spell check toggle event handler"""
 
         self.highlighter.enable_enchant = True if signal else False
+
+    def setPlainText(self, text):
+        """Overides setPlainText
+
+        Additionally shows busy cursor and disables highlighter on long texts,
+        and omits identical replace.
+
+        """
+
+        is_long = (text is not None
+                   and len(text) > self.main_window.settings.highlighter_limit)
+
+        if text == self.toPlainText():
+            return
+
+        if is_long:
+            with self.main_window.workflows.busy_cursor():
+                self.highlighter.setDocument(None)
+                super().setPlainText(text)
+        else:
+            super().setPlainText(text)

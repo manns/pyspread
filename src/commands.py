@@ -40,7 +40,8 @@ from copy import copy
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QUndoCommand
 
-from lib.selection import Selection
+from src.lib.selection import Selection
+from src.widgets import CellButton
 
 
 class CommandSetGridSize(QUndoCommand):
@@ -117,13 +118,15 @@ class CommandSetCellCode(QUndoCommand):
         return True
 
     def redo(self):
-        for index, new_code in zip(self.indices, self.new_codes):
-            self.model.setData(index, new_code, Qt.EditRole, raw=True)
+        with self.model.main_window.entry_line.disable_highlighter():
+            for index, new_code in zip(self.indices, self.new_codes):
+                self.model.setData(index, new_code, Qt.EditRole, raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
-        for index, old_code in zip(self.indices, self.old_codes):
-            self.model.setData(index, old_code, Qt.EditRole, raw=True)
+        with self.model.main_window.entry_line.disable_highlighter():
+            for index, old_code in zip(self.indices, self.old_codes):
+                self.model.setData(index, old_code, Qt.EditRole, raw=True)
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
@@ -519,3 +522,83 @@ class CommandSetCellRenderer(QUndoCommand):
         self.model.code_array.cell_attributes.pop()
         self.entry_line.highlighter.setDocument(self.old_highlighter_document)
         self.model.dataChanged.emit(self.index, self.index)
+
+
+class CommandMakeButtonCell(QUndoCommand):
+    """Makes a button cell"""
+
+    def __init__(self, grid, text, index, description):
+        super().__init__(description)
+        self.grid = grid
+        self.text = text
+        self.index = index
+        self.key = self.index.row(), self.index.column(), self.grid.table
+
+    def redo(self):
+        row, column, table = self.key
+        selection = Selection([], [], [], [], [(row, column)])
+        ca = selection, table, {"button_cell": self.text}
+        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+
+        if table == self.grid.table:
+            # Only add widget if we are in the right table
+            button = CellButton(self.text, self.grid, self.key)
+            self.grid.setIndexWidget(self.index, button)
+            self.grid.widget_indices.append(self.index)
+
+        self.grid.model.dataChanged.emit(self.index, self.index)
+
+    def undo(self):
+        if self.index not in self.grid.widget_indices:
+            return
+
+        row, column, table = self.key
+        selection = Selection([], [], [], [], [(row, column)])
+        ca = selection, table, {"button_cell": False}
+        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+
+        if table == self.grid.table:
+            # Only remove widget if we are in the right table
+            self.grid.setIndexWidget(self.index, None)
+            self.grid.widget_indices.remove(self.index)
+        self.grid.model.dataChanged.emit(self.index, self.index)
+
+
+class CommandRemoveButtonCell(QUndoCommand):
+    """Removes a button cell"""
+
+    def __init__(self, grid, index, description):
+        super().__init__(description)
+        self.grid = grid
+        self.text = None
+        self.index = index
+        self.key = self.index.row(), self.index.column(), self.grid.table
+
+    def redo(self):
+        if self.index not in self.grid.widget_indices:
+            return
+        attr = self.grid.model.code_array.cell_attributes[self.key]
+        self.text = attr["button_cell"]
+        row, column, table = self.key
+        selection = Selection([], [], [], [], [(row, column)])
+        ca = selection, table, {"button_cell": False}
+        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+
+        if table == self.grid.table:
+            # Only remove widget if we are in the right table
+            self.grid.setIndexWidget(self.index, None)
+            self.grid.widget_indices.remove(self.index)
+        self.grid.model.dataChanged.emit(self.index, self.index)
+
+    def undo(self):
+        row, column, table = self.key
+        selection = Selection([], [], [], [], [(row, column)])
+        ca = selection, table, {"button_cell": self.text}
+        self.grid.model.setData([self.index], ca, Qt.DecorationRole)
+
+        if table == self.grid.table:
+            # Only add widget if we are in the right table
+            button = CellButton(self.text, self.grid, self.key)
+            self.grid.setIndexWidget(self.index, button)
+            self.grid.widget_indices.append(self.index)
+        self.grid.model.dataChanged.emit(self.index, self.index)

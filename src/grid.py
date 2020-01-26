@@ -25,29 +25,36 @@
 * :class:`Grid`: QTableView of the main grid
 * :class:`GridTableModel`: QAbstractTableModel linking the view to code_array
   backend
-* :class:`GridCellDelegate` QStyledItemDelegate handling custom painting and
+* :class:`GridCellNavigator`: Find neighbors of a cell
+* :class:`GridCellDelegate`: QStyledItemDelegate handling custom painting and
   editors
+* :class:`TableChoice`: The TabBar below the main grid
 
 """
 
 from ast import literal_eval
 from contextlib import contextmanager
+from io import BytesIO
+from math import isclose
 
 import numpy
 
-from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar
+from PyQt5.QtWidgets import QTableView, QStyledItemDelegate, QTabBar, QWidget
 from PyQt5.QtWidgets import QStyleOptionViewItem, QApplication, QStyle
 from PyQt5.QtWidgets import QAbstractItemDelegate, QHeaderView, QFontDialog
+from PyQt5.QtWidgets import QInputDialog, QLineEdit
 from PyQt5.QtGui import QColor, QBrush, QPen, QFont, QPainter, QPalette
-from PyQt5.QtGui import QImage as BasicQImage
+from PyQt5.QtGui import QImage as BasicQImage, QTextOption
 from PyQt5.QtGui import QAbstractTextDocumentLayout, QTextDocument
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant
-from PyQt5.QtCore import QPointF, QRectF, QSize, QRect, QItemSelectionModel
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent
+from PyQt5.QtCore import QPointF, QRectF, QLineF, QSize, QRect
+from PyQt5.QtCore import QItemSelectionModel
 
 try:
-    import matplotlib.figure as matplotlib_figure
+    import matplotlib
+    import matplotlib.figure
 except ImportError:
-    matplotlib_figure = None
+    matplotlib = None
 
 from src.commands import CommandSetCellCode, CommandSetCellFormat
 from src.commands import CommandFreezeCell, CommandThawCell, CommandInsertRows
@@ -56,14 +63,16 @@ from src.commands import CommandInsertTable, CommandDeleteTable
 from src.commands import CommandDeleteColumns, CommandSetCellMerge
 from src.commands import CommandSetCellRenderer, CommandSetRowsHeight
 from src.commands import CommandSetColumnsWidth, CommandSetCellTextAlignment
+from src.commands import CommandMakeButtonCell, CommandRemoveButtonCell
 from src.model.model import CodeArray
 from src.lib.selection import Selection
-from src.lib.string_helpers import quote, wrap_text, get_svg_aspect
+from src.lib.string_helpers import quote, wrap_text, get_svg_size
 from src.lib.qimage2ndarray import array2qimage
 from src.lib.qimage_svg import QImage
 from src.lib.typechecks import is_svg
-from src.menubar import GridContextMenu, TableChoiceContextMenu
-from src.menubar import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
+from src.menus import GridContextMenu, TableChoiceContextMenu
+from src.menus import HorizontalHeaderContextMenu, VerticalHeaderContextMenu
+from src.widgets import CellButton
 
 
 class Grid(QTableView):
@@ -80,6 +89,8 @@ class Grid(QTableView):
         self.setModel(self.model)
 
         self.table_choice = TableChoice(self, dimensions[2])
+
+        self.widget_indices = []  # Store each index with an indexWidget here
 
         # Signals
         self.model.dataChanged.connect(self.on_data_changed)
@@ -107,8 +118,8 @@ class Grid(QTableView):
 
         self.setShowGrid(False)
 
-        delegate = GridCellDelegate(main_window, self.model.code_array)
-        self.setItemDelegate(delegate)
+        self.delegate = GridCellDelegate(main_window, self.model.code_array)
+        self.setItemDelegate(self.delegate)
 
         # Select upper left cell because initial selection behaves strange
         self.reset_selection()
@@ -363,6 +374,7 @@ class Grid(QTableView):
         """Event handler for data changes"""
 
         code = self.model.code_array(self.current)
+
         self.main_window.entry_line.setPlainText(code)
 
         if not self.main_window.settings.changed_since_save:
@@ -437,11 +449,7 @@ class Grid(QTableView):
 
         Does neither emit dataChanged nor clear _attr_cache or _table_cache.
 
-        Parameters
-        ----------
-
-        * key: 3-tuple of int
-        \trow, column, table tuple
+        :key: 3-tuple of int: row, column, table
 
         """
 
@@ -577,9 +585,15 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set text renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
+        document = entry_line.document()
+
+        # Disable highlighter to speed things up
+        highlighter_limit = self.main_window.settings.highlighter_limit
+        if len(document.toRawText()) > highlighter_limit:
+            document = None
+
         command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         entry_line.document(),
-                                         self.currentIndex(),
+                                         document, self.currentIndex(),
                                          self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
@@ -602,9 +616,15 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set markup renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
+        document = entry_line.document()
+
+        # Disable highlighter to speed things up
+        highlighter_limit = self.main_window.settings.highlighter_limit
+        if len(document.toRawText()) > highlighter_limit:
+            document = None
+
         command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         entry_line.document(),
-                                         self.currentIndex(),
+                                         document, self.currentIndex(),
                                          self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
@@ -615,9 +635,15 @@ class Grid(QTableView):
         idx_string = self._selected_idx_to_str(self.selected_idx)
         description = "Set matplotlib renderer for cells {}".format(idx_string)
         entry_line = self.main_window.entry_line
+        document = entry_line.document()
+
+        # Disable highlighter to speed things up
+        highlighter_limit = self.main_window.settings.highlighter_limit
+        if len(document.toRawText()) > highlighter_limit:
+            document = None
+
         command = CommandSetCellRenderer(attr, self.model, entry_line,
-                                         entry_line.document(),
-                                         self.currentIndex(),
+                                         document, self.currentIndex(),
                                          self.selected_idx, description)
         self.main_window.undo_stack.push(command)
 
@@ -634,10 +660,6 @@ class Grid(QTableView):
 
     def on_rotate_0(self, toggled):
         """Set cell rotation to 0° left button pressed event handler"""
-
-        attr = self.selection, self.table, {"angle": 0.0}
-        self.model.setData(self.selected_idx, attr, Qt.TextAlignmentRole)
-        self.gui_update()
 
         attr = self.selection, self.table, {"angle": 0.0}
         idx_string = self._selected_idx_to_str(self.selected_idx)
@@ -877,6 +899,26 @@ class Grid(QTableView):
             except TypeError:
                 pass
 
+    def update_index_widgets(self):
+        """Remove old index widgets from model data"""
+
+        # Remove old button cells
+        for index in self.widget_indices:
+            self.setIndexWidget(index, None)
+        self.widget_indices.clear()
+
+        # Add button cells for current table
+        code_array = self.model.code_array
+        for selection, table, attr in code_array.cell_attributes:
+            if table == self.table and 'button_cell' in attr \
+               and attr['button_cell']:
+                row, column = selection.get_bbox()[0]
+                index = self.model.index(row, column, QModelIndex())
+                text = attr['button_cell']
+                button = CellButton(text, self, (row, column, table))
+                self.setIndexWidget(index, button)
+                self.widget_indices.append(index)
+
     def on_freeze_pressed(self, toggled):
         """Freeze cell event handler"""
 
@@ -894,6 +936,35 @@ class Grid(QTableView):
             command = CommandThawCell(self.model, self.current, description)
         self.main_window.undo_stack.push(command)
 
+    def on_button_cell_pressed(self, toggled):
+        """Button cell event handler"""
+
+        current_attr = self.model.code_array.cell_attributes[self.current]
+        if not toggled and current_attr["button_cell"] is False \
+           or toggled and current_attr["button_cell"] is not False:
+            # Something is not syncronized in the menu
+            return
+
+        if toggled:
+            # Get button text from user
+            text, accept = QInputDialog.getText(self.main_window,
+                                                "Make button cell",
+                                                "Button text:",
+                                                QLineEdit.Normal, "")
+            if accept and text:
+                description_tpl = "Make cell {} a button cell"
+                description = description_tpl.format(self.current)
+                command = CommandMakeButtonCell(self, text,
+                                                self.currentIndex(),
+                                                description)
+                self.main_window.undo_stack.push(command)
+        else:
+            description_tpl = "Make cell {} a non-button cell"
+            description = description_tpl.format(self.current)
+            command = CommandRemoveButtonCell(self, self.currentIndex(),
+                                              description)
+            self.main_window.undo_stack.push(command)
+
     def on_merge_pressed(self):
         """Merge cells button pressed event handler"""
 
@@ -906,18 +977,17 @@ class Grid(QTableView):
         if self.columnSpan(top, left) > 1 or self.rowSpan(top, left) > 1:
             selection = Selection([], [], [], [], [(top, left)])
             attr = selection, self.table, {"merge_area": None}
-        elif self.columnSpan(self.row, self.column) > 1 \
-                or self.rowSpan(self.row, self.column) > 1:
-            # Unmerge the cell that merges the current cell (!)
-            selection = Selection([], [], [], [], [(self.row, self.column)])
-            attr = selection, self.table, {"merge_area": None}
-        else:
-            # Merge and store the current selection (!)
+            description_tpl = "Unmerge cells with top-left cell {}"
+        elif bottom > top or right > left:
+            # Merge and store the current selection
             merging_selection = Selection([], [], [], [], [(top, left)])
             attr = merging_selection, self.table, {"merge_area":
                                                    (top, left, bottom, right)}
+            description_tpl = "Merge cells with top-left cell {}"
+        else:
+            # Cells are not merged because the span is one
+            return
 
-        description_tpl = "Merge cells with top-left cell {}"
         description = description_tpl.format((top, left))
         command = CommandSetCellMerge(attr, self.model, self.currentIndex(),
                                       self.selected_idx, description)
@@ -1054,13 +1124,13 @@ class GridHeaderView(QHeaderView):
     def paintSection(self, painter, rect, logicalIndex):
         """Overrides paintSection, which supports zoom"""
 
-        unzoomed_rect = QRect(rect.x()/self.grid.zoom, rect.y()/self.grid.zoom,
+        unzoomed_rect = QRect(0, 0,
                               rect.width()/self.grid.zoom,
                               rect.height()/self.grid.zoom)
-        painter.save()
-        painter.scale(self.grid.zoom, self.grid.zoom)
-        super().paintSection(painter, unzoomed_rect, logicalIndex)
-        painter.restore()
+        with self.grid.delegate.painter_save(painter):
+            painter.translate(rect.x(), rect.y())
+            painter.scale(self.grid.zoom, self.grid.zoom)
+            super().paintSection(painter, unzoomed_rect, logicalIndex)
 
     def contextMenuEvent(self, event):
         """Overrides contextMenuEvent
@@ -1351,7 +1421,6 @@ class GridTableModel(QAbstractTableModel):
             # We have a selection and no single cell
             for idx in index:
                 self.dataChanged.emit(idx, idx)
-
             return True
 
     def flags(self, index):
@@ -1387,6 +1456,123 @@ class GridTableModel(QAbstractTableModel):
             self.code_array.reload_modules()
 
 
+class GridCellNavigator:
+    """Find neighbors of a cell"""
+
+    def __init__(self, main_window, key):
+        self.main_window = main_window
+        self.code_array = main_window.grid.model.code_array
+        self.row, self.column, self.table = self.key = key
+
+    @property
+    def borderwidth_bottom(self):
+        """Width of bottom border line"""
+
+        return self.code_array.cell_attributes[self.key]["borderwidth_bottom"]
+
+    @property
+    def borderwidth_right(self):
+        """Width of right border line"""
+
+        return self.code_array.cell_attributes[self.key]["borderwidth_right"]
+
+    @property
+    def border_qcolor_bottom(self):
+        """Color of bottom border line"""
+
+        color = self.code_array.cell_attributes[self.key]["bordercolor_bottom"]
+        if color is None:
+            return self.main_window.grid.palette().color(QPalette.Mid)
+        else:
+            return QColor(*color)
+
+    @property
+    def border_qcolor_right(self):
+        """Color of right border line"""
+
+        color = self.code_array.cell_attributes[self.key]["bordercolor_right"]
+        if color is None:
+            return self.main_window.grid.palette().color(QPalette.Mid)
+        else:
+            return QColor(*color)
+
+    @property
+    def merge_area(self):
+        """Merge area of the key cell"""
+
+        return self.code_array.cell_attributes[self.key]["merge_area"]
+
+    def _merging_key(self, *key):
+        """Merging cell if key is merged else key"""
+
+        merging_key = self.code_array.cell_attributes.get_merging_cell(key)
+        return key if merging_key is None else merging_key
+
+    def above_keys(self):
+        """Key list of neighboring cells above the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row - 1, self.column, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(self.row - 1, col, self.table)
+                    for col in range(left, right + 1)]
+
+    def below_keys(self):
+        """Key list of neighboring cells below the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row + 1, self.column, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(self.row + 1, col, self.table)
+                    for col in range(left, right + 1)]
+
+    def left_keys(self):
+        """Key list of neighboring cells left of the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row, self.column - 1, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(row, self.column - 1, self.table)
+                    for row in range(top, bottom + 1)]
+
+    def right_keys(self):
+        """Key list of neighboring cells right of the key cell"""
+
+        merge_area = self.merge_area
+        if merge_area is None:
+            return [self._merging_key(self.row, self.column + 1, self.table)]
+        else:
+            top, left, bottom, right = merge_area
+            return [self._merging_key(row, self.column + 1, self.table)
+                    for row in range(top, bottom + 1)]
+
+    def above_left_key(self):
+        """Key of neighboring cell above left of the key cell"""
+
+        return self._merging_key(self.row - 1, self.column - 1, self.table)
+
+    def above_right_key(self):
+        """Key of neighboring cell above right of the key cell"""
+
+        return self._merging_key(self.row - 1, self.column + 1, self.table)
+
+    def below_left_key(self):
+        """Key of neighboring cell below left of the key cell"""
+
+        return self._merging_key(self.row + 1, self.column - 1, self.table)
+
+    def below_right_key(self):
+        """Key of neighboring cell below right of the key cell"""
+
+        return self._merging_key(self.row + 1, self.column + 1, self.table)
+
+
 class GridCellDelegate(QStyledItemDelegate):
 
     def __init__(self, main_window, code_array):
@@ -1400,36 +1586,108 @@ class GridCellDelegate(QStyledItemDelegate):
     def grid(self):
         return self.main_window.grid
 
+    @contextmanager
+    def painter_save(self, painter):
+        painter.save()
+        yield
+        painter.restore()
+
     def _paint_bl_border_lines(self, x, y, width, height, painter, key):
         """Paint the bottom and the left border line of the cell"""
 
-        zoom = self.grid.zoom
+        cell = GridCellNavigator(self.main_window, key)
 
-        border_bottom = (x, y + height, x + width, y + height)
-        border_right = (x + width, y, x + width, y + height)
+        borderline_bottom = [x - .5,
+                             y + height - .5,
+                             x + width - .5,
+                             y + height - .5]
+        borderline_right = [x + width - .5,
+                            y - .5,
+                            x + width - .5,
+                            y + height - .5]
 
-        cell_attributes = self.cell_attributes[key]
-        if cell_attributes["bordercolor_bottom"] is None:
-            bordercolor_bottom = self.grid.palette().color(QPalette.Mid)
-        else:
-            bordercolor_bottom = QColor(*cell_attributes["bordercolor_bottom"])
-        if cell_attributes["bordercolor_right"] is None:
-            bordercolor_right = self.grid.palette().color(QPalette.Mid)
-        else:
-            bordercolor_right = QColor(*cell_attributes["bordercolor_right"])
+        # Check, which line is the thickest at each edge
+        # Shorten line accordingly
 
-        borderwidth_bottom = self.cell_attributes[key]["borderwidth_bottom"]
-        borderwidth_right = self.cell_attributes[key]["borderwidth_right"]
+        above_left_cell = GridCellNavigator(self.main_window,
+                                            cell.above_left_key())
+        above_cells = [GridCellNavigator(self.main_window, key)
+                       for key in cell.above_keys()]
+        above_right_cell = GridCellNavigator(self.main_window,
+                                             cell.above_right_key())
+        right_cells = [GridCellNavigator(self.main_window, key)
+                       for key in cell.right_keys()]
+#        below_right_cell = GridCellNavigator(self.main_window,
+#                                             cell.below_right_key())
+        below_cells = [GridCellNavigator(self.main_window, key)
+                       for key in cell.below_keys()]
+        below_left_cell = GridCellNavigator(self.main_window,
+                                            cell.below_left_key())
+        left_cells = [GridCellNavigator(self.main_window, key)
+                      for key in cell.left_keys()]
 
-        painter.setPen(QPen(QBrush(bordercolor_bottom),
-                            borderwidth_bottom * zoom))
-        painter.drawLine(*border_bottom)
+        # Lower left edge:
+        # Bottom lines of left cells and right line of below left cell
 
-        painter.setPen(QPen(QBrush(bordercolor_right),
-                            borderwidth_right * zoom))
-        painter.drawLine(*border_right)
+        lower_left_edge_width = max([c.borderwidth_bottom for c in left_cells]
+                                    + [below_left_cell.borderwidth_right])
+        if lower_left_edge_width > cell.borderwidth_bottom:
+            borderline_bottom[0] += lower_left_edge_width / 2
 
-    def _paint_border_lines(self, rect, painter, index):
+        # Lower right edge:
+        # Right lines of below cells and bottom lines of right cells
+
+        lower_right_edge_width = \
+            max([c.borderwidth_right for c in below_cells]
+                + [c.borderwidth_bottom for c in right_cells])
+
+        if lower_right_edge_width > cell.borderwidth_bottom:
+            borderline_bottom[2] -= lower_right_edge_width / 2
+
+        if lower_right_edge_width > cell.borderwidth_right:
+            borderline_right[3] -= lower_right_edge_width / 2
+
+        # Top right edge:
+        # Right lines of above cells and bottom line of above right cell
+
+        top_right_edge_width = max([c.borderwidth_right for c in above_cells]
+                                   + [above_right_cell.borderwidth_bottom])
+        if top_right_edge_width > cell.borderwidth_bottom:
+            borderline_right[1] += top_right_edge_width / 2
+
+        # Draw lines if their width is not 0
+
+        if cell.borderwidth_bottom:
+            painter.setPen(QPen(QBrush(cell.border_qcolor_bottom),
+                                cell.borderwidth_bottom))
+            bottom_border_line = QLineF(*borderline_bottom)
+            painter.drawLine(bottom_border_line)
+
+        if cell.borderwidth_right:
+            painter.setPen(QPen(QBrush(cell.border_qcolor_right),
+                                cell.borderwidth_right))
+            right_border_line = QLineF(*borderline_right)
+            painter.drawLine(right_border_line)
+
+        # Inner rect
+        irect_x = x - .5 + max(above_left_cell.borderwidth_right,
+                               *[c.borderwidth_right for c in left_cells],
+                               below_left_cell.borderwidth_right) / 2
+        irect_y = y - .5 + max(above_left_cell.borderwidth_bottom,
+                               *[c.borderwidth_bottom for c in above_cells],
+                               above_right_cell.borderwidth_bottom) / 2
+        irect_width = (x + width - irect_x
+                       - max(above_cells[-1].borderwidth_right,
+                             cell.borderwidth_right,
+                             below_cells[-1].borderwidth_right) / 2)
+        irect_height = (y + height - irect_y
+                        - max(left_cells[-1].borderwidth_bottom,
+                              cell.borderwidth_bottom,
+                              right_cells[-1].borderwidth_bottom) / 2)
+
+        return irect_x, irect_y, irect_width, irect_height
+
+    def _paint_border_lines(self, width, height, painter, index):
         """Paint border lines around the cell
 
         First, bottom and right border lines are painted.
@@ -1440,61 +1698,49 @@ class GridCellDelegate(QStyledItemDelegate):
 
         """
 
-        x = rect.x() - 1
-        y = rect.y() - 1
-        width = rect.width()
-        height = rect.height()
-
         row = index.row()
         column = index.column()
         table = self.grid.table
 
         # Paint bottom and right border lines of the current cell
         key = row, column, table
-        self._paint_bl_border_lines(x, y, width, height, painter, key)
-
-        # Paint bottom and right border lines of the cell above
-        key = row - 1, column, table
-        self._paint_bl_border_lines(x, y - height, width, height, painter, key)
-
-        # Paint bottom and right border lines of the cell left
-        key = row, column - 1, table
-        self._paint_bl_border_lines(x - width, y, width, height, painter, key)
-
-        # Paint bottom and right border lines of the current cell
-        key = row - 1, column - 1, table
-        self._paint_bl_border_lines(x - width, y - height, width, height,
-                                    painter, key)
+        return self._paint_bl_border_lines(0, 0, width, height, painter, key)
 
     def _render_markup(self, painter, option, index):
         """HTML markup renderer"""
 
-        options = QStyleOptionViewItem(option)
-        self.initStyleOption(options, index)
+        self.initStyleOption(option, index)
 
-        if options.widget is None:
-            style = QApplication.style()
-        else:
-            style = options.widget.style()
+        style = option.widget.style()
 
         doc = QTextDocument()
-        doc.setHtml(options.text)
-        doc.setTextWidth(options.rect.width())
 
-        options.text = ""
-        style.drawControl(QStyle.CE_ItemViewItem, options, painter,
-                          options.widget)
+        font = self.grid.model.data(index, role=Qt.FontRole)
+        doc.setDefaultFont(font)
+
+        alignment = self.grid.model.data(index, role=Qt.TextAlignmentRole)
+        doc.setDefaultTextOption(QTextOption(alignment))
+
+        bg_color = self.grid.model.data(index, role=Qt.BackgroundColorRole)
+        css = "background-color: {bg_color};".format(bg_color=bg_color)
+        doc.setDefaultStyleSheet(css)
+
+        doc.setHtml(option.text)
+        doc.setTextWidth(option.rect.width())
+
+        option.text = ""
+        style.drawControl(QStyle.CE_ItemViewItem, option, painter,
+                          option.widget)
 
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
-        html_rect = style.subElementRect(QStyle.SE_ItemViewItemText, options,
-                                         options.widget)
-        painter.save()
-        painter.translate(html_rect.topLeft())
-        painter.setClipRect(html_rect.translated(-html_rect.topLeft()))
-        doc.documentLayout().draw(painter, ctx)
+        text_color = self.grid.model.data(index, role=Qt.TextColorRole)
+        ctx.palette.setColor(QPalette.Text, text_color)
 
-        painter.restore()
+        with self.painter_save(painter):
+            painter.translate(option.rect.topLeft())
+            painter.setClipRect(option.rect.translated(-option.rect.topLeft()))
+            doc.documentLayout().draw(painter, ctx)
 
     def _get_aligned_image_rect(self, option, index,
                                 image_width, image_height):
@@ -1542,8 +1788,11 @@ class GridCellDelegate(QStyledItemDelegate):
         rect_x, rect_y = option.rect.x(), option.rect.y()
         rect_width, rect_height = option.rect.width(), option.rect.height()
 
-        image_width, image_height = scale_size(image_width, image_height,
-                                               rect_width, rect_height)
+        try:
+            image_width, image_height = scale_size(image_width, image_height,
+                                                   rect_width, rect_height)
+        except ZeroDivisionError:
+            pass
         image_x, image_y = rect_x, rect_y
 
         if justification == "justify_center":
@@ -1569,29 +1818,39 @@ class GridCellDelegate(QStyledItemDelegate):
         if isinstance(qimage, BasicQImage):
             img_width, img_height = qimage.width(), qimage.height()
         else:
-            key = index.row(), index.column(), self.grid.table
-            res = self.code_array[key]
-            if res is None:
+            if qimage is None:
                 return
             try:
-                svg_bytes = bytes(res)
+                svg_bytes = bytes(qimage)
             except TypeError:
-                svg_bytes = bytes(res, encoding='utf-8')
+                try:
+                    svg_bytes = bytes(qimage, encoding='utf-8')
+                except TypeError:
+                    return
 
             if not is_svg(svg_bytes):
                 return
-            else:
-                svg_aspect = get_svg_aspect(svg_bytes)
-                rect_aspect = rect.width() / rect.height()
-                if svg_aspect > rect_aspect:
-                    img_width = rect.width()
-                    img_height = int(rect.width() / svg_aspect)
-                else:
-                    img_width = int(rect.height() * svg_aspect)
-                    img_height = rect.height()
 
-                qimage = QImage(img_width, img_height, QImage.Format_ARGB32)
-                qimage.from_svg_bytes(svg_bytes)
+            svg_width, svg_height = get_svg_size(svg_bytes)
+            svg_aspect = svg_width / svg_height
+            rect_aspect = rect.width() / rect.height()
+
+            rect_width = rect.width() * self.grid.zoom
+            rect_height = rect.height() * self.grid.zoom
+
+            if svg_aspect > rect_aspect:
+                # svg is wider than rect --> shrink height
+                img_width = rect_width
+                img_height = rect_width / svg_aspect
+            else:
+                img_width = rect_height * svg_aspect
+                img_height = rect_height
+
+            if self.main_window.settings.print_zoom is not None:
+                img_width *= self.main_window.settings.print_zoom
+                img_height *= self.main_window.settings.print_zoom
+            qimage = QImage(img_width, img_height, QImage.Format_ARGB32)
+            qimage.from_svg_bytes(svg_bytes)
 
         img_rect = self._get_aligned_image_rect(option, index,
                                                 img_width, img_height)
@@ -1602,43 +1861,40 @@ class GridCellDelegate(QStyledItemDelegate):
         justification = self.cell_attributes[key]["justification"]
 
         if justification == "justify_fill":
-            qimage = qimage.scaled(rect.width(), rect.height(),
+            qimage = qimage.scaled(img_width, img_height,
                                    Qt.IgnoreAspectRatio,
                                    Qt.SmoothTransformation)
-            painter.drawImage(rect.x(), rect.y(), qimage)
-            return
+        else:
+            qimage = qimage.scaled(img_width, img_height,
+                                   Qt.KeepAspectRatio,
+                                   Qt.SmoothTransformation)
 
-        qimage = qimage.scaled(rect.width(), rect.height(),
-                               Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-        painter.drawImage(img_rect.x(), img_rect.y(), qimage)
+        with self.painter_save(painter):
+            scale_x = img_rect.width() / img_width
+            scale_y = img_rect.height() / img_height
+            painter.translate(img_rect.x(), img_rect.y())
+            painter.scale(scale_x, scale_y)
+            painter.drawImage(0, 0, qimage)
 
     def _render_matplotlib(self, painter, option, index):
         """Matplotlib renderer"""
 
-        if matplotlib_figure is None:
+        if matplotlib is None:
             # matplotlib is not installed
             return
 
         key = index.row(), index.column(), self.grid.table
         figure = self.code_array[key]
 
-        if not isinstance(figure, matplotlib_figure.Figure):
+        if not isinstance(figure, matplotlib.figure.Figure):
             return
 
-        dpi = figure.get_dpi()
-        width, height = figure.get_size_inches()
-        width *= dpi
-        height *= dpi
+        # Save SVG in a fake file object.
+        filelike = BytesIO()
+        figure.savefig(filelike, format="svg")
+        svg_str = filelike.getvalue().decode()
 
-        rect = self._get_aligned_image_rect(option, index, width, height)
-        if rect is None:
-            return
-
-        image = QImage(rect.width(), rect.height(), QImage.Format_RGBA8888)
-        image.from_matplotlib(figure)
-
-        painter.drawImage(rect.x(), rect.y(), image)
+        self._render_qimage(painter, option, index, qimage=svg_str)
 
     def __paint(self, painter, option, index):
         """Calls the overloaded paint function or creates html delegate"""
@@ -1681,47 +1937,59 @@ class GridCellDelegate(QStyledItemDelegate):
 
         optionCopy = QStyleOptionViewItem(option)
         rectCenter = QPointF(QRectF(option.rect).center())
-        painter.save()
-        painter.translate(rectCenter.x(), rectCenter.y())
-        painter.rotate(angle)
-        painter.translate(-rectCenter.x(), -rectCenter.y())
-        optionCopy.rect = painter.worldTransform().mapRect(option.rect)
+        with self.painter_save(painter):
+            painter.translate(rectCenter.x(), rectCenter.y())
+            painter.rotate(angle)
+            painter.translate(-rectCenter.x(), -rectCenter.y())
+            optionCopy.rect = painter.worldTransform().mapRect(option.rect)
 
-        # Call the base class paint method
-        self.__paint(painter, optionCopy, index)
-
-        painter.restore()
+            # Call the base class paint method
+            self.__paint(painter, optionCopy, index)
 
     def paint(self, painter, option, index):
         """Overloads QStyledItemDelegate to add cell border painting"""
 
+        def get_unzoomed_rect_args(rect, zoom):
+            x = 0
+            y = 0
+            width = rect.width() / zoom
+            height = rect.height() / zoom
+            return x, y, width, height
+
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
 
         zoom = self.grid.zoom
-        rect = option.rect
-        unzoomed_rect = QRect(rect.x() / zoom, rect.y() / zoom,
-                              rect.width() / zoom,
-                              rect.height() / zoom)
-        option.rect = unzoomed_rect
-        painter.save()
-        painter.scale(zoom, zoom)
+        x = option.rect.x()
+        y = option.rect.y()
 
-        key = index.row(), index.column(), self.grid.table
-        angle = self.cell_attributes[key]["angle"]
-        if abs(angle) < 0.001:
-            # No rotation --> call the base class paint method
-            self.__paint(painter, option, index)
-        else:
-            self._rotated_paint(painter, option, index, angle)
+        rectf = option.rect = QRect(*get_unzoomed_rect_args(option.rect, zoom))
+        if hasattr(option, "rectf"):
+            rectf = QRectF(*get_unzoomed_rect_args(option.rectf, zoom))
+            x = option.rectf.x()
+            y = option.rectf.y()
 
-        self._paint_border_lines(option.rect, painter, index)
+        with self.painter_save(painter):
+            painter.translate(x, y)
+            painter.scale(zoom, zoom)
+            key = index.row(), index.column(), self.grid.table
+            angle = self.cell_attributes[key]["angle"]
 
-        painter.restore()
+            ix, iy, iw, ih = self._paint_border_lines(rectf.width(),
+                                                      rectf.height(),
+                                                      painter, index)
+            with self.painter_save(painter):
+                painter.translate(ix, iy)
+                option.rect = QRect(0, 0, iw, ih)
+                if isclose(angle, 0):
+                    # No rotation --> call the base class paint method
+                    self.__paint(painter, option, index)
+                else:
+                    self._rotated_paint(painter, option, index, angle)
 
     def createEditor(self, parent, option, index):
         """Overloads QStyledItemDelegate
 
-        Disables editor in frozen cells
+        Disables editor in locked cells
         Switches to chart dialog in chart cells
 
         """
@@ -1732,11 +2000,33 @@ class GridCellDelegate(QStyledItemDelegate):
             return
 
         if self.cell_attributes[key]["renderer"] == "matplotlib":
-            self.main_window.workflows.insert_chart()
+            self.main_window.workflows.macro_insert_chart()
             return
 
-        return super(GridCellDelegate, self).createEditor(parent, option,
-                                                          index)
+        self.editor = super(GridCellDelegate, self).createEditor(parent,
+                                                                 option, index)
+
+        self.editor.installEventFilter(self)
+        return self.editor
+
+    def eventFilter(self, source, event):
+        """Quotes cell editor content for <Ctrl>+<Enter> and <Ctrl>+<Return>
+
+        Overrides QLineEdit default shortcut. Counts as undoable action.
+
+        """
+
+        if event.type() == QEvent.ShortcutOverride \
+           and source is self.editor \
+           and event.modifiers() == Qt.ControlModifier \
+           and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+
+            code = quote(source.text())
+            index = self.grid.currentIndex()
+            description = "Quote code for cell {}".format(index)
+            cmd = CommandSetCellCode(code, self.grid.model, index, description)
+            self.main_window.undo_stack.push(cmd)
+        return QWidget.eventFilter(self, source, event)
 
     def setEditorData(self, editor, index):
         row = index.row()
@@ -1816,4 +2106,7 @@ class TableChoice(QTabBar):
             with self.grid.undo_resizing_column():
                 self.grid.update_cell_spans()
                 self.grid.update_zoom()
+
+        self.grid.update_index_widgets()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        self.grid.gui_update()

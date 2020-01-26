@@ -27,7 +27,10 @@ High resolution svg support for qimage and :mod:`matplotlib.figure`
 from io import StringIO
 
 from PyQt5.QtGui import QImage, QPainter
-from PyQt5.QtSvg import QSvgRenderer, QGraphicsSvgItem
+try:
+    from PyQt5.QtSvg import QSvgRenderer
+except ModuleNotFoundError:
+    QSvgRenderer = None
 
 try:
     import matplotlib.figure as matplotlib_figure

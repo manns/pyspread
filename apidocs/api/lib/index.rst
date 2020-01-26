@@ -5,6 +5,7 @@ lib/
 .. toctree::
     :maxdepth: 1
 
+    attrdict.rst
     dependencies.rst
     exception_handling.rst
     hashing.rst

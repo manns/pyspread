@@ -1,5 +1,6 @@
 import numpy as np, sys
-from lib.qimage2ndarray.dynqt import qt, QtGui
+from src.lib.qimage2ndarray.dynqt import qt, QtGui
+
 
 def PyQt_data(image):
     # PyQt4/PyQt5's QImage.bits() returns a sip.voidptr that supports

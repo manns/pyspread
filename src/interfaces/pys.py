@@ -40,9 +40,10 @@ It is split into the following sections
 from builtins import str, map, object
 
 import ast
+from base64 import b64decode, b85encode
 from collections import OrderedDict
 
-from lib.selection import Selection
+from src.lib.selection import Selection
 
 
 def wxcolor2rgb(wxcolor):
@@ -71,7 +72,7 @@ wx2qt_fontstyles = {
 
 
 class PysReader:
-    """Reads pys file into a code_array"""
+    """Reads pys v2.0 file into a code_array"""
 
     def __init__(self, pys_file, code_array):
         self.pys_file = pys_file
@@ -86,6 +87,10 @@ class PysReader:
             "[col_widths]\n": self._pys2col_widths,
             "[macros]\n": self._pys2macros,
         }
+
+        # When converting old versions, cell attributes are rquired that
+        # take place after the cell attribute readout
+        self.cell_attributes_postfixes = []
 
     def __iter__(self):
         """Iterates over self.pys_file, replacing everything in code_array"""
@@ -102,6 +107,24 @@ class PysReader:
             elif state is not None:
                 self._section2reader[state](line)
             yield line
+
+        # Apply cell attributes post fixes
+        for cell_attribute in self.cell_attributes_postfixes:
+            self.code_array.cell_attributes.append(cell_attribute)
+
+    # Decorators
+
+    def version_handler(method):
+        """Chooses method`_10` of method if version < 2.0"""
+
+        def new_method(self, *args, **kwargs):
+            if self.version <= 1.0:
+                method10 = getattr(self, method.__name__+"_10")
+                method10(*args, **kwargs)
+            else:
+                method(self, *args, **kwargs)
+
+        return new_method
 
     # Helpers
 
@@ -133,18 +156,155 @@ class PysReader:
     def _pys2shape(self, line):
         """Updates shape in code_array"""
 
-        self.code_array.shape = self._get_key(*self._split_tidy(line))
+        shape = self._get_key(*self._split_tidy(line))
+        if any(dim <= 0 for dim in shape):
+            # Abort if any axis is 0 or less
+            msg = "Code array has invalid shape {shape}."
+            raise ValueError(msg.format(shape=shape))
+        self.code_array.shape = shape
 
+    def _code_convert_1_2(self, key, code):
+        """Converts chart and image code from v1.0 to v2.0"""
+
+        def get_image_code(image_data, width, height):
+            """Returns code string for v2.0"""
+
+            image_buffer_tpl = 'bz2.decompress(base64.b85decode({data}))'
+            image_array_tpl = 'numpy.frombuffer({buffer}, dtype="uint8")'
+            image_matrix_tpl = '{array}.reshape({height}, {width}, 3)'
+
+            image_buffer = image_buffer_tpl.format(data=image_data)
+            image_array = image_array_tpl.format(buffer=image_buffer)
+            image_matrix = image_matrix_tpl.format(array=image_array,
+                                                   height=height, width=width)
+
+            return image_matrix
+
+        start_str = "bz2.decompress(base64.b64decode('"
+        size_start_str = "wx.ImageFromData("
+        if size_start_str in code and start_str in code:
+            size_start = code.index(size_start_str) + len(size_start_str)
+            size_str_list = code[size_start:].split(",")[:2]
+            width, height = tuple(map(int, size_str_list))
+
+            # We have a cell that displays a bitmap
+            data_start = code.index(start_str) + len(start_str)
+            data_stop = code.find("'", data_start)
+            enc_data = bytes(code[data_start:data_stop], encoding='utf-8')
+            compressed_image_data = b64decode(enc_data)
+            reenc_data = b85encode(compressed_image_data)
+            code = get_image_code(repr(reenc_data), width, height)
+
+            selection = Selection([], [], [], [], [(key[0], key[1])])
+            tab = key[2]
+            attrs = {"renderer": "image"}
+            self.cell_attributes_postfixes.append((selection, tab, attrs))
+
+        elif "charts.ChartFigure(" in code:
+            # We have a matplotlib figure
+            selection = Selection([], [], [], [], [(key[0], key[1])])
+            tab = key[2]
+            attrs = {"renderer": "matplotlib"}
+            self.cell_attributes_postfixes.append((selection, tab, attrs))
+
+        return code
+
+    def _pys2code_10(self, line):
+        """Updates code in pys code_array - for save file version 1.0"""
+
+        row, col, tab, code = self._split_tidy(line, maxsplit=3)
+        key = self._get_key(row, col, tab)
+
+        self.code_array.dict_grid[key] = str(self._code_convert_1_2(key, code))
+
+    @version_handler
     def _pys2code(self, line):
         """Updates code in pys code_array"""
 
         row, col, tab, code = self._split_tidy(line, maxsplit=3)
         key = self._get_key(row, col, tab)
-        if self.version <= 1.0:
-            self.code_array.dict_grid[key] = str(code)
-        else:
-            self.code_array.dict_grid[key] = ast.literal_eval(code)
+        self.code_array.dict_grid[key] = ast.literal_eval(code)
 
+    def _attr_convert_1to2(self, key, value):
+        """Converts key, value attribute pair from v1.0 to v2.0"""
+
+        color_attrs = ["bordercolor_bottom", "bordercolor_right", "bgcolor",
+                       "textcolor"]
+        if key in color_attrs:
+            return key, wxcolor2rgb(value)
+
+        elif key == "fontweight":
+            return key, wx2qt_fontweights[value]
+
+        elif key == "fontstyle":
+            return key, wx2qt_fontstyles[value]
+
+        elif key == "markup" and value:
+            return "renderer", "markup"
+
+        elif key == "merge_area":
+            # Value in v1.0 None if the cell was merged
+            # In v 2.0 this is no longer necessary
+            return None, value
+
+        # Update justifiaction and alignment values
+        elif key in ["vertical_align", "justification"]:
+            just_align_value_tansitions = {
+                    "left": "justify_left",
+                    "center": "justify_center",
+                    "right": "justify_right",
+                    "top": "align_top",
+                    "middle": "align_center",
+                    "bottom": "align_bottom",
+            }
+            return key, just_align_value_tansitions[value]
+
+        return key, value
+
+    def _pys2attributes_10(self, line):
+        """Updates attributes in code_array - for save file version 1.0"""
+
+        splitline = self._split_tidy(line)
+
+        selection_data = list(map(ast.literal_eval, splitline[:5]))
+        selection = Selection(*selection_data)
+
+        tab = int(splitline[5])
+
+        attrs = {}
+
+        old_merged_cells = {}
+
+        for col, ele in enumerate(splitline[6:]):
+            if not (col % 2):
+                # Odd entries are keys
+                key = ast.literal_eval(ele)
+
+            else:
+                # Even cols are values
+                value = ast.literal_eval(ele)
+
+                # Convert old wx color values and merged cells
+                key_, value_ = self._attr_convert_1to2(key, value)
+
+                if key_ is None and value_ is not None:
+                    # We have a merged cell
+                    old_merged_cells[value_[:2]] = value_
+                try:
+                    attrs.pop("merge_area")
+                except KeyError:
+                    pass
+                attrs[key_] = value_
+
+        self.code_array.cell_attributes.append((selection, tab, attrs))
+
+        for key in old_merged_cells:
+            selection = Selection([], [], [], [], [key])
+            attrs = {"merge_area": old_merged_cells[key]}
+            self.code_array.cell_attributes.append((selection, tab, attrs))
+        old_merged_cells.clear()
+
+    @version_handler
     def _pys2attributes(self, line):
         """Updates attributes in code_array"""
 
@@ -156,6 +316,7 @@ class PysReader:
         tab = int(splitline[5])
 
         attrs = {}
+
         for col, ele in enumerate(splitline[6:]):
             if not (col % 2):
                 # Odd entries are keys
@@ -164,36 +325,6 @@ class PysReader:
             else:
                 # Even cols are values
                 value = ast.literal_eval(ele)
-
-                # Convert old wx color values
-                if self.version <= 1.0:
-                    color_attrs = ["bordercolor_bottom", "bordercolor_right",
-                                   "bgcolor", "textcolor"]
-                    if key in color_attrs:
-                        value = wxcolor2rgb(value)
-
-                    elif key == "fontweight":
-                        value = wx2qt_fontweights[value]
-
-                    elif key == "fontstyle":
-                        value = wx2qt_fontstyles[value]
-
-                    elif key == "markup" and value:
-                        key = "renderer"
-                        value = "markup"
-
-                    # Update justifiaction and alignment values
-                    elif key in ["vertical_align", "justification"]:
-                        just_align_value_tansitions = {
-                                "left": "justify_left",
-                                "center": "justify_center",
-                                "right": "justify_right",
-                                "top": "align_top",
-                                "middle": "align_center",
-                                "bottom": "align_bottom",
-                        }
-                        value = just_align_value_tansitions[value]
-
                 attrs[key] = value
 
         self.code_array.cell_attributes.append((selection, tab, attrs))
@@ -348,8 +479,9 @@ class PysWriter(object):
 
             attr_dict_list = []
             for key in attr_dict:
-                attr_dict_list.append(key)
-                attr_dict_list.append(attr_dict[key])
+                if key is not None:
+                    attr_dict_list.append(key)
+                    attr_dict_list.append(attr_dict[key])
 
             line_list = list(map(repr, sel_list + tab_list + attr_dict_list))
 

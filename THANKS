@@ -1,9 +1,10 @@
 Thanks to
 =========
 
+Pete Morgan          	        for the apidocs, the gitlab repo, the great tips and all the code
+Shai Revzen          	        for the cycle detection algorithm
 Bosko Markovic                  for setting up the pyspread wiki
 Andy Throgmorton                for testing pyspread
-Shai Revzen          	        for the cycle detection algorithm
 
 Andreas Noteng                  for creating and maintaining the Debian and Ubuntu packages
 

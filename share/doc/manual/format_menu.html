@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Format actions | pyspread</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="apple-touch-icon" href="../images/pyspread.png"/>
+  <link rel="shortcut icon" href="../images/pyspread.png"/>
+
+  <link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../static/css/code_highlight.css"/>
+  <link rel="stylesheet" href="../static/css/pyspread.2019.css"/>
+
+</head>
+<body>
+
+<a class="btn btn-light" href="overview.html">&nbsp;&nbsp;Overview</a>
+<a class="btn btn-light" href="basic_concepts.html">&nbsp;&nbsp;Basic Concepts</a>
+<a class="btn btn-light" href="workspace.html">&nbsp;The Workspace</a>
+<a class="btn btn-light" href="file_menu.html">&nbsp;&nbsp;File actions</a>
+<a class="btn btn-light" href="edit_menu.html">&nbsp;&nbsp;Edit actions</a>
+<a class="btn btn-light" href="view_menu.html">&nbsp;&nbsp;View Actions</a>
+<a class="btn btn-light" href="format_menu.html">&#8658;&nbsp;&nbsp;Format actions</a>
+<a class="btn btn-light" href="macro_menu.html">&nbsp;&nbsp;Macro Actions</a>
+<a class="btn btn-light" href="advanced_topics.html">&nbsp;&nbsp;Advanced Topics</a>
+
+
+<div class="container main">
+	<div class="row no-gutters">
+    	<div class="col-md-11">
+        	<h1 class="manual">Format actions</h1>
+    	</div>
+    	<div class="col-md-1">
+    	</div>
+	</div>
+
+
+        <h5 id="--copy-format">-&gt; Copy format</h5>
+
+<p>Copies only the format of the selected cells. Copying formats has been separated from copying content in order to prevent unwanted behavior.</p>
+
+<h5 id="--paste-format">-&gt; Paste format</h5>
+
+<p>Pastes copied cell formats.</p>
+
+<hr />
+
+<h5 id="--font">-&gt; Font</h5>
+<p>Assigns a font including style and size to the current cell if no selection is present. If a selection is present, the  font is assigned to each selected cell.</p>
+
+<p>The fonts are not stored within the <code class="highlighter-rouge">.pys</code> file. Therefore, fonts have to be available at the target system when opening a <code class="highlighter-rouge">.pys</code> file, otherwise, the font is replaced by the default font.</p>
+
+<h5 id="--bold">-&gt; Bold</h5>
+<p>Bold toggles the current selection’s cell font bold attribute. If no cell is selected, then the attribute is toggled for the current cell. The shortcut is <code class="highlighter-rouge">&lt;Ctrl&gt; + B</code>.</p>
+
+<h5 id="--italics">-&gt; Italics</h5>
+<p>Italics toggles the current selection’s cell font italics attribute. If no cell is selected, then the attribute is toggled for the current cell. The shortcut for Italics is <code class="highlighter-rouge">&lt;Ctrl&gt; + I</code>.</p>
+
+<h5 id="--underline">-&gt; Underline</h5>
+<p>Underline toggles the current selection’s cell font underline attribute. If no cell is selected, then the attribute is toggled for the current cell. The shortcut for Underline is <code class="highlighter-rouge">&lt;Ctrl&gt; + U</code>.</p>
+
+<h5 id="--strikethrough">-&gt; Strikethrough</h5>
+<p>Strikethrough toggles the current selection’s cell font strikethrough attribute. If no cell is selected, then the attribute is toggled for the current cell.</p>
+
+<hr />
+
+<h5 id="--cell-renderer">-&gt; Cell renderer</h5>
+
+<p>Opens a sub-menu, in which the cell renderer for the current cell can be chosen.</p>
+
+<h5 id="--freeze-cell">-&gt; Freeze cell</h5>
+
+<p>The frozen button (flurry button toggles the frozen attribute for the current cell, not the selection). Frozen cells are immediately executed once. Cell results are stored in a cache. Instead of re-evaluating the cell result each time that another cell is updated, frozen cells always display the old, stored result.</p>
+
+<p>The flurry button can only mark one cell at a time as frozen. The selection is ignored for this purpose. Only the cell at the cursor is frozen.</p>
+
+<p>Frozen cells can be refreshed using the menu with <strong><code class="highlighter-rouge">View -&gt; Refresh Selected Cells</code></strong> or with <code class="highlighter-rouge">&lt;F5&gt;</code>. All selected cells are refreshed by this command.</p>
+
+<p>Frozen cells can speed up spreadsheets with long running calculations. Furthermore, the number of callings of stateful functions can be controlled.</p>
+
+<p>While the frozen attribute is stored in the <code class="highlighter-rouge">.pysu</code> / <code class="highlighter-rouge">.pys</code> save-file, the frozen cell result cache is not saved.</p>
+
+<h5 id="--lock-cell">-&gt; Lock cell</h5>
+
+<p>Lock toggles the current selection’s cell lock attribute. If no cell is selected, then the current cell is locked. Locking means that the cell cannot be edited from within pyspread until it is unlocked again.</p>
+
+<h5 id="--merge-cells">-&gt; Merge cells</h5>
+
+<p>Merge cells merge all cells that are in the bounding box of the current selection. If there is no selection the the current cell will not be merged or unmerged if already merged. Merged cells act as one. Output is shown for the top left cell, which stays intact upon a merge.</p>
+
+<hr />
+
+<h5 id="--rotation">-&gt; Rotation</h5>
+
+<p>Opens a sub-menu, in which cell rotatation can be chosen from 0, 90, 180 and 270 degree. The chosen rotatation is applied to all cells in the current selection. If no cell is selected, then it is applied to the current cell. Besides text output, rotatation also applied to bitmap and vector graphics that are displayed in the cell. Matplotlib charts may be dislocated in rotatated cells.</p>
+
+<h5 id="--justification">-&gt; Justification</h5>
+
+<p>Opens a sub-menu, in which cell justifications can be chosen from left, center and right. The chosen justification is applied to all cells in the current selection. If no cell is selected, then it is applied to the current cell. Besides text output, justification also applied to bitmap and vector graphics that are displayed in the cell.</p>
+
+<h5 id="--alignment">-&gt; Alignment</h5>
+
+<p>Opens a sub-menu, in which cell alignment can be chosen from top, center and bottom. The chosen alignment is applied to all cells in the current selection. If no cell is selected, then it is applied to the current cell. Besides text output, alignment also applied to bitmap and vector graphics that are displayed in the cell.</p>
+
+<hr />
+
+<h5 id="--formatted-borders">-&gt; Formatted borders</h5>
+
+<p>When changing border color or width, the command affects the selection, or if no selection is present. the current cell.</p>
+
+<p>Since a cell has four borders, all borders are affected by default. The border choice box allows changing this
+behaviour by providing the following options:</p>
+
+<ul>
+  <li>All borders: All borders are affected</li>
+  <li>Left border: Only the left border of the smallest containing bounding box is affected.</li>
+  <li>Right border: Only the right border of the smallest containing bounding box is affected.</li>
+  <li>Top border: Only the top border of the smallest containing bounding box is affected.</li>
+  <li>Bottom border: Only the bottom border of the smallest containing bounding box is affected.</li>
+  <li>Outer borders: All outer borders of the smallest containing bounding box are affected.</li>
+  <li>Top and bottom borders: Only the top and the bottom border of the smallest containing bounding box are affected.</li>
+</ul>
+
+<h5 id="--border-width">-&gt; Border width</h5>
+
+<p>Choice box that changes cell border widthes. The section Border choice box explains, which borders are affected. There are eleven different border widths. The first width is <code class="highlighter-rouge">0</code>, which means that no border is drawn.</p>
+
+<hr />
+
+<h5 id="--text-color">-&gt; Text color</h5>
+
+<p>Opens a dialog, in which a color can be chosen. On o.k., the text color is set to the chosen color for all cells in the current selection. If no cell is selected, then the text color is set for the current cell.</p>
+
+<h5 id="--line-color">-&gt; Line color</h5>
+
+<p>Invokes a color choice dialog that changes cell border color. The section Border choice box explains, which borders are affected. The border color is chosen as an RGB value. The color choice dialog may look different depending on the operating system.</p>
+
+<h5 id="--background-color">-&gt; Background color</h5>
+<p>Opens a dialog, in which a color can be chosen. On o.k., the background color is set to the chosen color for all cells in the current selection. If no cell is selected, then the background color is set for the current cell.</p>
+
+<a href="macro_menu.html" class="btn btn-light">Macro Actions&nbsp;&#8611;</a>
+
+    <footer>
+        <div class="container">
+            <p>&copy; Martin Manns and the pyspread team</p>
+        </div>
+    </footer>
+</body>
+</html>

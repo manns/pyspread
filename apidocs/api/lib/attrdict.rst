@@ -1,6 +1,6 @@
 ######################
-menubar.*
+lib.attrdict.*
 ######################
 
-.. automodule:: menubar
+.. automodule:: lib.attrdict
     :members:

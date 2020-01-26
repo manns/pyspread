@@ -1,0 +1,6 @@
+######################
+installer.*
+######################
+
+.. automodule:: installer
+    :members:

@@ -11,7 +11,8 @@ API
     entryline.rst
     grid.rst
     icons.rst
-    menubar.rst
+    installer.rst 
+    menus.rst
     panels.rst
     pyspread.rst
     settings.rst

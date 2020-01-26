@@ -18,15 +18,38 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt
+"""
+
+
+**Widgets**
+
+ * :class:`MultiStateBitmapButton`
+ * :class:`RotationButton`
+ * :class:`JustificationButton`
+ * :class:`RendererButton`
+ * :class:`AlignmentButton`
+ * :class:`ColorButton`
+ * :class:`TextColorButton`
+ * :class:`LineColorButton`
+ * :class:`BackgroundColorButton`
+ * :class:`FontChoiceCombo`
+ * :class:`Widgets`
+ * :class:`FindEditor`
+ * :class:`CellButton`
+
+"""
+
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex
 from PyQt5.QtWidgets import QToolButton, QColorDialog, QFontComboBox, QComboBox
+from PyQt5.QtWidgets import QSizePolicy, QLineEdit, QPushButton
 from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
 
-from icons import Icon
+from src.actions import Action
+from src.icons import Icon
 
 
 class MultiStateBitmapButton(QToolButton):
-    """QPushbutton that cycles through arbitrary states
+    """QToolButton that cycles through arbitrary states
 
     The states are defined by an iterable of QIcons
 
@@ -105,11 +128,16 @@ class RotationButton(MultiStateBitmapButton):
         self.setStatusTip("Text rotation")
         self.setToolTip("Text rotation")
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.rotate_0
+
 
 class JustificationButton(MultiStateBitmapButton):
     """Justification button for the format toolbar"""
 
-    label = "Text Justification"
+    label = "Justification"
     action_names = ("justify_left", "justify_center", "justify_right",
                     "justify_fill")
 
@@ -119,11 +147,16 @@ class JustificationButton(MultiStateBitmapButton):
         self.setStatusTip("Text justification")
         self.setToolTip("Text justification")
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.justify_left
+
 
 class RendererButton(MultiStateBitmapButton):
     """Cell render button for the format toolbar"""
 
-    label = "Renderer Select"
+    label = "Renderer"
     action_names = "text", "markup", "image", "matplotlib"
 
     def __init__(self, main_window):
@@ -132,11 +165,16 @@ class RendererButton(MultiStateBitmapButton):
         self.setStatusTip("Cell render type")
         self.setToolTip("Cell render type")
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.text
+
 
 class AlignmentButton(MultiStateBitmapButton):
     """Alignment button for the format toolbar"""
 
-    label = "Alignment Buttons"
+    label = "Alignment"
     action_names = "align_top", "align_center", "align_bottom"
 
     def __init__(self, main_window):
@@ -144,6 +182,11 @@ class AlignmentButton(MultiStateBitmapButton):
 
         self.setStatusTip("Text alignment")
         self.setToolTip("Text alignment")
+
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.align_top
 
 
 class ColorButton(QToolButton):
@@ -281,7 +324,7 @@ class BackgroundColorButton(ColorButton):
 class FontChoiceCombo(QFontComboBox):
     """Font choice combo box"""
 
-    label = "Font Family Combo"
+    label = "Font Family"
 
     fontChanged = pyqtSignal()
 
@@ -307,6 +350,11 @@ class FontChoiceCombo(QFontComboBox):
         self.setCurrentFont(QFont(font))
         self.currentFontChanged.connect(self.on_font)
 
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.font_dialog
+
     def on_font(self, font):
         """Font choice event handler"""
 
@@ -316,7 +364,7 @@ class FontChoiceCombo(QFontComboBox):
 class FontSizeCombo(QComboBox):
     """Font choice combo box"""
 
-    label = "Font Size Combo"
+    label = "Font Size"
     fontSizeChanged = pyqtSignal()
 
     def __init__(self, main_window):
@@ -347,6 +395,11 @@ class FontSizeCombo(QComboBox):
         self.currentTextChanged.disconnect(self.on_text)
         self.setCurrentText(str(size))
         self.currentTextChanged.connect(self.on_text)
+
+    def icon(self):
+        """Returns QIcon for button identification"""
+
+        return Icon.font_dialog
 
     def on_text(self, size):
         """Font size choice event handler"""
@@ -387,3 +440,124 @@ class Widgets:
         self.rotate_button = RotationButton(main_window)
         self.justify_button = JustificationButton(main_window)
         self.align_button = AlignmentButton(main_window)
+
+
+class FindEditor(QLineEdit):
+    """The Find editor widget for the find toolbar"""
+
+    up = False
+    word = False
+    case = False
+    regexp = False
+    results = False
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.actions = parent.main_window.main_window_actions
+
+        self.label = "Find editor"
+        self.icon = lambda: Icon.find_next
+        self.sizePolicy().setHorizontalPolicy(QSizePolicy.Preferred)
+        self.setClearButtonEnabled(True)
+        self.addAction(self.actions.find_next, QLineEdit.LeadingPosition)
+
+        workflows = parent.main_window.workflows
+        self.returnPressed.connect(workflows.edit_find_next)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.on_context_menu)
+
+    def prepend_actions(self, menu):
+        """Prepends find specific actions to menu"""
+
+        toggle_case = Action(self, "Match &case",
+                             self.on_toggle_case, checkable=True,
+                             statustip='Match case in search')
+
+        toggle_results = Action(self, "Code and results",
+                                self.on_toggle_results, checkable=True,
+                                statustip='Search also considers string '
+                                          'representations of result objects.')
+
+        toggle_up = Action(self, "Search &backward",
+                           self.on_toggle_up, checkable=True,
+                           statustip='Search fore-/backwards')
+
+        toggle_word = Action(self, "&Whole words",
+                             self.on_toggle_word, checkable=True,
+                             statustip='Whole word search')
+
+        toggle_regexp = Action(self, "Regular expression",
+                               self.on_toggle_regexp, checkable=True,
+                               statustip='Regular expression search')
+
+        toggle_case.setChecked(self.case)
+        toggle_results.setChecked(self.results)
+        toggle_up.setChecked(self.up)
+        toggle_word.setChecked(self.word)
+        toggle_regexp.setChecked(self.regexp)
+
+        actions = (toggle_case, toggle_results, toggle_up, toggle_word,
+                   toggle_regexp)
+        menu.insertActions(menu.actions()[0], actions)
+
+    def on_context_menu(self, point):
+        """Context menu event handler"""
+
+        menu = self.createStandardContextMenu()
+        menu.insertSeparator(menu.actions()[0])
+        self.prepend_actions(menu)
+        menu.exec(self.mapToGlobal(point))
+
+    def on_toggle_up(self, toggled):
+        """Find upwards toggle event handler"""
+
+        self.up = toggled
+
+    def on_toggle_word(self, toggled):
+        """Find whole word toggle event handler"""
+
+        self.word = toggled
+
+    def on_toggle_case(self, toggled):
+        """Find case sensitively toggle event handler"""
+
+        self.case = toggled
+
+    def on_toggle_regexp(self, toggled):
+        """Find with regular expression toggle event handler"""
+
+        self.regexp = toggled
+
+    def on_toggle_results(self, toggled):
+        """Find in results toggle event handler"""
+
+        self.results = toggled
+
+
+class CellButton(QPushButton):
+    """Button that is used for button cells in the grid
+
+    :text: str: Button text
+    :grid: QTableView
+    :key: 3-tuple of int: row, column, table
+
+    """
+
+    def __init__(self, text, grid, key):
+        super().__init__(text, grid)
+
+        self.grid = grid
+        self.key = key  # Key of button cell
+
+        self.clicked.connect(self.on_clicked)
+
+    def on_clicked(self):
+        """Clicked event handler, executes cell code"""
+
+        code = self.grid.model.code_array(self.key)
+        result = self.grid.model.code_array._eval_cell(self.key, code)
+        self.grid.model.code_array.frozen_cache[repr(self.key)] = result
+        self.grid.model.code_array.result_cache.clear()
+        self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())

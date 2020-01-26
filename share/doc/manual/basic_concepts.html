@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Basic Concepts | pyspread</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="apple-touch-icon" href="../images/pyspread.png"/>
+  <link rel="shortcut icon" href="../images/pyspread.png"/>
+
+  <link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../static/css/code_highlight.css"/>
+  <link rel="stylesheet" href="../static/css/pyspread.2019.css"/>
+
+</head>
+<body>
+
+<a class="btn btn-light" href="overview.html">&nbsp;&nbsp;Overview</a>
+<a class="btn btn-light" href="basic_concepts.html">&#8658;&nbsp;&nbsp;Basic Concepts</a>
+<a class="btn btn-light" href="workspace.html">&nbsp;The Workspace</a>
+<a class="btn btn-light" href="file_menu.html">&nbsp;&nbsp;File actions</a>
+<a class="btn btn-light" href="edit_menu.html">&nbsp;&nbsp;Edit actions</a>
+<a class="btn btn-light" href="view_menu.html">&nbsp;&nbsp;View Actions</a>
+<a class="btn btn-light" href="format_menu.html">&nbsp;&nbsp;Format actions</a>
+<a class="btn btn-light" href="macro_menu.html">&nbsp;&nbsp;Macro Actions</a>
+<a class="btn btn-light" href="advanced_topics.html">&nbsp;&nbsp;Advanced Topics</a>
+
+
+<div class="container main">
+	<div class="row no-gutters">
+    	<div class="col-md-11">
+        	<h1 class="manual">Basic Concepts</h1>
+    	</div>
+    	<div class="col-md-1">
+    	</div>
+	</div>
+
+    <div class="container main">
+
+
+        <h2 id="python-code-as-cell-language">Python code as cell language</h2>
+
+<p><em>pyspread</em> executes Python code in each cell. This is similar to typing into the Python shell. Normal cells are only executed when required e.g. for displaying results. <strong>Execution order between cells is not guaranteed to be stable</strong> and may differ for different versions of Python.</p>
+
+<p>Normally, only one line of code that contains a <a href="https://docs.python.org/3.7/reference/expressions.html">Python expression</a> is entered in each cell. However, a cell can contain additional lines of arbitrary Python code that preceed the final expression. The object that the cell returns when addressed is always the result of <strong>the last line’s expression</strong>. Note that only the last line <strong>must</strong> be an expression. (The described behavior describes pyspread &gt;v1.99. Previous versions supported only one expression per cell.)</p>
+
+<p>In order to enter a new line in one cell, press <code class="highlighter-rouge">&lt;Shift&gt; + &lt;Enter&gt;</code>. Only pressing <code class="highlighter-rouge">&lt;Enter&gt;</code> accepts the entered code and switches to the next cell.</p>
+
+<h3 id="example">Example</h3>
+
+<p>Let us enter an expression into the top left cell in table 0:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span>
+</code></pre></div></div>
+<p>After pressing <code class="highlighter-rouge">&lt;Enter&gt;</code>, the cell displays</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">2</span>
+</code></pre></div></div>
+<p>as expected. List comprehensions are also valid expessions.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="n">i</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">3</span><span class="p">]</span>
+</code></pre></div></div>
+<p>works.</p>
+
+<p>However, statements such as</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">math</span>
+</code></pre></div></div>
+<p>are not valid in the last line of a cell. In contrast,</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">math</span>
+<span class="n">math</span>
+</code></pre></div></div>
+<p>is valid. Note that multi-line cells have been added to make some 3rd party modules such as <code class="highlighter-rouge">rpy2</code> accessible. Abusing the feature for module imports and complex control flows is discouraged.</p>
+
+<h2 id="module-import">Module import</h2>
+
+<p>Modules should be imported via the macro editor. If the panel is hidden press <code class="highlighter-rouge">&lt;F4&gt;</code>. Enter the code in the editor and press the <code class="highlighter-rouge">Apply</code> button. If errors are raised, they are displayed in the message box below the editor.</p>
+
+<p>While it is now possible to import modules from within a cell, there drawbacks:</p>
+<ul>
+  <li>The module is not imported until the cell is executed, which is not guaranteed in any way.</li>
+  <li>A spreadsheet may quickly become hard to understand when importing from cells.</li>
+</ul>
+
+<h2 id="variable-assignment">Variable assignment</h2>
+
+<p>Besides Python expressions, one variable assignment is accepted within the last line of a cell. The assignment consists of one variable name at the start followed by “=” and a Python expression. The variable is considered as global. Therefore, it is accessible from other cells.</p>
+
+<p>For example <code class="highlighter-rouge">a = 5 + 3</code> assigns <code class="highlighter-rouge">8</code> to the global variable <code class="highlighter-rouge">a</code>.</p>
+
+<p><code class="highlighter-rouge">b = c = 4</code>, <code class="highlighter-rouge">+=</code>, <code class="highlighter-rouge">-=</code> etc. are not valid in the last line of a pyspread cell. In preceeding lines, such code is valid. However, variables assigned there stay in the local scope of the cell while the assigment in the last line gets into the global scope of pyspread.</p>
+
+<p>Since evaluation order of cells is not guaranteed, assigning a variable twice may result in unpredictable behaviour of the spreadsheet.</p>
+
+<h2 id="displaying-results-in-the-grid">Displaying results in the grid</h2>
+
+<p>Result objects from the cells are interpreted by the cell renderer. Therefore two renderers may display the same object in different ways. Cell renderers may be changed in the <code class="highlighter-rouge">Format</code> menu’s sub-menu  <code class="highlighter-rouge">Cell renderer</code>. At the moment, pyspread provides four different renderers:</p>
+
+<ol>
+  <li>
+    <p>The <code class="highlighter-rouge">Text renderer</code> is selected by default. It displays the string representation of the object as plain text. The exception is the object <code class="highlighter-rouge">None</code>, which is displayed as empty cell. This behavior allows empty cells returning <code class="highlighter-rouge">None</code> without the grid appearing cluttered.</p>
+  </li>
+  <li>
+    <p>The <code class="highlighter-rouge">Image renderer</code> renders a QImage object as an image. It renders a 2D array as a monochrome bitmap and a 3D array of shape <code class="highlighter-rouge">(m, n, 3)</code> as a color image. Furthermore, it renders a <code class="highlighter-rouge">str</code> object with valid svg content as an SVG image.</p>
+  </li>
+  <li>
+    <p>The <code class="highlighter-rouge">Markup renderer</code> renders the object string representation as markup text. It supports the <a href="https://doc.qt.io/qt-5/richtext-html-subset.html">limited subset of static HTML 4 / CSS 2.1</a> that is provided by QT5’s <a href="https://doc.qt.io/qt-5/qtextdocument.html">QTextDocument</a> class.</p>
+  </li>
+  <li>
+    <p>The <code class="highlighter-rouge">Matplotlib chart renderer</code> renders a <a href="https://matplotlib.org/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure">matplotlib Figure object</a>.</p>
+  </li>
+</ol>
+
+<p>Note that the concept of different cell renderers has been introduced with pyspread v1.99.0.0.</p>
+
+<h2 id="absolute-cell-access">Absolute cell access</h2>
+
+<p>The result objects, for which string representations are displayed in the grid, can be accessed from other cells (and from macros as well) via the getitem method of the grid, where the grid object is globally accessible via the name <code class="highlighter-rouge">S</code>. For example</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">S</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</code></pre></div></div>
+<p>returns the result object from the cell in row 3, column 2, table 1. This type of access is
+called <strong>absolute</strong> because the targeted cell does not change when the code is copied to another cell similar to a call “$A$1” in a common spreadsheet.</p>
+
+<h2 id="relative-cell-access">Relative cell access</h2>
+
+<p>In order to access a cell relative to the current cell position, 3 variables X, Y and Z are provided that point to the row, the column and the table of the calling cell. The values stay the same for called cells. Therefore,</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">S</span><span class="p">[</span><span class="n">X</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">Y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Z</span><span class="p">]</span>
+</code></pre></div></div>
+<p>returns the result object of the cell that is in the same table two rows above and 1 column right of the current cell. This type of access is called relative because the targeted cell changes when the code is copied to another cell similar to a call “A1” in a common spreadsheet.</p>
+
+<h2 id="slicing-the-grid">Slicing the grid</h2>
+
+<p>Cell access can refer to multiple cells by slicing similar to slicing a matrix in numpy. Therefore, a slice object is used in the getitem call. For example</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">S</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</code></pre></div></div>
+<p>returns the first three rows of column 0 in table 0 and</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">S</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div></div>
+<p>returns row 1 and 3 and column 0 and 1 of the last table of the grid.</p>
+
+<p>The returned object is a numpy object array of the result objects. This object allows utilization of the numpy commands such as numpy.sum that address all array dimensions instead of only the outermost. For example</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">numpy</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">S</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</code></pre></div></div>
+<p>sums up the results of all cells from 1, 2, 0 to 9, 3, 0 instead of summing each row, which Pythons sum function does.</p>
+
+<p>One disadvantage of this approach is that slicing results are not sparse as the grid itself and therefore consume memory for each cell. Therefore,</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">S</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]</span>
+</code></pre></div></div>
+<p>may lock up or even crash with a memory error if the grid size is too large.</p>
+
+<h2 id="everything-is-accessible">Everything is accessible</h2>
+
+<p>All parts of <em>pyspread</em> are written in Python, therefore all objects can be accessed from within each cell. This is also the case for external modules.</p>
+
+<p>There are five convenient “magical” objects, which are merely syntactic sugar: <code class="highlighter-rouge">S</code>, <code class="highlighter-rouge">X</code>, <code class="highlighter-rouge">Y</code>, <code class="highlighter-rouge">Z</code> and <code class="highlighter-rouge">nn</code>.</p>
+
+<p><code class="highlighter-rouge">S</code> is the grid data object. It is ultimately based on a <code class="highlighter-rouge">dict</code>. However, it consists of several layers on top. When indexing or slicing, it behaves similarly to a 3D numpy-array that returns result objects. When calling it (like a function) with a 3 tuple, it returns the cell code.</p>
+
+<p><code class="highlighter-rouge">X</code>, <code class="highlighter-rouge">Y</code> and <code class="highlighter-rouge">Z</code> represent the current cell coordinates. When copied to another cell, these coordinates change accordingly. This approach allows relative addressing by adding the relative coordinates to X, Y or Z. Therefore, no special relative addressing methods are needed.</p>
+
+<p><code class="highlighter-rouge">nn</code> is a function that flattens a numpy array and removes all objects that are None. This function makes special casing None for operations such as sum unnecessary. <code class="highlighter-rouge">nn</code> is provided in pyspread &gt;v.0.3.0.</p>
+
+<h2 id="security">Security</h2>
+
+<p>Since Python expressions are evaluated in <em>pyspread</em>, a <em>pyspread</em> spreadsheet is as powerful as any program. It could harm the system or even send confidential data to third persons over the Internet.</p>
+
+<p>The risk is the the same that all office applications poese, which is why many provide precautions. The concept in <em>pyspread</em> is that you - the user - are trustworthy and no-one else. When starting <em>pyspread</em> the first time, a secret key is generated that is stored in the local configuration file (<code class="highlighter-rouge">~/.config/pyspread/pyspread.conf</code> on many Linux systems). You can manually edit the secret key in the Preferences Dialog (select <code class="highlighter-rouge">Preferences...</code> in the <code class="highlighter-rouge">File</code> menu).</p>
+
+<p>If you save a file then a signature is saved with it (suffix .pys.sig). Only if the signature is valid for the stored secret key, you can re-open the file directly. Otherwise, e.g. if anyone else opens the file, it is displayed in <code class="highlighter-rouge">Safe mode</code>, i.e. each cell displays the cell code and no cell code is evaluated. The user can approve the file by selecting <code class="highlighter-rouge">Approve file</code> in the <code class="highlighter-rouge">File</code> menu. Afterwards, cell code is evaluated. When the user then saves the file, it is newly signed. Then it can be re-opened without safe mode.</p>
+
+<p>Never approve foreign pys-files unless you have thoroughly checked each cell. Each cell may delete valuable files. Malicious cells are likely to be hidden in the middle of a million rows. If unsure, inspect the pysu / pys-file. pysu files are plain text files. pys files are bzip2-ed text files. Both are easy to read and understand. It may also be a good idea to run pyspread (and any other office application) with a special user or sandbox that has restricted privileges.</p>
+
+<h2 id="current-limitations">Current Limitations</h2>
+
+<ul>
+  <li>Execution of certain operations cannot be interrupted or terminated if slow. An example is creating very large integers. A counter-example is a for loop. Such long running code may block <em>pyspread</em>. This may look like pyspread had crashed.</li>
+  <li>Maximum recursion depth is limited. Its value is a trade off between handling complex cell dependencies and time until stopping when cyclic dependencies are present. The former may lead to Exceptions. The latter may slow down <em>pyspread</em>.</li>
+  <li>Python2 code from pyspread &lt;=1.1.3 is not automatically converted to Python3 code when opening the pys/pysu file.</li>
+  <li>Some cell content is rendered in too low resolution - especially when printing.</li>
+</ul>
+
+
+
+<a href="workspace.html" class="btn btn-light">The Workspace&nbsp;&#8611;</a>
+
+
+    <footer>
+        <div class="container">
+            <p>&copy; Martin Manns and the pyspread team</p>
+        </div>
+    </footer>
+</body>
+</html>
