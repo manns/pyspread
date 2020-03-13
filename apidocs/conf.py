@@ -22,7 +22,7 @@ ROOT_PATH = os.path.abspath( os.path.join(HERE_PATH, "..") )
 if sys.path.count(ROOT_PATH) == 0:
     sys.path.insert(0, ROOT_PATH)
 
-SRC_PATH = os.path.abspath( os.path.join(ROOT_PATH, "src") )
+SRC_PATH = os.path.abspath( os.path.join(ROOT_PATH, "pyspread") )
 sys.path.insert(0, SRC_PATH)
 
 # -- Project information -----------------------------------------------------
@@ -33,7 +33,7 @@ author = 'Martin Manns'
 
 # The full version, including alpha/beta/rc tags
 # TODO use proper version here
-# from src.settings import VERSION
+# from pyspread.settings import VERSION
 release = 'v2-dev'
 
 

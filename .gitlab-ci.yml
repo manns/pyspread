@@ -2,7 +2,7 @@ image: debian
 
 before_script:
   - apt update -qq
-  - apt install -y -qq python3-pip python3-dev python3-pyqt5 python3-pyqt5.qtsvg python3-matplotlib python3-numpy python3-pyqt5.qtwebengine
+  - apt install -y -qq python3-pip python3-dev python3-pyqt5 python3-pyqt5.qtsvg python3-matplotlib python3-numpy python3-pytest
 
 stages:
   - test
@@ -14,8 +14,7 @@ test:
   script:
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
-  - export PYTHONPATH=$PYTHONPATH:.
-  - python3 setup.py test
+  - py.test-3
 
 pages:
   script:

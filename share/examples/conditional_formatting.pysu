@@ -1,0 +1,21 @@
+[Pyspread save file version]
+2.0
+[shape]
+1000	100	3
+[grid]
+1	0	0	'color(1, lambda x: x>4, X, Y, Z)'
+[attributes]
+[]	[]	[]	[]	[(1, 0)]	0	'textcolor'	(0, 0, 0, 255)	'bgcolor'	(85, 255, 0, 255)
+[row_heights]
+1	0	132.0
+[col_widths]
+[macros]
+def color(value, condition_func, X, Y, Z):
+    if condition_func(value):
+        color = 255, 0, 0
+    else:
+        color = None
+
+    S.cell_attributes[X,Y,Z]["bgcolor"] = color
+
+    return value

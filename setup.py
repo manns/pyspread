@@ -21,67 +21,55 @@
 
 
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
-import sys
 
-from src import VERSION
+from pyspread import VERSION
 
-
-class PyTest(TestCommand):
-    user_options = [("pytest-args=", "a", "Arguments to pass to pytest")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = "--capture=sys"
-
-    def run_tests(self):
-        import shlex
-
-        # import here, cause outside the eggs aren't loaded
-        import pytest
-
-        errno = pytest.main(shlex.split(self.pytest_args))
-        sys.exit(errno)
-
+with open("README.md", "r") as readme_file:
+    long_description = readme_file.read()
 
 setup(
     name='pyspread',
     version=VERSION,
-    packages=find_packages(),
-    package_dir={'': '.'},
-    scripts=['pyspread.sh'],
-    include_package_data=True,
-    description='Python spreadsheet',
-    long_description='Pyspread is a non-traditional spreadsheet application'
-    ' that is based on and written in the programming language Python.',
-    license='GPL v3 :: GNU General Public License',
-    keywords=['spreadsheet', 'pyspread'],
     author='Martin Manns',
     author_email='mmanns@gmx.net',
-    url='https://pyspread.gitlab.io/',
+    description='Pyspread is a non-traditional spreadsheet application'
+    ' that is based on and written in the programming language Python.',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://pyspread.gitlab.io",
     project_urls={
         "Bug Tracker": "https://gitlab.com/pyspread/pyspread/issues",
         "Documentation": "https://pyspread.gitlab.io/docs.html",
         "Source Code": "https://gitlab.com/pyspread/pyspread",
     },
-    requires=['numpy (>=1.1)', 'PyQt5 (>=5.11.3)'],
+    packages=find_packages(),
+    package_dir={'': '.'},
+    scripts=['pyspread.sh'],
+    include_package_data=True,
+    license='GPL v3 :: GNU General Public License',
+    keywords=['spreadsheet', 'pyspread'],
+    python_requires='>=3.6',
+    requires=['numpy (>=1.1)', 'PyQt5 (>=5.10)'],
     extras_require={
         'matplotlib': ['matplotlib (>=1.1.1)'],
         'pyenchant': ['pyenchant (>=1.1)'],
+        'pip': ['pip (>=18)'],
     },
-    tests_require=["pytest"],
-    cmdclass={"pytest": PyTest},
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Environment :: X11 Applications :: GTK',
+        'Development Status :: 4 - Beta',
+        'Environment :: X11 Applications :: Qt',
         'Environment :: Win32 (MS Windows)',
         'Intended Audience :: End Users/Desktop',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Operating System :: POSIX',
         'Operating System :: Microsoft',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Office/Business :: Financial :: Spreadsheet',
+        'Topic :: Scientific/Engineering',
     ],
 )
