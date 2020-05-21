@@ -30,14 +30,20 @@ from argparse import Action, ArgumentParser
 from pathlib import Path
 import sys
 
-from __init__ import APP_NAME, VERSION
-from installer import REQUIRED_DEPENDENCIES
+try:
+    from pyspread.__init__ import APP_NAME, VERSION
+    from pyspread.installer import REQUIRED_DEPENDENCIES
+except ImportError:
+    from __init__ import APP_NAME, VERSION
+    from installer import REQUIRED_DEPENDENCIES
 
 
 class PathAction(Action):
     """Action that handles paths with spaces and provides a pathlib Path"""
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """Overrides __call__ to enable spaces in path names"""
+
         if values:
             setattr(namespace, self.dest, Path(" ".join(values)))
         else:
@@ -48,7 +54,6 @@ class ArgumentParser(ArgumentParser):
     """Parser for the command line"""
 
     def __init__(self):
-
         self.check_mandatory_dependencies()
 
         description = "pyspread is a non-traditional spreadsheet that is " \
@@ -56,13 +61,20 @@ class ArgumentParser(ArgumentParser):
                       "Python."
 
         # Override usage because of the PathAction fix for paths with spaces
-        usage = "{} [-h] [--version] [file]".format(APP_NAME)
+        usage_tpl = "{} [-h] [--version] [--default-settings] [file]"
+        usage = usage_tpl.format(APP_NAME)
 
         super().__init__(prog=APP_NAME, description=description, usage=usage)
 
         self.add_argument('--version', action='version', version=VERSION)
-        self.add_argument('file', action=PathAction, nargs="*",
-                          help='open pyspread file in pys or pysu format')
+
+        reset_settings_help = 'start with default settings and save on exit'
+
+        self.add_argument('--reset-settings', action='store_true',
+                          help=reset_settings_help)
+
+        file_help = 'open pyspread file in pys or pysu format'
+        self.add_argument('file', action=PathAction, nargs="*", help=file_help)
 
     def check_mandatory_dependencies(self):
         """Checks mandatory dependencies and exits if they are not met"""
@@ -74,26 +86,32 @@ class ArgumentParser(ArgumentParser):
         if major < 3 or major == 3 and minor < 6:
             msg_tpl = "Python has version {}.{}.{} but ≥ 3.6 is required."
             msg = msg_tpl.format(major, minor, micro)
-            self.dependency_error(msg)
+            self.dependency_warning(msg)
 
         for module in REQUIRED_DEPENDENCIES:
-            if not module.is_installed():
+            if module.is_installed() is None:
+                # pkg_resources module is missing, no dependency checks
+                pass
+            elif not module.is_installed():
                 msg_tpl = "Required module {} not found."
                 msg = msg_tpl.format(module.name)
-                self.dependency_error(msg)
+                self.dependency_warning(msg)
             elif module.version < module.required_version:
                 msg_tpl = "Module {} has version {} but {} is required."
                 msg = msg_tpl.format(module.name, module.version,
                                      module.required_version)
-                self.dependency_error(msg)
+                self.dependency_warning(msg)
         try:
             import PyQt5.QtSvg
         except ImportError:
             msg = "Required module PyQt5.QtSvg not found."
-            self.dependency_error(msg)
+            self.dependency_warning(msg)
 
-    def dependency_error(self, message):
-        """Print dependency error message and quit"""
+    def dependency_warning(self, message: str):
+        """Print warning message to stdout
 
-        sys.stderr.write('error: {}\n'.format(message))
-        sys.exit(2)
+        :param message: Warning message to be displayed
+
+        """
+
+        sys.stdout.write('warning: {}\n'.format(message))

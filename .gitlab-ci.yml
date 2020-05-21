@@ -6,9 +6,11 @@ before_script:
 
 stages:
   - test
-  - pages
+  - release
+  - deploy
 
-test:
+test_debian_testing:
+  image: debian:testing
   variables:
     QT_QPA_PLATFORM: "offscreen"
   script:
@@ -16,8 +18,43 @@ test:
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - py.test-3
 
-pages:
+test_debian_unstable:
+  image: debian:unstable
+  variables:
+    QT_QPA_PLATFORM: "offscreen"
   script:
+  - mkdir -p /tmp/runtime-pyspreadci
+  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
+  - py.test-3
+
+test_debian_experimental:
+  image: debian:experimental
+  variables:
+    QT_QPA_PLATFORM: "offscreen"
+  script:
+  - mkdir -p /tmp/runtime-pyspreadci
+  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
+  - py.test-3
+
+
+## Release to pypi
+deploy_pypi:
+  stage: release
+  script:
+    - pip3 install twine
+    - python3 setup.py sdist bdist_wheel
+    - python3 -m twine upload dist/*
+  only:
+    - tags
+
+
+
+## api.docs pages at pyspread.gitlab.io/pyspread
+pages:
+  stage: deploy
+  image: debian:experimental
+  script:
+  - apt install -y -qq python3-sphinx
   - pip3 install -r apidocs/requirements.txt
   - mkdir public
   - sphinx-build -a -b html ./apidocs ./public/

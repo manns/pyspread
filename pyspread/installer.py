@@ -4,7 +4,7 @@ try:
     from dataclasses import dataclass
 except ImportError:
     # Python 3.6 compatibility
-    from lib.dataclasses import dataclass
+    from pyspread.lib.dataclasses import dataclass
 import os
 
 try:
@@ -13,18 +13,23 @@ except ImportError:
     get_distribution = None
 from PyQt5.QtCore import QProcess, QSize
 from PyQt5.QtGui import QColor, QTextCursor
-from PyQt5.QtWidgets import QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout
-from PyQt5.QtWidgets import QTreeWidgetItem, QToolButton, QGroupBox
-from PyQt5.QtWidgets import QTreeWidget, QCheckBox, QLineEdit, QPushButton
-from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtWidgets import (
+        QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout, QTreeWidgetItem,
+        QToolButton, QGroupBox, QTreeWidget, QCheckBox, QLineEdit, QPushButton,
+        QPlainTextEdit, QWidget, QPushButton)
 
 try:
     from packaging import version
 except ImportError:
-    # We fall back to local library to emove the dependency
-    from lib.packaging import version
-
-from lib.attrdict import AttrDict
+    # We fall back to local library to remove the dependency
+    try:
+        from pyspread.lib.packaging import version
+    except ImportError:
+        from lib.packaging import version
+try:
+    from pyspread.lib.attrdict import AttrDict
+except ImportError:
+    from lib.attrdict import AttrDict
 
 
 @dataclass
@@ -47,7 +52,9 @@ class Module:
     def is_installed(self) -> bool:
         """True if the module is installed"""
 
-        return bool(self.version)
+        version = self.version
+
+        return bool(version) if version is not None else None
 
 # Required dependencies
 # ---------------------
@@ -97,7 +104,12 @@ class DependenciesDialog(QDialog):
     column_headers = ("", "Status", "Package", "Version", "Required",
                       "Description")
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget = None):
+        """
+        :param parent: Parent widget
+
+        """
+
         super().__init__(parent)
 
         self.setWindowTitle("Installer")
@@ -119,7 +131,7 @@ class DependenciesDialog(QDialog):
 
         self.update_load()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         """Overloaded method"""
 
         return QSize(700, 200)
@@ -141,6 +153,9 @@ class DependenciesDialog(QDialog):
             if module.is_installed():
                 color = "#DBFEAC"
                 status = "Installed"
+            elif module.is_installed() is None:
+                color = "#666666"
+                status = "pkg_resources is missing"
             else:
                 status = "Not installed"
                 color = "#F3FFBB"
@@ -153,8 +168,12 @@ class DependenciesDialog(QDialog):
             item.setText(self.column.status, status)
             item.setBackground(self.column.status, QColor(color))
 
-    def on_butt_install(self, butt):
-        """One of install buttons pressed"""
+    def on_butt_install(self, butt: QPushButton):
+        """One of install buttons pressed
+
+        :param butt: The pressed button
+
+        """
 
         butt.setDisabled(True)
         idx = self.buttGroup.id(butt)
@@ -170,6 +189,12 @@ class InstallPackageDialog(QDialog):
     line_str = "-" * 56
 
     def __init__(self, parent=None, module=None):
+        """
+        :param parent: Parent widget
+        :param module: Module to be installed
+
+        """
+
         super().__init__(parent)
 
         self.module = module
@@ -215,7 +240,7 @@ class InstallPackageDialog(QDialog):
         self.update_cmd_line()
 
     def update_cmd_line(self, *unused):
-        """Update the commend line considring sudo button state"""
+        """Update the commend line considering sudo button state"""
 
         cmd = ""
         if self.buttSudo.isChecked():

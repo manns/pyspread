@@ -4,6 +4,42 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+1.99.2
+------
+
+This is the second Beta release for pyspread 2.0.
+
+This version can be started both as a script and a module.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1) PyQt5 (≥ 5.10, requires PyQt5.Svg)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+New functionality:
+ * Minimum row and column size removed so that zoom now works better
+ * Grid background now is always white regardless of color scheme
+ * QSettings fixed for MacOS
+ * New cli parameter --reset-settings added for ignoring stored settings
+ * CSV import dialog now allows reading in a header line
+ * CSV import with invalid file no longer crashes pyspread
+ * CSV import digest types are now remembered when importing a second time
+ * CSV import of large files now prompts the user if the grid shall be enlarged
+ * grid row column and table setter made more robust
+ * Dependency warnings introduced
+ * Python 3.8 warnings fixed
+ * matplotlib deprecation warning fixed
+ * Docstrings now include type hints
+ * Sphinx API docs now use type hints from docstrings
+ * README updated
+ * Further unit tests added
+
+Known issues:
+ * While the main issue on the Mac has been solved, there is a report on
+   Mac Catalina, which reports that the menu may freeze unless another
+   applictaion has been switched to.
+
+
 1.99.1
 ------
 
@@ -41,7 +77,7 @@ Bug fixes:
  * Printing resolution improved
  * Windows batch file pyspread.bat fixed
  * requirements.txt added
- * <Ctrl> + <Enter> now quotes content while in entry line 
+ * <Ctrl> + <Enter> now quotes content while in entry line
  * Missing optional packages breakage fixed
 
 1.99.0.2

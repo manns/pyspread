@@ -18,20 +18,38 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+"""
+
+**Provides**
+
+ * :class:`Settings`
+
+"""
+
 
 from os.path import abspath, dirname, join
 from pathlib import Path
+from platform import system
+from typing import Any
 
 from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QToolBar
+from PyQt5.QtWidgets import QToolBar, QWidget
 
-from __init__ import VERSION, APP_NAME
+try:
+    from pyspread.__init__ import VERSION, APP_NAME
+except ImportError:
+    from __init__ import VERSION, APP_NAME
 
 PYSPREAD_DIRNAME = abspath(join(dirname(__file__), ".."))
 PYSPREAD_PATH = Path(PYSPREAD_DIRNAME)
-DOC_PATH = PYSPREAD_PATH / "share/doc"
+DOC_PATH = PYSPREAD_PATH / "pyspread/share/doc"
 TUTORIAL_PATH = DOC_PATH / "tutorial"
 MANUAL_PATH = DOC_PATH / "manual"
+MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'pyspread/share/templates/matplotlib'
+ICON_PATH = PYSPREAD_PATH / 'pyspread/share/icons'
+ACTION_PATH = ICON_PATH / 'actions'
+STATUS_PATH = ICON_PATH / 'status'
+CHARTS_PATH = ICON_PATH / 'charts'
 
 
 class Settings:
@@ -60,11 +78,20 @@ class Settings:
     # Initial :class:`~pathlib.Path` for saving files
     last_file_output_path = Path.home()
 
+    # Initial :class:`~pathlib.Path` for importing files
+    last_file_import_path = Path.home()
+
+    # Initial :class:`~pathlib.Path` for exporting files
+    last_file_export_path = Path.home()
+
     # Maximum number of files in file history
     max_file_history = 5
 
     # Maximum number of files in file history
     file_history = []
+
+    # List of default digest types for preprocessing values from CSV import
+    digest_types = None
 
     # Maximum length of code, for which the netry line enables highlighting
     highlighter_limit = 1000000
@@ -81,7 +108,11 @@ class Settings:
     # Key for signing save files
     signature_key = None
 
+    # Sizes
     font_sizes = (6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32)
+
+    default_row_height = 30
+    default_column_width = 100
 
     zoom_levels = (0.4, 0.5, 0.6, 0.7, 0.8, 1.0,
                    1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0)
@@ -98,17 +129,36 @@ class Settings:
     # sniff_size should be larger than 1st+2nd line
     sniff_size = 65536  # TODO
 
-    def __init__(self, parent):
-        super().__setattr__("parent", parent)
+    def __init__(self, parent: QWidget, reset_settings: bool = False):
+        """
+        :param parent: Parent widget, normally main window
+        :param reset_settings: Do not restore saved settings
 
-    def __setattr__(self, key, value):
+        """
+
+        super().__setattr__("parent", parent)
+        super().__setattr__("reset_settings", reset_settings)
+
+    def __setattr__(self, key: str, value: Any):
+        """
+        Overloads __setattr__ to ensure that only existing attributes are set
+
+        :param key: Setting attribute key
+        :param value: New setting value
+
+        """
+
         if not hasattr(self, key):
             raise AttributeError("{self} has no attribute {key}.".format(
                                  self=self, key=key))
         super().__setattr__(key, value)
 
-    def add_to_file_history(self, filename):
-        """Adds new file to history"""
+    def add_to_file_history(self, filename: Path):
+        """Adds new file to history
+
+        :param value: File name to be added to history
+
+        """
 
         self.file_history = [f for f in self.file_history if f != filename]
         self.file_history.insert(0, filename)
@@ -118,14 +168,17 @@ class Settings:
         cls_attrs = (attr for attr in dir(self)
                      if (not attr.startswith("__")
                          and attr not in ("reset", "parent", "save",
-                                          "restore")))
+                                          "restore", "default_settings")))
         for cls_attr in cls_attrs:
             setattr(self, cls_attr, getattr(Settings, cls_attr))
 
     def save(self):
         """Saves application state to QSettings"""
 
-        settings = QSettings(APP_NAME, APP_NAME)
+        if system() == "Darwin":
+            settings = QSettings(APP_NAME+".gitlab.io", APP_NAME)
+        else:
+            settings = QSettings(APP_NAME, APP_NAME)
 
         # Application state
 
@@ -134,10 +187,16 @@ class Settings:
 
         if self.last_file_input_path is not None:
             settings.setValue("last_file_input_path",
-                              self.last_file_input_path.parent)
+                              self.last_file_input_path)
         if self.last_file_output_path is not None:
             settings.setValue("last_file_output_path",
-                              self.last_file_output_path.parent)
+                              self.last_file_output_path)
+        if self.last_file_import_path is not None:
+            settings.setValue("last_file_import_path",
+                              self.last_file_import_path)
+        if self.last_file_export_path is not None:
+            settings.setValue("last_file_export_path",
+                              self.last_file_export_path)
         settings.setValue("max_file_history", self.max_file_history)
         settings.value("file_history", [], 'QStringList')
         if self.file_history:
@@ -182,7 +241,13 @@ class Settings:
     def restore(self):
         """Restores application state from QSettings"""
 
-        settings = QSettings(APP_NAME, APP_NAME)
+        if self.reset_settings:
+            return
+
+        if system() == "Darwin":
+            settings = QSettings(APP_NAME+".gitlab.io", APP_NAME)
+        else:
+            settings = QSettings(APP_NAME, APP_NAME)
 
         def setting2attr(setting_name, attr=None, mapper=None):
             """Sets attr to mapper(<Setting from setting_name>)"""
@@ -200,6 +265,8 @@ class Settings:
 
         setting2attr("last_file_input_path")
         setting2attr("last_file_output_path")
+        setting2attr("last_file_import_path")
+        setting2attr("last_file_export_path")
         setting2attr("max_file_history", mapper=int)
         setting2attr("file_history")
         setting2attr("timeout", mapper=int)
@@ -230,11 +297,12 @@ class Settings:
                 if visibility is not None:
                     for is_visible, action in zip(visibility,
                                                   widget.actions()):
-                        action.setVisible(is_visible == 'true')
+                        action.setVisible(is_visible in ['true', True])
                 manager_button = widget.widgetForAction(widget.actions()[-1])
                 manager_button.menu().update_checked_states()
 
             if widget_name == "entry_line" \
                and settings.value("entry_line_isvisible") is not None:
-                visible = settings.value("entry_line_isvisible") == "true"
+                visible = settings.value("entry_line_isvisible") in ['true',
+                                                                     True]
                 widget.setVisible(visible)

@@ -1,0 +1,27 @@
+<svg width="96" height="88" version="1.0" viewBox="0 0 96 88" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient id="a" x1="153" x2="153" y1="175.56" y2="172.44" gradientTransform="translate(-143,-64)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#fff" offset="0"/>
+   <stop stop-color="#ddd" offset="1"/>
+  </linearGradient>
+  <linearGradient id="d" x1="25.308" x2="5.5849" y1="64" y2="64" gradientTransform="matrix(.75 0 0 .78571 14 13.714)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+  <linearGradient id="c" x1="25.308" x2="5.5849" y1="64" y2="64" gradientTransform="matrix(.75 0 0 .67857 18 -113.43)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+  <linearGradient id="e" x1="160.62" x2="-35.602" y1="165.65" y2="-30.571" gradientTransform="matrix(.5 0 0 .5 16 20)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#bbb" offset="0"/>
+   <stop stop-color="#ddd" offset="1"/>
+  </linearGradient>
+  <linearGradient id="b" x1="14" x2="14" y1="52" y2="32" gradientTransform="matrix(2.9333 0 0 4.4 -38.4 -80.8)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#A3C8FF" offset="0"/>
+   <stop stop-color="#BFD9FF" offset="1"/>
+  </linearGradient>
+ </defs>
+ <g transform="translate(-16,-20)">
+  <rect x="16" y="20" width="96" height="88" fill="#fff" fill-rule="evenodd"/>
+  <rect transform="rotate(90)" x="24" y="-108" width="12" height="76" fill="url(#c)"/>
+  <rect x="20" y="20" width="12" height="88" fill="url(#d)"/>
+  <path d="m16 20v88h96v-88h-32zm4 4h8v8h-8zm12 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm-76 12h8v8h-8zm12 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm-76 12h8v8h-8zm12 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm-76 12h8v8h-8zm12 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm-76 12h8v8h-8zm12 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm-76 12h8v8h-8zm12 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm-76 12h8v8h-8zm12 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12zm16 0h12v8h-12z" fill="url(#e)"/>
+ </g>
+ <rect x="-43.729" y="-22.983" width="0" height="132.13" fill="#e5ff00" opacity=".73"/>
+ <rect x="28" y="12" width="52" height="52" fill="#80b3ff" stroke-width="1.244"/>
+ <rect x="32" y="16" width="44" height="44" fill="url(#b)" stroke-width="4.4907"/>
+</svg>

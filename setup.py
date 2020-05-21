@@ -24,7 +24,7 @@ from setuptools import setup, find_packages
 
 from pyspread import VERSION
 
-with open("README.md", "r") as readme_file:
+with open("README.md", "r", encoding='utf8') as readme_file:
     long_description = readme_file.read()
 
 setup(
@@ -43,9 +43,15 @@ setup(
         "Source Code": "https://gitlab.com/pyspread/pyspread",
     },
     packages=find_packages(),
-    package_dir={'': '.'},
-    scripts=['pyspread.sh'],
-    include_package_data=True,
+    scripts=['bin/pyspread'],
+    package_data={'pyspread': [
+            'share/*',
+            'share/*/*',
+            'share/*/*/*',
+            'share/*/*/*/*',
+            'share/*/*/*/*/*',
+        ]
+    },
     license='GPL v3 :: GNU General Public License',
     keywords=['spreadsheet', 'pyspread'],
     python_requires='>=3.6',

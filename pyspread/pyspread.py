@@ -21,7 +21,6 @@
 
 """
 
-
 pyspread
 ========
 
@@ -33,15 +32,15 @@ pyspread
 * MainApplication: Initial command line operations and application launch
 * :class:`MainWindow`: Main windows class
 
-
 """
 
 import os
 import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QSplitter, QMessageBox,
-                             QDockWidget, QUndoStack, QStyleOptionViewItem)
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QSplitter,
+                             QMessageBox, QDockWidget, QUndoStack,
+                             QStyleOptionViewItem)
 try:
     from PyQt5.QtSvg import QSvgWidget
 except ImportError:
@@ -49,22 +48,47 @@ except ImportError:
 from PyQt5.QtGui import QColor, QFont, QPalette, QPainter
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
-from __init__ import VERSION, APP_NAME
-from cli import ArgumentParser
-from settings import Settings
-from icons import Icon, IconPath
-from grid import Grid
-from entryline import Entryline
-from menus import MenuBar
-from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
-from actions import MainWindowActions
-from workflows import Workflows
-from widgets import Widgets
-from dialogs import (ApproveWarningDialog, PreferencesDialog, ManualDialog,
-                     TutorialDialog, PrintAreaDialog, PrintPreviewDialog)
-from installer import DependenciesDialog
-from panels import MacroPanel
-from lib.hashing import genkey
+try:
+    from pyspread.__init__ import VERSION, APP_NAME
+    from pyspread.cli import ArgumentParser
+    from pyspread.settings import Settings
+    from pyspread.icons import Icon, IconPath
+    from pyspread.grid import Grid
+    from pyspread.grid_renderer import painter_save
+    from pyspread.entryline import Entryline
+    from pyspread.menus import MenuBar
+    from pyspread.toolbar import (MainToolBar, FindToolbar, FormatToolbar,
+                                  MacroToolbar)
+    from pyspread.actions import MainWindowActions
+    from pyspread.workflows import Workflows
+    from pyspread.widgets import Widgets
+    from pyspread.dialogs import (ApproveWarningDialog, PreferencesDialog,
+                                  ManualDialog, TutorialDialog,
+                                  PrintAreaDialog, PrintPreviewDialog)
+    from pyspread.installer import DependenciesDialog
+    from pyspread.panels import MacroPanel
+    from pyspread.lib.hashing import genkey
+    from pyspread.model.model import CellAttributes
+except ImportError:
+    from __init__ import VERSION, APP_NAME
+    from cli import ArgumentParser
+    from settings import Settings
+    from icons import Icon, IconPath
+    from grid import Grid
+    from grid_renderer import painter_save
+    from entryline import Entryline
+    from menus import MenuBar
+    from toolbar import MainToolBar, FindToolbar, FormatToolbar, MacroToolbar
+    from actions import MainWindowActions
+    from workflows import Workflows
+    from widgets import Widgets
+    from dialogs import (ApproveWarningDialog, PreferencesDialog, ManualDialog,
+                         TutorialDialog, PrintAreaDialog, PrintPreviewDialog)
+    from installer import DependenciesDialog
+    from panels import MacroPanel
+    from lib.hashing import genkey
+    from model.model import CellAttributes
+
 
 LICENSE = "GNU GENERAL PUBLIC LICENSE Version 3"
 
@@ -74,25 +98,22 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 class MainWindow(QMainWindow):
-    """Pyspread main window
-
-    :application: QApplication
-    :args: Command line arguments object from argparse
-    :unit_test: If True then the application runs in unit_test mode
-    :type unit_test: bool, defaults to False
-
-    """
+    """Pyspread main window"""
 
     gui_update = pyqtSignal(dict)
 
-    def __init__(self, application, args, unit_test=False):
+    def __init__(self, filepath: str = None, reset_settings: bool = False):
+        """
+        :param filepath: File path for inital file to be opened
+        :param reset_settings: Ignore stored `QSettings` and use defaults
+
+        """
+
         super().__init__()
 
         self._loading = True
-        self.application = application
-        self.unit_test = unit_test
 
-        self.settings = Settings(self)
+        self.settings = Settings(self, reset_settings=reset_settings)
         self.workflows = Workflows(self)
         self.undo_stack = QUndoStack(self)
         self.refresh_timer = QTimer()
@@ -111,10 +132,8 @@ class MainWindow(QMainWindow):
         # Update recent files in the file menu
         self.menuBar().file_menu.history_submenu.update()
 
-        if not self.unit_test:
-            self.show()
-
-        self._update_action_toggles()
+        # Update toolbar toggle checkboxes
+        self.update_action_toggles()
 
         # Update the GUI so that everything matches the model
         cell_attributes = self.grid.model.code_array.cell_attributes
@@ -125,11 +144,11 @@ class MainWindow(QMainWindow):
         self._previous_window_state = self.windowState()
 
         # Open initial file if provided by the command line
-        if args.file is not None:
-            if self.workflows.filepath_open(args.file):
+        if filepath is not None:
+            if self.workflows.filepath_open(filepath):
                 self.workflows.update_main_window_title()
             else:
-                msg = "File '{}' could not be opened.".format(args.file)
+                msg = "File '{}' could not be opened.".format(filepath)
                 self.statusBar().showMessage(msg)
 
     def _init_window(self):
@@ -149,13 +168,24 @@ class MainWindow(QMainWindow):
 
         self.setMenuBar(MenuBar(self))
 
-    def resizeEvent(self, event):
-        super(MainWindow, self).resizeEvent(event)
+    def resizeEvent(self, event: QEvent):
+        """Overloaded, aborts on self._loading
+
+        :param event: Resize event
+
+        """
+
         if self._loading:
             return
 
-    def closeEvent(self, event=None):
-        """Overloaded close event, allows saving changes or canceling close"""
+        super(MainWindow, self).resizeEvent(event)
+
+    def closeEvent(self, event: QEvent = None):
+        """Overloaded, allows saving changes or canceling close
+
+        :param event: Any QEvent
+
+        """
 
         if event:
             event.ignore()
@@ -190,10 +220,13 @@ class MainWindow(QMainWindow):
         self.gui_update.connect(self.on_gui_update)
         self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
-    def eventFilter(self, source, event):
-        """Event filter for handling QDockWidget close events
+    def eventFilter(self, source: QWidget, event: QEvent) -> bool:
+        """Overloaded event filter for handling QDockWidget close events
 
         Updates the menu if the macro panel is closed.
+
+        :param source: Source widget of event
+        :param event: Any QEvent
 
         """
 
@@ -217,41 +250,43 @@ class MainWindow(QMainWindow):
         self.addToolBarBreak()
         self.addToolBar(self.format_toolbar)
 
-    def _update_action_toggles(self):
+    def update_action_toggles(self):
         """Updates the toggle menu check states"""
 
         self.main_window_actions.toggle_main_toolbar.setChecked(
-                self.main_toolbar.isVisible())
+                self.main_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_macro_toolbar.setChecked(
-                self.macro_toolbar.isVisible())
+                self.macro_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_format_toolbar.setChecked(
-                self.format_toolbar.isVisible())
+                self.format_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_find_toolbar.setChecked(
-                self.find_toolbar.isVisible())
+                self.find_toolbar.isVisibleTo(self))
 
         self.main_window_actions.toggle_entry_line.setChecked(
-                self.entry_line.isVisible())
+                self.entry_line.isVisibleTo(self))
 
         self.main_window_actions.toggle_macro_panel.setChecked(
-                self.macro_dock.isVisible())
+                self.macro_dock.isVisibleTo(self))
 
     @property
-    def safe_mode(self):
+    def safe_mode(self) -> bool:
         """Returns safe_mode state. In safe_mode cells are not evaluated."""
 
         return self.grid.model.code_array.safe_mode
 
     @safe_mode.setter
-    def safe_mode(self, value):
+    def safe_mode(self, value: bool):
         """Sets safe mode.
 
         This triggers the safe_mode icon in the statusbar.
 
         If safe_mode changes from True to False then caches are cleared and
         macros are executed.
+
+        :param value: Safe mode
 
         """
 
@@ -306,8 +341,12 @@ class MainWindow(QMainWindow):
         dialog.paintRequested.connect(self.on_paint_request)
         dialog.exec_()
 
-    def on_paint_request(self, printer):
-        """Paints to printer"""
+    def on_paint_request(self, printer: QPrinter):
+        """Paints to printer
+
+        :param printer: Target printer
+
+        """
 
         painter = QPainter(printer)
         option = QStyleOptionViewItem()
@@ -339,7 +378,7 @@ class MainWindow(QMainWindow):
         self.settings.print_zoom = min(page_rect.width() / grid_width,
                                        page_rect.height() / grid_height)
 
-        with self.grid.delegate.painter_save(painter):
+        with painter_save(painter):
             painter.scale(self.settings.print_zoom, self.settings.print_zoom)
 
             # Translate so that the grid starts at upper left paper edge
@@ -410,8 +449,12 @@ class MainWindow(QMainWindow):
 
         self.undo_stack.redo()
 
-    def on_toggle_refresh_timer(self, toggled):
-        """Toggles periodic timer for frozen cells"""
+    def on_toggle_refresh_timer(self, toggled: bool):
+        """Toggles periodic timer for frozen cells
+
+        :param toggled: Toggle state
+
+        """
 
         if toggled:
             self.refresh_timer.start(self.settings.refresh_timeout)
@@ -430,8 +473,14 @@ class MainWindow(QMainWindow):
            and self.grid.state() != self.grid.EditingState:
             self.grid.refresh_frozen_cells()
 
-    def _toggle_widget(self, widget, action_name, toggled):
-        """Toggles widget visibility and updates toggle actions"""
+    def _toggle_widget(self, widget: QWidget, action_name: str, toggled: bool):
+        """Toggles widget visibility and updates toggle actions
+
+        :param widget: Widget to be toggled shown or hidden
+        :param action_name: Name of action from Action class
+        :param toggled: Toggle state
+
+        """
 
         if toggled:
             widget.show()
@@ -440,35 +489,59 @@ class MainWindow(QMainWindow):
 
         self.main_window_actions[action_name].setChecked(widget.isVisible())
 
-    def on_toggle_main_toolbar(self, toggled):
-        """Main toolbar toggle event handler"""
+    def on_toggle_main_toolbar(self, toggled: bool):
+        """Main toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.main_toolbar, "toggle_main_toolbar", toggled)
 
-    def on_toggle_macro_toolbar(self, toggled):
-        """Macro toolbar toggle event handler"""
+    def on_toggle_macro_toolbar(self, toggled: bool):
+        """Macro toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.macro_toolbar, "toggle_macro_toolbar",
                             toggled)
 
-    def on_toggle_format_toolbar(self, toggled):
-        """Format toolbar toggle event handler"""
+    def on_toggle_format_toolbar(self, toggled: bool):
+        """Format toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.format_toolbar, "toggle_format_toolbar",
                             toggled)
 
-    def on_toggle_find_toolbar(self, toggled):
-        """Find toolbar toggle event handler"""
+    def on_toggle_find_toolbar(self, toggled: bool):
+        """Find toolbar toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
-    def on_toggle_entry_line(self, toggled):
-        """Entryline toggle event handler"""
+    def on_toggle_entry_line(self, toggled: bool):
+        """Entryline toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
 
-    def on_toggle_macro_panel(self, toggled):
-        """Macro panel toggle event handler"""
+    def on_toggle_macro_panel(self, toggled: bool):
+        """Macro panel toggle event handler
+
+        :param toggled: Toggle state
+
+        """
 
         self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
 
@@ -508,49 +581,49 @@ class MainWindow(QMainWindow):
                     devs=devs, doc_devs=doc_devs)
         QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
 
-    def on_gui_update(self, attributes):
-        """GUI update event handler.
+    def on_gui_update(self, attributes: CellAttributes):
+        """GUI update that shall be called on each cell change
 
-        Emitted on cell change. Attributes contains current cell_attributes.
+        :param attributes: Attributes of current cell
 
         """
 
         widgets = self.widgets
         menubar = self.menuBar()
 
-        is_bold = attributes["fontweight"] == QFont.Bold
+        is_bold = attributes.fontweight == QFont.Bold
         self.main_window_actions.bold.setChecked(is_bold)
 
-        is_italic = attributes["fontstyle"] == QFont.StyleItalic
+        is_italic = attributes.fontstyle == QFont.StyleItalic
         self.main_window_actions.italics.setChecked(is_italic)
 
         underline_action = self.main_window_actions.underline
-        underline_action.setChecked(attributes["underline"])
+        underline_action.setChecked(attributes.underline)
 
         strikethrough_action = self.main_window_actions.strikethrough
-        strikethrough_action.setChecked(attributes["strikethrough"])
+        strikethrough_action.setChecked(attributes.strikethrough)
 
-        renderer = attributes["renderer"]
+        renderer = attributes.renderer
         widgets.renderer_button.set_current_action(renderer)
         widgets.renderer_button.set_menu_checked(renderer)
 
         freeze_action = self.main_window_actions.freeze_cell
-        freeze_action.setChecked(attributes["frozen"])
+        freeze_action.setChecked(attributes.frozen)
 
         lock_action = self.main_window_actions.lock_cell
-        lock_action.setChecked(attributes["locked"])
-        self.entry_line.setReadOnly(attributes["locked"])
+        lock_action.setChecked(attributes.locked)
+        self.entry_line.setReadOnly(attributes.locked)
 
         button_action = self.main_window_actions.button_cell
-        button_action.setChecked(attributes["button_cell"] is not False)
+        button_action.setChecked(attributes.button_cell is not False)
 
-        rotation = "rotate_{angle}".format(angle=int(attributes["angle"]))
+        rotation = "rotate_{angle}".format(angle=int(attributes.angle))
         widgets.rotate_button.set_current_action(rotation)
         widgets.rotate_button.set_menu_checked(rotation)
-        widgets.justify_button.set_current_action(attributes["justification"])
-        widgets.justify_button.set_menu_checked(attributes["justification"])
-        widgets.align_button.set_current_action(attributes["vertical_align"])
-        widgets.align_button.set_menu_checked(attributes["vertical_align"])
+        widgets.justify_button.set_current_action(attributes.justification)
+        widgets.justify_button.set_menu_checked(attributes.justification)
+        widgets.align_button.set_current_action(attributes.vertical_align)
+        widgets.align_button.set_menu_checked(attributes.vertical_align)
 
         border_action = self.main_window_actions.border_group.checkedAction()
         if border_action is not None:
@@ -565,26 +638,26 @@ class MainWindow(QMainWindow):
             menubar.format_menu.line_width_submenu.setIcon(icon)
             self.format_toolbar.line_width_button.setIcon(icon)
 
-        if attributes["textcolor"] is None:
+        if attributes.textcolor is None:
             text_color = self.grid.palette().color(QPalette.Text)
         else:
-            text_color = QColor(*attributes["textcolor"])
+            text_color = QColor(*attributes.textcolor)
         widgets.text_color_button.color = text_color
 
-        if attributes["bgcolor"] is None:
+        if attributes.bgcolor is None:
             bgcolor = self.grid.palette().color(QPalette.Base)
         else:
-            bgcolor = QColor(*attributes["bgcolor"])
+            bgcolor = QColor(*attributes.bgcolor)
         widgets.background_color_button.color = bgcolor
 
-        if attributes["textfont"] is None:
+        if attributes.textfont is None:
             widgets.font_combo.font = QFont().family()
         else:
-            widgets.font_combo.font = attributes["textfont"]
-        widgets.font_size_combo.size = attributes["pointsize"]
+            widgets.font_combo.font = attributes.textfont
+        widgets.font_size_combo.size = attributes.pointsize
 
         merge_cells_action = self.main_window_actions.merge_cells
-        merge_cells_action.setChecked(attributes["merge_area"] is not None)
+        merge_cells_action.setChecked(attributes.merge_area is not None)
 
 
 def main():
@@ -592,7 +665,9 @@ def main():
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
-    main_window = MainWindow(app, args)
+    main_window = MainWindow(args.file, reset_settings=args.reset_settings)
+
+    main_window.show()
 
     app.exec_()
 

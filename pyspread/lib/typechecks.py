@@ -20,47 +20,80 @@
 
 """
 
-Contains functions for checking type likeness.
+Functions for checking types and type likeness
+
+**Provides**
+
+ * :func:`is_stringlike`
+ * :func:`is_svg`
+ * :func:`check_shape_validity`
 
 """
 
 from io import BytesIO
 import xml.etree.ElementTree as ET
+from typing import Tuple
 
 
-def isslice(obj):
-    """Returns True if obj is insatnce of slice"""
+def is_stringlike(obj: object) -> bool:
+    """Is `obj` string like
 
-    return isinstance(obj, slice)
+    :param obj: Object to be checked
+    :return: True if obj is instance of str, bytes or bytearray
 
-
-def isstring(obj):
-    """Returns True if obj is instance of str, bytes or bytearray"""
+    """
 
     return isinstance(obj, (str, bytes, bytearray))
 
 
-def is_svg(svg_bytes):
-    """Checks if code is an svg image
+def is_svg(svg_bytes: bytes) -> bool:
+    """Checks if svg_bytes is an svg image
 
-    Parameters
-    ----------
-    code: String
-    \tCode to be parsed in order to check svg complaince
+    :param svg_bytes: Data to be checked for being an SVG image
+    :return: True if svg_bytes seems to be an  SVG image
 
     """
 
     tag = None
 
-    svg = BytesIO(svg_bytes)
-
-    try:
-        for event, el in ET.iterparse(svg, ('start',)):
-            tag = el.tag
-            break
-    except ET.ParseError:
-        pass
-
-    svg.close()
+    with BytesIO(svg_bytes) as svg:
+        try:
+            for event, el in ET.iterparse(svg, ('start',)):
+                tag = el.tag
+                break
+        except ET.ParseError:
+            pass
 
     return tag == '{http://www.w3.org/2000/svg}svg'
+
+
+def check_shape_validity(shape: Tuple[int, int, int],
+                         maxshape: Tuple[int, int, int]) -> bool:
+    """Checks if shape is valid
+
+    :param shape: shape for grid to be checked
+    :param maxshape: maximum shape for grid
+    :return: True if yes, raises a ValueError otherwise
+
+    """
+
+    try:
+        iter(shape)
+    except TypeError:
+        # not iterable
+        raise ValueError("{} is not iterable".format(shape))
+
+    try:
+        if len(shape) != 3:
+            raise ValueError("len({}) != 3".format(shape))
+    except TypeError:
+        # no length
+        raise ValueError("{} has no length".format(shape))
+
+    if any(ax == 0 for ax in shape):
+        raise ValueError("Elements {} equals 0".format(shape))
+
+    if any(ax > axmax for axmax, ax in zip(maxshape, shape)):
+        raise ValueError("Grid shape {} exceeds {}.".format(shape, maxshape))
+
+    return True

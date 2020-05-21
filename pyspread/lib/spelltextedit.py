@@ -82,13 +82,17 @@
 #  Modified BSD license --> GPL compatible
 """
 
-- :class:`PythonEnchantHighlighter`
-- :class:`SpellTextEdit`
+**Provides**
 
+ * :func:`format`
+ * :class:`LineNumberArea`
+ * :class:`SpellTextEdit`
+ * :class:`PythonEnchantHighlighter`
 
 
 """
 
+from math import log10
 import sys
 from warnings import warn
 
@@ -114,12 +118,12 @@ except ImportError:  # Older versions of PyEnchant as on *buntu 14.04
 
 # pylint: disable=no-name-in-module
 from PyQt5.Qt import Qt
-from PyQt5.QtCore import QEvent, QRegExp
+from PyQt5.QtCore import QEvent, QRegExp, QSize, QRect
 from PyQt5.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
                          QTextCharFormat, QTextCursor, QColor, QFont,
-                         QFontMetricsF)
+                         QFontMetricsF, QPainter, QPalette)
 from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
-                             QPlainTextEdit)
+                             QPlainTextEdit, QWidget)
 
 
 def format(color, style=''):
@@ -152,6 +156,51 @@ STYLES = {
 }
 
 
+class LineNumberArea(QWidget):
+    def __init__(self, parent: QPlainTextEdit):
+        """
+
+        :param parent: Editor in which the line numbers shall be displayed
+
+        """
+        super().__init__(parent)
+
+        self.parent = parent
+
+    def sizeHint(self):
+        return QSize(self.parent.line_number_area_width(), 0)
+
+    def paintEvent(self, event: QEvent):
+        """Paint event called by parent"""
+
+        painter = QPainter(self)
+        palette = QPalette()
+
+        background_color = palette.color(QPalette.Window)
+        text_color = palette.color(QPalette.Text)
+
+        painter.fillRect(event.rect(), background_color)
+
+        block = self.parent.firstVisibleBlock()
+        block_number = block.blockNumber()
+        offset = self.parent.contentOffset()
+        top = self.parent.blockBoundingGeometry(block).translated(offset).top()
+        bottom = top + self.parent.blockBoundingRect(block).height()
+
+        height = self.parent.fontMetrics().height()
+        while block.isValid() and (top <= event.rect().bottom()):
+            if block.isVisible() and (bottom >= event.rect().top()):
+                number = str(block_number + 1)
+                painter.setPen(text_color)
+                painter.drawText(0, top, self.width(), height, Qt.AlignRight,
+                                 number)
+
+            block = block.next()
+            top = bottom
+            bottom = top + self.parent.blockBoundingRect(block).height()
+            block_number += 1
+
+
 class SpellTextEdit(QPlainTextEdit):
     """QPlainTextEdit subclass which does spell-checking using PyEnchant"""
 
@@ -174,6 +223,12 @@ class SpellTextEdit(QPlainTextEdit):
 
         self.setTabStopDistance(_distance * self.spaces_per_tab)
 
+        # Line number area
+        self.line_number_area = LineNumberArea(self)
+        self.blockCountChanged.connect(self.update_line_number_area_width)
+        self.updateRequest.connect(self.update_line_number_area)
+        self.update_line_number_area_width()
+
         # Start with a default dictionary based on the current locale.
         self.highlighter = PythonEnchantHighlighter(self.document())
         if enchant is not None:
@@ -183,6 +238,44 @@ class SpellTextEdit(QPlainTextEdit):
                 # There are some weird enchant issues on different platforms.
                 # One of those has occured.
                 warn(str(err), ImportWarning)
+
+    def get_line_number_area_width(self) -> int:
+        """Returns width of line number area"""
+
+        margin = 3
+        digit_width = self.fontMetrics().width('9')
+        digits = int(log10(max(1, self.blockCount()))) + 1
+
+        return margin + digit_width * digits
+
+    def update_line_number_area_width(self):
+        """Updates width of line_number_area"""
+
+        self.setViewportMargins(self.get_line_number_area_width(), 0, 0, 0)
+
+    def update_line_number_area(self, rect, dy):
+        """Handle updates for line_number_area"""
+
+        if dy:
+            self.line_number_area.scroll(0, dy)
+        else:
+            self.line_number_area.update(0, rect.y(),
+                                         self.line_number_area.width(),
+                                         rect.height())
+
+        if rect.contains(self.viewport().rect()):
+            self.update_line_number_area_width()
+
+    def resizeEvent(self, event: QEvent):
+        """Overides QPlainTextEdit.resizeEvent for handling line_number_area"""
+
+        super().resizeEvent(event)
+
+        crect = self.contentsRect()
+        line_number_area_rect = QRect(crect.left(), crect.top(),
+                                      self.get_line_number_area_width(),
+                                      crect.height())
+        self.line_number_area.setGeometry(line_number_area_rect)
 
     def keyPressEvent(self, event):
         """Overide to change tab into spaces_per_tab spaces"""

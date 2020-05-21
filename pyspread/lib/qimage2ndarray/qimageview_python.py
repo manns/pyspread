@@ -1,5 +1,8 @@
 import numpy as np, sys
-from lib.qimage2ndarray.dynqt import qt, QtGui
+try:
+    from pyspread.lib.qimage2ndarray.dynqt import qt, QtGui
+except ImportError:
+    from lib.qimage2ndarray.dynqt import qt, QtGui
 
 
 def PyQt_data(image):

@@ -21,12 +21,11 @@
 
 from PyQt5.QtGui import QIcon
 
-from settings import PYSPREAD_PATH
-
-ICON_PATH = PYSPREAD_PATH / 'share/icons'
-ACTION_PATH = ICON_PATH / 'actions'
-STATUS_PATH = ICON_PATH / 'status'
-CHARTS_PATH = ICON_PATH / 'charts'
+try:
+    from pyspread.settings import (ICON_PATH, ACTION_PATH, STATUS_PATH,
+                                   CHARTS_PATH)
+except ImportError:
+    from settings import ICON_PATH, ACTION_PATH, STATUS_PATH, CHARTS_PATH
 
 
 class IconPath:
@@ -174,7 +173,13 @@ class IconPath:
 class IconConverter(type):
     """Meta class that provides QIcons for IconPaths icons"""
 
-    def __getattr__(cls, name):
+    def __getattr__(cls, name: str) -> QIcon:
+        """Provides QIcons for icon names
+
+        :param name: Icon name
+
+        """
+
         return QIcon(str(getattr(IconPath, name)))
 
 

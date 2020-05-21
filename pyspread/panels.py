@@ -20,7 +20,7 @@
 
 """
 
-Window panels
+**Provides**
 
  * :class:`MacroPanel`
 
@@ -36,8 +36,12 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QSplitter
 from PyQt5.QtWidgets import QTextEdit
 
-from lib.spelltextedit import SpellTextEdit
-from lib.exception_handling import get_user_codeframe
+try:
+    from pyspread.lib.spelltextedit import SpellTextEdit
+    from pyspread.lib.exception_handling import get_user_codeframe
+except ImportError:
+    from lib.spelltextedit import SpellTextEdit
+    from lib.exception_handling import get_user_codeframe
 
 
 class MacroPanel(QDialog):
@@ -83,7 +87,7 @@ class MacroPanel(QDialog):
 
         self.setLayout(layout)
 
-    def _is_invalid_code(self):
+    def _is_invalid_code(self) -> str:
         """Preliminary code check
 
         Returns a string with the error message if code is not valid Python.
@@ -125,8 +129,13 @@ class MacroPanel(QDialog):
         self.macro_editor.setPlainText(self.code_array.macros)
         self.on_apply()
 
-    def update_result_viewer(self, result="", err=""):
-        """Update event result following execution by main window"""
+    def update_result_viewer(self, result: str = "", err: str = ""):
+        """Update event result following execution by main window
+
+        :param result: Text to be shown in the result viewer in default color
+        :param err: Text to be shown in the result viewer in error text color
+
+        """
 
         self.result_viewer.clear()
 

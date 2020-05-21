@@ -45,6 +45,7 @@
  * :class:`PrintPreviewDialog`
 """
 
+from contextlib import redirect_stdout
 import csv
 try:
     from dataclasses import dataclass
@@ -52,19 +53,22 @@ except ImportError:
     from pyspread.lib.dataclasses import dataclass  # Python 3.6 compatibility
 from functools import partial
 import io
+from pathlib import Path
+from typing import List, Sequence, Tuple
 
-from PyQt5.QtCore import Qt, QPoint, QSize
+from PyQt5.QtCore import Qt, QPoint, QSize, QEvent, QUrl
 from PyQt5.QtWidgets \
     import (QApplication, QMessageBox, QFileDialog, QDialog, QLineEdit, QLabel,
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
             QTextBrowser, QCheckBox, QGridLayout, QLayout, QHBoxLayout,
             QPushButton, QWidget, QComboBox, QTableView, QAbstractItemView,
-            QPlainTextEdit, QToolBar)
+            QPlainTextEdit, QToolBar, QMainWindow, QTabWidget)
 from PyQt5.QtGui \
     import (QIntValidator, QImageWriter, QStandardItemModel, QStandardItem,
-            QTextDocument)
+            QValidator, QWheelEvent)
 
-from PyQt5.QtPrintSupport import QPrintPreviewDialog, QPrintPreviewWidget
+from PyQt5.QtPrintSupport import (QPrintPreviewDialog, QPrintPreviewWidget,
+                                  QPrinter)
 
 try:
     from matplotlib.figure import Figure
@@ -72,16 +76,23 @@ try:
 except ImportError:
     Figure = None
 
-from actions import ChartDialogActions
-from toolbar import ChartTemplatesToolBar
-from icons import PYSPREAD_PATH
-from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
-from lib.markdown2 import markdown
-from lib.spelltextedit import SpellTextEdit
-from lib.testlib import unit_test_dialog_override
-from settings import TUTORIAL_PATH, MANUAL_PATH
-
-MPL_TEMPLATE_PATH = PYSPREAD_PATH / 'share/templates/matplotlib'
+try:
+    from pyspread.actions import ChartDialogActions
+    from pyspread.toolbar import ChartTemplatesToolBar
+    from pyspread.widgets import HelpBrowser
+    from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
+                                  convert)
+    from pyspread.lib.markdown2 import markdown
+    from pyspread.lib.spelltextedit import SpellTextEdit
+    from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
+except ImportError:
+    from actions import ChartDialogActions
+    from toolbar import ChartTemplatesToolBar
+    from widgets import HelpBrowser
+    from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
+    from lib.markdown2 import markdown
+    from lib.spelltextedit import SpellTextEdit
+    from settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 
 
 class DiscardChangesDialog:
@@ -96,11 +107,15 @@ class DiscardChangesDialog:
     choices = QMessageBox.Discard | QMessageBox.Cancel | QMessageBox.Save
     default_choice = QMessageBox.Save
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
         self.main_window = main_window
 
     @property
-    def choice(self):
+    def choice(self) -> bool:
         """User choice
 
         Returns True if the user confirms in a user dialog that unsaved
@@ -135,11 +150,16 @@ class ApproveWarningDialog:
     choices = QMessageBox.No | QMessageBox.Yes
     default_choice = QMessageBox.No
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent widget, e.g. main window
+
+        """
+
         self.parent = parent
 
     @property
-    def choice(self):
+    def choice(self) -> bool:
         """User choice
 
         Returns True iif the user approves leaving safe_mode.
@@ -158,25 +178,23 @@ class ApproveWarningDialog:
 
 
 class DataEntryDialog(QDialog):
-    """Modal dialog for entering multiple values
+    """Modal dialog for entering multiple values"""
 
-    Parameters
-    ----------
-    * parent: QWidget
-    \tParent window
-    * title: str
-    \tDialog title
-    * labels: list or tuple of str
-    \tLabels for the values in the dialog
-    * initial_data: list or tuple of str, defaults to None
-    \tInitial values to be displayed in the dialog, must match no. labels
-    * validators: list or tuple of QValidator, defaults to None
-    \tValidators for the editors of the dialog, must match no. labels
+    def __init__(self, parent: QWidget, title: str, labels: Sequence[str],
+                 initial_data: Sequence[str] = None,
+                 groupbox_title: str = None,
+                 validators: Sequence[QValidator] = None):
+        """
+        :param parent: Parent widget, e.g. main window
+        :param title: Dialog title
+        :param labels: Labels for the values in the dialog
+        :param initial_data: Initial values to be displayed in the dialog
+        :param validators: Validators for the editors of the dialog
 
-    """
+        len(initial_data), len(validators) and len(labels) must be equal
 
-    def __init__(self, parent, title, labels, initial_data=None,
-                 groupbox_title=None, validators=None):
+        """
+
         super().__init__(parent)
 
         self.labels = labels
@@ -209,8 +227,8 @@ class DataEntryDialog(QDialog):
         self.setMinimumHeight(150)
 
     @property
-    def data(self):
-        """Executes the dialog and returns a tuple of strings
+    def data(self) -> Tuple[str]:
+        """Executes the dialog and returns input as a tuple of strings
 
         Returns None if the dialog is canceled.
 
@@ -221,7 +239,7 @@ class DataEntryDialog(QDialog):
         if result == QDialog.Accepted:
             return tuple(editor.text() for editor in self.editors)
 
-    def create_form(self):
+    def create_form(self) -> QGroupBox:
         """Returns form inside a QGroupBox"""
 
         form_group_box = QGroupBox()
@@ -244,29 +262,28 @@ class DataEntryDialog(QDialog):
 
         return form_group_box
 
-    def create_buttonbox(self):
+    def create_buttonbox(self) -> QDialogButtonBox:
         """Returns a QDialogButtonBox with Ok and Cancel"""
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok
                                       | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
+
         return button_box
 
 
 class GridShapeDialog(DataEntryDialog):
-    """Modal dialog for entering the number of rows, columns and tables
+    """Modal dialog for entering the number of rows, columns and tables"""
 
-    Parameters
-    ----------
-    * parent: QWidget
-    \tParent window
-    * shape: 3-tuple of Integer
-    \tInitial shape to be displayed in the dialog: (rows, columns, tables)
+    def __init__(self, parent: QWidget, shape: Tuple[int, int, int],
+                 title: str = "Create a new Grid"):
+        """
+        :param parent: Parent widget, e.g. main window
+        :param shape: Initial shape to be displayed in the dialog
 
-    """
+        """
 
-    def __init__(self, parent, shape, title="Create a new Grid"):
         groupbox_title = "Grid Shape"
         labels = ["Number of Rows", "Number of Columns", "Number of Tables"]
         validator = QIntValidator()
@@ -276,20 +293,17 @@ class GridShapeDialog(DataEntryDialog):
                          validators)
 
     @property
-    @unit_test_dialog_override
-    def shape(self):
-        """Executes the dialog and returns an int tuple rows, columns, tables
+    def shape(self) -> Tuple[int, int, int]:
+        """Executes the dialog and returns an rows, columns, tables
 
         Returns None if the dialog is canceled.
 
         """
 
-        data = self.data
-        if data is not None:
-            try:
-                return tuple(map(int, data))
-            except (TypeError, ValueError):
-                return
+        try:
+            return tuple(map(int, self.data))
+        except (TypeError, ValueError):
+            pass
 
 
 class PrintAreaDialog(DataEntryDialog):
@@ -298,19 +312,19 @@ class PrintAreaDialog(DataEntryDialog):
     Initially, this dialog is filled with the selection bounding box
     if present or with the visible area of <= 1 cell is selected.
 
-    Parameters
-    ----------
-    * parent: QWidget
-    \tParent window
-    * shape: 3-tuple of Integer
-    \tInitial shape to be displayed in the dialog: (rows, columns, tables)
-
     """
 
     groupbox_title = "Print area"
     labels = ["Top", "Left", "Bottom", "Right"]
 
-    def __init__(self, parent, grid, title="Print settings"):
+    def __init__(self, parent: QWidget, grid: QTableView,
+                 title: str = "Print settings"):
+        """
+        :param parent: Parent widget, e.g. main window
+        :param grid: The main grid widget
+        :param title: Dialog title
+
+        """
 
         self.shape = grid.model.shape
 
@@ -335,8 +349,8 @@ class PrintAreaDialog(DataEntryDialog):
                          self.groupbox_title, validators)
 
     @property
-    def area(self):
-        """Executes the dialog and returns int tuple top, left, bottom, right
+    def area(self) -> Tuple[int, int, int, int]:
+        """Executes the dialog and returns top, left, bottom, right
 
         Returns None if the dialog is canceled.
 
@@ -370,7 +384,12 @@ class SvgExportAreaDialog(PrintAreaDialog):
 class PreferencesDialog(DataEntryDialog):
     """Modal dialog for entering pyspread preferences"""
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent widget, e.g. main window
+
+        """
+
         title = "Preferences"
         groupbox_title = "Global settings"
         labels = ["Signature key for files", "Cell calculation timeout [ms]",
@@ -386,7 +405,7 @@ class PreferencesDialog(DataEntryDialog):
                          validators)
 
     @property
-    def data(self):
+    def data(self) -> dict:
         """Executes the dialog and returns a dict containing preferences data
 
         Returns None if the dialog is canceled.
@@ -402,18 +421,15 @@ class PreferencesDialog(DataEntryDialog):
 
 
 class CellKeyDialog(DataEntryDialog):
-    """Modal dialog for entering a cell key, i.e. row, column and table
+    """Modal dialog for entering a cell key, i.e. row, column, table"""
 
-    Parameters
-    ----------
-    * parent: QWidget
-    \tParent window
-    * shape: 3-tuple of Integer
-    \tShape of the grid: (rows, columns, tables)
+    def __init__(self, parent: QWidget, shape: Tuple[int, int, int]):
+        """
+        :param parent: Parent widget, e.g. main window
+        :param shape: Grid shape
 
-    """
+        """
 
-    def __init__(self, parent, shape):
         title = "Go to cell"
         groupbox_title = "Cell index"
         labels = ["Row", "Column", "Table"]
@@ -430,31 +446,35 @@ class CellKeyDialog(DataEntryDialog):
                          validators)
 
     @property
-    def key(self):
-        """Executes the dialog and returns an int tuple rows, columns, tables
+    def key(self) -> Tuple[int, int, int]:
+        """Executes the dialog and returns rows, columns, tables
 
         Returns None if the dialog is canceled.
 
         """
 
         data = self.data
-        if data is not None:
-            try:
-                return tuple(map(int, data))
-            except ValueError:
-                return
+
+        if data is None:
+            return
+
+        try:
+            return tuple(map(int, data))
+        except ValueError:
+            pass
 
 
 class FileDialogBase:
     """Base class for modal file dialogs
 
-    The choosen filename is stored in the file_path attribute
-    The choosen name filter is stored in the chosen_filter attribute
+    The chosen filename is stored in the file_path attribute
+    The chosen name filter is stored in the chosen_filter attribute
     If the dialog is aborted then both filepath and chosen_filter are None
 
     _get_filepath must be overloaded
 
     """
+
     file_path = None
     suffix = None
 
@@ -467,13 +487,13 @@ class FileDialogBase:
     selected_filter = None
 
     @property
-    def filters(self):
+    def filters(self) -> str:
         """Formatted filters for qt"""
 
         return ";;".join(self.filters_list)
 
     @property
-    def suffix(self):
+    def suffix(self) -> str:
         """Suffix for filepath"""
 
         if self.filters_list.index(self.selected_filter):
@@ -481,7 +501,11 @@ class FileDialogBase:
         else:
             return ".pysu"
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
 
         self.main_window = main_window
         self.selected_filter = self.filters_list[0]
@@ -564,7 +588,7 @@ class CsvFileImportDialog(FileDialogBase):
     def show_dialog(self):
         """Present dialog and update values"""
 
-        path = self.main_window.settings.last_file_input_path
+        path = self.main_window.settings.last_file_import_path
         self.file_path, self.selected_filter = \
             QFileDialog.getOpenFileName(self.main_window, self.title,
                                         str(path), self.filters,
@@ -581,7 +605,7 @@ class CsvFileExportDialog(FileDialogBase):
     ]
 
     @property
-    def suffix(self):
+    def suffix(self) -> str:
         """Suffix for filepath"""
 
         if self.filters_list.index(self.selected_filter):
@@ -592,7 +616,7 @@ class CsvFileExportDialog(FileDialogBase):
     def show_dialog(self):
         """Present dialog and update values"""
 
-        path = self.main_window.settings.last_file_output_path
+        path = self.main_window.settings.last_file_export_path
         self.file_path, self.selected_filter = \
             QFileDialog.getSaveFileName(self.main_window, self.title,
                                         str(path), self.filters,
@@ -616,7 +640,12 @@ class FindDialogState:
 class FindDialog(QDialog):
     """Find dialog that is launched from the main menu"""
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__(main_window)
 
         self.main_window = main_window
@@ -721,8 +750,12 @@ class FindDialog(QDialog):
 
     # Overrides
 
-    def closeEvent(self, event):
-        """Store state for next invocation and close"""
+    def closeEvent(self, event: QEvent):
+        """Store state for next invocation and close
+
+        :param event: Close event
+
+        """
 
         state = FindDialogState(pos=self.pos(),
                                 case=self.case_checkbox.isChecked(),
@@ -740,7 +773,12 @@ class FindDialog(QDialog):
 class ReplaceDialog(FindDialog):
     """Replace dialog that is launched from the main menu"""
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__(main_window)
 
         workflows = main_window.workflows
@@ -775,7 +813,17 @@ class ReplaceDialog(FindDialog):
 class ChartDialog(QDialog):
     """The chart dialog"""
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget, key: Tuple[int, int, int],
+                 size: Tuple[int, int] = (800, 600)):
+        """
+        :param parent: Parent window
+        :param key: Target cell for chart
+        :param size: Initial dialog size
+
+        """
+
+        self.key = key
+
         if Figure is None:
             raise ImportError
 
@@ -785,9 +833,9 @@ class ChartDialog(QDialog):
 
         self.chart_templates_toolbar = ChartTemplatesToolBar(self)
 
-        self.setWindowTitle("Chart dialog")
-        self.setModal(True)
-        self.resize(800, 600)
+        self.setWindowTitle("Chart dialog for cell {}".format(key))
+
+        self.resize(*size)
         self.parent = parent
 
         self.actions = ChartDialogActions(self)
@@ -800,7 +848,7 @@ class ChartDialog(QDialog):
         chart_template_name = self.sender().data()
         chart_template_path = MPL_TEMPLATE_PATH / chart_template_name
         try:
-            with open(chart_template_path) as template_file:
+            with open(chart_template_path, encoding='utf8') as template_file:
                 chart_template_code = template_file.read()
         except OSError:
             return
@@ -844,7 +892,12 @@ class ChartDialog(QDialog):
         key = self.parent.grid.current
         code = self.editor.toPlainText()
 
-        figure = self.parent.grid.model.code_array._eval_cell(key, code)
+        filelike = io.StringIO()
+        with redirect_stdout(filelike):
+            figure = self.parent.grid.model.code_array._eval_cell(key, code)
+        stdout_str = filelike.getvalue()
+        if stdout_str:
+            stdout_str += "\n \n"
 
         if isinstance(figure, Figure):
             canvas = FigureCanvasQTAgg(figure)
@@ -852,15 +905,18 @@ class ChartDialog(QDialog):
             canvas.draw()
         else:
             if isinstance(figure, Exception):
-                self.message.setText("Error:\n{}".format(figure))
+                msg = stdout_str + "Error:\n{}".format(figure)
+                self.message.setText(msg)
             else:
+                msg = stdout_str
                 msg_text = "Error:\n{} has type '{}', " + \
                            "which is no instance of {}."
-                msg = msg_text.format(figure,
-                                      type(figure).__name__,
-                                      Figure)
+                msg += msg_text.format(figure, type(figure).__name__,
+                                       Figure)
                 self.message.setText(msg)
-            self.splitter.replaceWidget(1, self.message)
+
+            if self.splitter.widget(1) != self.message:
+                self.splitter.replaceWidget(1, self.message)
 
     def create_buttonbox(self):
         """Returns a QDialogButtonBox with Ok and Cancel"""
@@ -917,6 +973,7 @@ class CsvParameterGroupBox(QGroupBox):
     hasheader_tooltip = \
         "Analyze the CSV file and treat the first row as strings if it " \
         "appears to be a series of column headers."
+    keepheader_tooltip = "Import header labels as str in the first row"
     doublequote_tooltip = \
         "Controls how instances of quotechar appearing inside a field " \
         "should be themselves be quoted. When True, the character is " \
@@ -931,13 +988,20 @@ class CsvParameterGroupBox(QGroupBox):
     default_quotechar = '"'
     default_delimiter = ','
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent window
+
+        """
+
         super().__init__(parent)
         self.parent = parent
 
         self.setTitle(self.title)
         self._create_widgets()
         self._layout()
+
+        self.hasheader_widget.toggled.connect(self.on_hasheader_toggled)
 
     def _create_widgets(self):
         """Create widgets for all parameters"""
@@ -959,7 +1023,7 @@ class CsvParameterGroupBox(QGroupBox):
         self.quotechar_widget.setToolTip(self.quotechar_tooltip)
 
         # Delimiter
-        self.delimiter_label = QLabel("Quote character")
+        self.delimiter_label = QLabel("Delimiter")
         self.delimiter_widget = QLineEdit(self.default_delimiter, self.parent)
         self.delimiter_widget.setMaxLength(1)
         self.delimiter_widget.setToolTip(self.delimiter_tooltip)
@@ -985,6 +1049,11 @@ class CsvParameterGroupBox(QGroupBox):
         self.hasheader_widget = QCheckBox(self.parent)
         self.hasheader_widget.setToolTip(self.hasheader_tooltip)
 
+        # Keep header
+        self.keepheader_label = QLabel("Keep header")
+        self.keepheader_widget = QCheckBox(self.parent)
+        self.keepheader_widget.setToolTip(self.keepheader_tooltip)
+
         # Double quote
         self.doublequote_label = QLabel("Doublequote")
         self.doublequote_widget = QCheckBox(self.parent)
@@ -1004,6 +1073,7 @@ class CsvParameterGroupBox(QGroupBox):
             "escapechar": self.escapechar_widget,
             "quoting": self.quoting_widget,
             "hasheader": self.hasheader_widget,  # Extra dialect attribute
+            "keepheader": self.keepheader_widget,  # Extra dialect attribute
             "doublequote": self.doublequote_widget,
             "skipinitialspace": self.skipinitialspace_widget,
         }
@@ -1029,6 +1099,7 @@ class CsvParameterGroupBox(QGroupBox):
 
         right_form_layout.addRow(self.quoting_label, self.quoting_widget)
         right_form_layout.addRow(self.hasheader_label, self.hasheader_widget)
+        right_form_layout.addRow(self.keepheader_label, self.keepheader_widget)
         right_form_layout.addRow(self.doublequote_label,
                                  self.doublequote_widget)
         right_form_layout.addRow(self.skipinitialspace_label,
@@ -1036,10 +1107,19 @@ class CsvParameterGroupBox(QGroupBox):
 
         self.setLayout(hbox_layout)
 
-    def adjust_csvdialect(self, dialect):
+    # Event handlers
+    def on_hasheader_toggled(self, toggled: bool):
+        """Disables keep_header if hasheader is not toggled"""
+
+        self.keepheader_widget.setChecked(False)
+        self.keepheader_widget.setEnabled(toggled)
+
+    def adjust_csvdialect(self, dialect: csv.Dialect) -> csv.Dialect:
         """Adjusts csv dialect from widget settings
 
         Note that the dialect has two extra attributes encoding and hasheader
+
+        :param dialect: Attributes class for csv reading and writing
 
         """
 
@@ -1062,8 +1142,12 @@ class CsvParameterGroupBox(QGroupBox):
 
         return dialect
 
-    def set_csvdialect(self, dialect):
-        """Update widgets from given csv dialect"""
+    def set_csvdialect(self, dialect: csv.Dialect):
+        """Update widgets from given csv dialect
+
+        :param dialect: Attributes class for csv reading and writing
+
+        """
 
         for parameter in self.csv_parameter2widget:
             try:
@@ -1087,6 +1171,8 @@ class CsvParameterGroupBox(QGroupBox):
                     widget.setText(value)
                 else:
                     raise AttributeError("{} unsupported".format(widget))
+        if not self.hasheader_widget.isChecked():
+            self.keepheader_widget.setEnabled(False)
 
 
 class CsvTable(QTableView):
@@ -1094,8 +1180,15 @@ class CsvTable(QTableView):
 
     no_rows = 9
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent window
+
+        """
+
         super().__init__(parent)
+
+        self.parent = parent
 
         self.comboboxes = []
 
@@ -1104,8 +1197,12 @@ class CsvTable(QTableView):
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.verticalHeader().hide()
 
-    def add_choice_row(self, length):
-        """Adds row with comboboxes for digest choice"""
+    def add_choice_row(self, length: int):
+        """Adds row with comboboxes for digest choice
+
+        :param length: Number of columns in row
+
+        """
 
         class TypeCombo(QComboBox):
             def __init__(self):
@@ -1120,15 +1217,22 @@ class CsvTable(QTableView):
         for i, combobox in enumerate(self.comboboxes):
             self.setIndexWidget(self.model.index(0, i), combobox)
 
-    def fill(self, filepath, dialect, digest_types=None):
-        """Fills the csv table with values from the csv file"""
+    def fill(self, filepath: Path, dialect: csv.Dialect,
+             digest_types: List[str] = None):
+        """Fills the csv table with values from the csv file
+
+        :param filepath: Path to csv file
+        :param dialect: Attributes class for csv reading and writing
+        :param digest_types: Names of preprocessing functions for csv values
+
+        """
 
         self.model.clear()
 
         self.verticalHeader().hide()
 
         try:
-            with open(filepath, newline='') as csvfile:
+            with open(filepath, newline='', encoding='utf-8') as csvfile:
                 if hasattr(dialect, 'hasheader') and dialect.hasheader:
                     header = get_header(csvfile, dialect)
                     self.model.setHorizontalHeaderLabels(header)
@@ -1149,36 +1253,49 @@ class CsvTable(QTableView):
                                  for ele, t in zip(row, digest_types))
                         item_row = map(QStandardItem, codes)
                     self.model.appendRow(item_row)
-        except OSError:
-            return
+        except (OSError, csv.Error) as error:
+            title = "CSV Import Error"
+            text_tpl = "Error importing csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=filepath, errtype=type(error).__name__,
+                                   error=error)
+            QMessageBox.warning(self.parent, title, text)
 
-    def get_digest_types(self):
+    def get_digest_types(self) -> List[str]:
         """Returns list of digest types from comboboxes"""
 
         return [cbox.currentText() for cbox in self.comboboxes]
 
-    def update_comboboxes(self, digest_types):
-        """Updates the cono boxes to show digest_types"""
+    def update_comboboxes(self, digest_types: List[str]):
+        """Updates the cono boxes to show digest_types
+
+        :param digest_types: Names of preprocessing functions for csv values
+
+        """
 
         for combobox, digest_type in zip(self.comboboxes, digest_types):
             combobox.setCurrentText(digest_type)
 
 
 class CsvImportDialog(QDialog):
-    """Modal dialog for importing csv files
-
-    :filepath: pathlib.Path to csv file
-
-    """
+    """Modal dialog for importing csv files"""
 
     title = "CSV import"
 
-    def __init__(self, parent, filepath):
+    def __init__(self, parent: QWidget, filepath: Path,
+                 digest_types: List[str] = None):
+        """
+        :param parent: Parent window
+        :param filepath: Path to csv file
+        :param digest_types: Names of preprocessing functions for csv values
+
+        """
+
         super().__init__(parent)
 
         self.parent = parent
-
         self.filepath = filepath
+        self.digest_types = digest_types
 
         self.sniff_size = parent.settings.sniff_size
 
@@ -1218,24 +1335,39 @@ class CsvImportDialog(QDialog):
 
         try:
             dialect = sniff(self.filepath, self.sniff_size)
-        except OSError as error:
-            self.parent.statusBar().showMessage(str(error))
+        except (OSError, csv.Error) as error:
+            title = "CSV Import Error"
+            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             return
         self.parameter_groupbox.set_csvdialect(dialect)
         self.csv_table.fill(self.filepath, dialect)
+        if self.digest_types is not None:
+            self.csv_table.update_comboboxes(self.digest_types)
 
     def apply(self):
         """Button event handler, applies parameters to csv_table"""
 
         try:
             sniff_dialect = sniff(self.filepath, self.sniff_size)
-        except OSError as error:
-            self.parent.statusBar().showMessage(str(error))
+        except (OSError, csv.Error) as error:
+            title = "CSV Import Error"
+            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             return
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:
-            self.parent.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error setting dialect for csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             return
 
         digest_types = self.csv_table.get_digest_types()
@@ -1245,32 +1377,46 @@ class CsvImportDialog(QDialog):
     def accept(self):
         """Button event handler, starts csv import"""
 
-        sniff_dialect = sniff(self.filepath, self.sniff_size)
+        try:
+            sniff_dialect = sniff(self.filepath, self.sniff_size)
+        except csv.Error as error:
+            title = "CSV Import Error"
+            text_tpl = "Error sniffing csv file {path}.\n \n{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
+            return
         try:
             dialect = self.parameter_groupbox.adjust_csvdialect(sniff_dialect)
         except AttributeError as error:
-            self.parent.statusBar().showMessage(str(error))
+            title = "CSV Import Error"
+            text_tpl = "Error setting dialect for csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=self.filepath,
+                                   errtype=type(error).__name__, error=error)
+            QMessageBox.warning(self.parent, title, text)
             self.reject()
             return
 
-        digest_types = self.csv_table.get_digest_types()
-
+        self.digest_types = self.csv_table.get_digest_types()
         self.dialect = dialect
-        self.digest_types = digest_types
+
         super().accept()
 
 
 class CsvExportDialog(QDialog):
-    """Modal dialog for exporting csv files
-
-    :filepath: pathlib.Path to csv file
-
-    """
+    """Modal dialog for exporting csv files"""
 
     title = "CSV export"
     maxrows = 10
 
-    def __init__(self, parent, csv_area):
+    def __init__(self, parent: QWidget, csv_area: Tuple[int, int, int, int]):
+        """
+        :param parent: Parent window
+        :param csv_area: Grid area to be exported (top, left, bottom, right)
+
+        """
+
         super().__init__(parent)
 
         self.parent = parent
@@ -1295,7 +1441,7 @@ class CsvExportDialog(QDialog):
         self.reset()
 
     @property
-    def default_dialect(self):
+    def default_dialect(self) -> csv.Dialect:
         """Default dialect for export based on excel-tab"""
 
         dialect = csv.excel
@@ -1337,8 +1483,8 @@ class CsvExportDialog(QDialog):
         self.dialect = adjust_csvdialect(self.default_dialect)
         super().accept()
 
-    def create_buttonbox(self):
-        """Returns a QDialogButtonBox"""
+    def create_buttonbox(self) -> QDialogButtonBox:
+        """Returns button box with Reset, Apply, Ok, Cancel"""
 
         button_box = QDialogButtonBox(QDialogButtonBox.Reset
                                       | QDialogButtonBox.Apply
@@ -1356,170 +1502,99 @@ class CsvExportDialog(QDialog):
 class TutorialDialog(QDialog):
     """Dialog for browsing the pyspread tutorial"""
 
-    title = "pyspread tutorial"
-    path = TUTORIAL_PATH / 'tutorial.md'
-    baseurl = str(path.parent) + '/'
+    window_title = "pyspread tutorial"
+    size_hint = 1000, 800
+    path: Path = TUTORIAL_PATH / 'tutorial.md'
 
-    def __init__(self, parent):
-        super().__init__(parent)
-
-        self.setWindowTitle(self.title)
-
-        self._create_widgets()
-        self._layout()
-        self.update_content()
-
-    def _create_widgets(self):
-        """Creates dialog browser"""
-
-        self.browser = QTextBrowser(self)
-        self.browser.setReadOnly(True)
-        self.browser.setOpenExternalLinks(True)
-
-    def _layout(self):
-        """Dialog layout management"""
-
-        layout = QHBoxLayout()
-        layout.addWidget(self.browser)
-        self.setLayout(layout)
-
-    def update_content(self):
-        """Update content of browser"""
-
-        document = self.browser.document()
-        document.setMetaInformation(QTextDocument.DocumentUrl,
-                                    'file://' + str(TUTORIAL_PATH) + "/")
-        with open(self.path) as helpfile:
-            help_text = helpfile.read()
-
-        help_html = markdown(help_text, extras=['metadata'])
-        self.browser.setHtml(help_html)
-
-    # Overrides
-
-    def sizeHint(self):
-        return QSize(1000, 800)
-
-
-class ManualNavigator:
-    """Navigation markdown text generator for manual"""
-
-    filename2title = {
-        "overview.md": "Overview",
-        "basic_concepts.md": "Concepts",
-        "workspace.md": "Workspace",
-        "file_menu.md": "File",
-        "edit_menu.md": "Edit",
-        "view_menu.md": "View",
-        "format_menu.md": "Format",
-        "macro_menu.md": "Macro",
-        "advanced_topics.md": "Advanced topics",
-    }
-
-    def __init__(self, path):
-        self.path = path
-
-    def __str__(self):
-        return " | ".join(self.md_title(fn) for fn in self.filename2title)
-
-    def md_title(self, filename):
-        """Returns title for filename in markdown.
-
-        The filename is bold if filename == self.filename.
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent window
 
         """
 
-        if filename == self.path.name:
-            tpl = "[**{}**]({})"
-        else:
-            tpl = "[{}]({})"
-
-        return tpl.format(self.filename2title[filename],
-                          self.path.parent / filename)
-
-
-class ManualDialog(QDialog):
-    """Dialog for browsing the pyspread manual"""
-
-    title = "pyspread manual"
-    path = MANUAL_PATH / 'overview.md'
-    baseurl = str(MANUAL_PATH) + '/'
-
-    def __init__(self, parent):
         super().__init__(parent)
-
-        self.setWindowTitle(self.title)
 
         self._create_widgets()
         self._layout()
-        self.update_content()
-
-        self.browser.sourceChanged.connect(self.on_update)
 
     def _create_widgets(self):
-        """Creates dialog browser"""
+        """Creates dialog widgets, e.g. the browser"""
 
-        self.browser = QTextBrowser(self)
-        self.browser.setReadOnly(True)
-        self.browser.setOpenExternalLinks(True)
+        self.browser = HelpBrowser(self, self.path)
 
     def _layout(self):
         """Dialog layout management"""
+
+        self.setWindowTitle(self.window_title)
 
         layout = QHBoxLayout()
         layout.addWidget(self.browser)
         self.setLayout(layout)
 
-    def update_content(self):
-        """Update content of browser"""
-
-        document = self.browser.document()
-        document.setMetaInformation(QTextDocument.DocumentUrl,
-                                    'file://' + self.baseurl + "/")
-
-        header_text = str(ManualNavigator(self.path)) + '\n \n-----------'
-        header_html = markdown(header_text)
-
-        footer_text = '-----------\n' + str(ManualNavigator(self.path))
-        footer_html = markdown(footer_text)
-
-        with open(self.path) as helpfile:
-            help_text = helpfile.read()
-
-        help_html = "".join([header_html,
-                             markdown(help_text, extras=['metadata',
-                                                         'code-friendly',
-                                                         'fenced-code-blocks',
-                                                         'tables']),
-                             footer_html])
-        self.browser.setHtml(help_html)
-
-    def on_update(self, url):
-        """Replaces html url with markdown file and adds proper path"""
-
-        self.path = MANUAL_PATH / url.path()
-        if self.path.suffix == ".html":
-            self.path = self.path.with_suffix(".md")
-        self.update_content()
-
     # Overrides
 
-    def sizeHint(self):
-        return QSize(1000, 800)
+    def sizeHint(self) -> QSize:
+        """QDialog.sizeHint override"""
+
+        return QSize(*self.size_hint)
+
+
+class ManualDialog(TutorialDialog):
+    """Dialog for browsing the pyspread manual"""
+
+    window_title = "pyspread manual"
+    size_hint = 1000, 800
+    title2path = {
+        "Overview": MANUAL_PATH / 'overview.md',
+        "Concepts": MANUAL_PATH / 'basic_concepts.md',
+        "Workspace": MANUAL_PATH / 'workspace.md',
+        "File": MANUAL_PATH / 'file_menu.md',
+        "Edit": MANUAL_PATH / 'edit_menu.md',
+        "View": MANUAL_PATH / 'view_menu.md',
+        "Format": MANUAL_PATH / 'format_menu.md',
+        "Macro": MANUAL_PATH / 'macro_menu.md',
+        "Advanced topics": MANUAL_PATH / 'advanced_topics.md',
+    }
+
+    def _create_widgets(self):
+        """Creates tabbar and dialog browser"""
+
+        self.tabbar = QTabWidget(self)
+        for title in self.title2path:
+            path = self.title2path[title]
+            self.tabbar.addTab(HelpBrowser(self, path), title)
+
+    def _layout(self):
+        """Dialog layout management"""
+
+        self.setWindowTitle(self.window_title)
+
+        layout = QHBoxLayout()
+        layout.addWidget(self.tabbar)
+        self.setLayout(layout)
 
 
 class PrintPreviewDialog(QPrintPreviewDialog):
     """Adds Mouse wheel functionality"""
 
-    def __init__(self, printer):
+    def __init__(self, printer: QPrinter):
+        """
+        :param printer: Target printer
+
+        """
+
         super().__init__(printer)
         self.toolbar = self.findChildren(QToolBar)[0]
         self.actions = self.toolbar.actions()
         self.widget = self.findChildren(QPrintPreviewWidget)[0]
         self.combo_zoom = self.toolbar.widgetForAction(self.actions[3])
 
-    def wheelEvent(self, event):
-        """Overrides mouse wheel event handler"""
+    def wheelEvent(self, event: QWheelEvent):
+        """Overrides mouse wheel event handler
+
+        :param event: Mouse wheel event
+
+        """
 
         modifiers = QApplication.keyboardModifiers()
         if modifiers == Qt.ControlModifier:

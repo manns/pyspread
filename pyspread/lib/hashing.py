@@ -37,18 +37,27 @@ from hmac import compare_digest
 import secrets
 
 
-def genkey(nbytes=64):
-    """Returns a new signature key of nbytes
+def genkey(nbytes: int = 64) -> bytes:
+    """Returns a random byte sting that may be used as signature key
 
-    64 bytes is recommended for BLAKE2b
+    :param nbytes: Length of key
+    :return: Random byte string of length nbytes
 
     """
 
     return secrets.token_bytes(nbytes)
 
 
-def sign(data, key):
-    """Returns signature for file"""
+def sign(data: bytes, key: bytes) -> bytes:
+    """Returns signature for file using blake2b
+
+    Note: 64 bytes is the maximum that is supported in Python's BLAKE2b
+
+    :param data: Data to be signed
+    :param key: Signature key, len(key) <= 64
+    :return: File signature hexdigest, encoded in utf-8
+
+    """
 
     if not key:
         raise ValueError("No signature key defined")
@@ -56,17 +65,25 @@ def sign(data, key):
     if not isinstance(key, bytes):
         key = ast.literal_eval(key)
 
+    if len(key) > blake2b.MAX_KEY_SIZE:
+        raise Warning("Key is too long and has been truncated")
+        key = key[:blake2b.MAX_KEY_SIZE]
+
     signature = blake2b(digest_size=64, key=key)
     signature.update(data)
 
     return signature.hexdigest().encode('utf-8')
 
 
-def verify(data, signature, key):
-    """Verifies a signature, returns True if successful else False"""
+def verify(data: bytes, signature: bytes, key: bytes) -> bool:
+    """Verifies a signature
 
-    if not isinstance(key, bytes):
-        key = ast.literal_eval(key)
+    :param data: Data to be verified
+    :param signature: Signature for verification
+    :param key: Signature key, len(key) <= 64
+    :return: True if verification was successful else False
+
+    """
 
     data_signature = sign(data, key)
     return compare_digest(data_signature, signature)

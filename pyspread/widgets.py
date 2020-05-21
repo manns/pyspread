@@ -20,8 +20,7 @@
 
 """
 
-
-**Widgets**
+**Provides**
 
  * :class:`MultiStateBitmapButton`
  * :class:`RotationButton`
@@ -36,17 +35,28 @@
  * :class:`Widgets`
  * :class:`FindEditor`
  * :class:`CellButton`
+ * :class:`HelpBrowser`
 
 """
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex
+from pathlib import Path
+from typing import Tuple
+
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QModelIndex, QPoint
 from PyQt5.QtWidgets \
     import (QToolButton, QColorDialog, QFontComboBox, QComboBox, QSizePolicy,
-            QLineEdit, QPushButton)
-from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor
+            QLineEdit, QPushButton, QTextBrowser, QWidget, QMainWindow,
+            QAction, QMenu, QTableView)
+from PyQt5.QtGui import QPalette, QColor, QFont, QIntValidator, QCursor, QIcon
 
-from actions import Action
-from icons import Icon
+try:
+    from pyspread.actions import Action
+    from pyspread.icons import Icon
+    from pyspread.lib.markdown2 import markdown
+except ImportError:
+    from actions import Action
+    from icons import Icon
+    from lib.markdown2 import markdown
 
 
 class MultiStateBitmapButton(QToolButton):
@@ -54,15 +64,14 @@ class MultiStateBitmapButton(QToolButton):
 
     The states are defined by an iterable of QIcons
 
-    Parameters
-    ----------
-
-    * actions: List of QActions
-    \tThe list of actions to be cycled through
-
     """
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__()
         self.main_window = main_window
 
@@ -71,29 +80,41 @@ class MultiStateBitmapButton(QToolButton):
         self.clicked.connect(self.on_clicked)
 
     @property
-    def current_action_idx(self):
+    def current_action_idx(self) -> int:
         return self._current_action_idx
 
     @current_action_idx.setter
-    def current_action_idx(self, index):
-        """Sets current action index and updates button and menu"""
+    def current_action_idx(self, index: int):
+        """Sets current action index and updates button and menu
+
+        :param index: Index of action to be set
+
+        """
 
         self._current_action_idx = index
         action = self.get_action(index)
         self.setIcon(action.icon())
 
-    def get_action(self, index):
-        """Returns action from index in action_names"""
+    def get_action(self, index: int) -> QAction:
+        """Returns action from index in action_names
+
+        :param index: Index of action to be returned
+
+        """
 
         action_name = self.action_names[index]
         return self.main_window.main_window_actions[action_name]
 
-    def set_current_action(self, action_name):
-        """Sets current action"""
+    def set_current_action(self, action_name: str):
+        """Sets current action
+
+        :param action_name: Name of action as in MainWindowActions
+
+        """
 
         self.current_action_idx = self.action_names.index(action_name)
 
-    def next(self):
+    def next(self) -> QAction:
         """Advances current_action_idx and returns current action"""
 
         if self.current_action_idx >= len(self.action_names) - 1:
@@ -103,8 +124,12 @@ class MultiStateBitmapButton(QToolButton):
 
         return self.get_action(self.current_action_idx)
 
-    def set_menu_checked(self, action_name):
-        """Sets checked status of menu"""
+    def set_menu_checked(self, action_name: str):
+        """Sets checked status of menu
+
+        :param action_name: Name of action as in MainWindowActions
+
+        """
 
         action = self.main_window.main_window_actions[action_name]
         action.setChecked(True)
@@ -123,14 +148,19 @@ class RotationButton(MultiStateBitmapButton):
     label = "Rotate"
     action_names = "rotate_0", "rotate_90", "rotate_180", "rotate_270"
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__(main_window)
 
         self.setStatusTip("Text rotation")
         self.setToolTip("Text rotation")
 
-    def icon(self):
-        """Returns QIcon for button identification"""
+    def icon(self) -> QIcon:
+        """Returns icon for button identification"""
 
         return Icon.rotate_0
 
@@ -142,14 +172,19 @@ class JustificationButton(MultiStateBitmapButton):
     action_names = ("justify_left", "justify_center", "justify_right",
                     "justify_fill")
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__(main_window)
 
         self.setStatusTip("Text justification")
         self.setToolTip("Text justification")
 
-    def icon(self):
-        """Returns QIcon for button identification"""
+    def icon(self) -> QIcon:
+        """Returns icon for button identification"""
 
         return Icon.justify_left
 
@@ -160,14 +195,19 @@ class RendererButton(MultiStateBitmapButton):
     label = "Renderer"
     action_names = "text", "markup", "image", "matplotlib"
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__(main_window)
 
         self.setStatusTip("Cell render type")
         self.setToolTip("Cell render type")
 
-    def icon(self):
-        """Returns QIcon for button identification"""
+    def icon(self) -> QIcon:
+        """Returns icon for button identification"""
 
         return Icon.text
 
@@ -178,37 +218,38 @@ class AlignmentButton(MultiStateBitmapButton):
     label = "Alignment"
     action_names = "align_top", "align_center", "align_bottom"
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__(main_window)
 
         self.setStatusTip("Text alignment")
         self.setToolTip("Text alignment")
 
-    def icon(self):
-        """Returns QIcon for button identification"""
+    def icon(self) -> QIcon:
+        """Returns icon for button identification"""
 
         return Icon.align_top
 
 
 class ColorButton(QToolButton):
-    """Color button widget
-
-    Parameters
-    ----------
-
-    * qcolor: QColor
-    \tColor that is initially set
-    * icon: QIcon, defaults to None
-    \tButton foreground image
-    * max_size: QSize, defaults to QSize(28, 28)
-    \tMaximum Size of the button
-
-    """
+    """Color button widget"""
 
     colorChanged = pyqtSignal()
     title = "Select Color"
 
-    def __init__(self, color, icon=None, max_size=QSize(28, 28)):
+    def __init__(self, color: QColor, icon: QIcon = None,
+                 max_size: QSize = QSize(28, 28)):
+        """
+        :param color: Color that is initially set
+        :param icon: Button foreground image
+        :param max_size: Maximum Size of the button
+
+        """
+
         super().__init__()
 
         if icon is not None:
@@ -219,17 +260,15 @@ class ColorButton(QToolButton):
         self.pressed.connect(self.on_pressed)
 
     @property
-    def color(self):
+    def color(self) -> QColor:
         return self._color
 
     @color.setter
-    def color(self, color):
-        """Color setter that adjusts internal state and button background.
+    def color(self, color: QColor):
+        """Color setter that adjusts internal state and button background
 
-        Parameters
-        ----------
-        * color: QColor
-        \tNew color attribute to be set
+        :param color: Color to be set
+
         """
 
         if hasattr(self, "_color") and self._color == color:
@@ -243,11 +282,10 @@ class ColorButton(QToolButton):
         self.setPalette(palette)
         self.update()
 
-    def set_max_size(self, size):
+    def set_max_size(self, size: QSize):
         """Set the maximum size of the widget
 
-        size: Qsize
-        \tMaximum size of the widget
+        :param color: Maximum button size
 
         """
 
@@ -285,7 +323,12 @@ class TextColorButton(ColorButton):
 
     label = "Text Color"
 
-    def __init__(self, color):
+    def __init__(self, color: QColor):
+        """
+        :param color: Color that is initially set
+
+        """
+
         icon = Icon.text_color
         super().__init__(color, icon=icon)
 
@@ -299,7 +342,12 @@ class LineColorButton(ColorButton):
 
     label = "Line Color"
 
-    def __init__(self, color):
+    def __init__(self, color: QColor):
+        """
+        :param color: Color that is initially set
+
+        """
+
         icon = Icon.line_color
         super().__init__(color, icon=icon)
 
@@ -313,7 +361,12 @@ class BackgroundColorButton(ColorButton):
 
     label = "Background Color"
 
-    def __init__(self, color):
+    def __init__(self, color: QColor):
+        """
+        :param color: Color that is initially set
+
+        """
+
         icon = Icon.background_color
         super().__init__(color, icon=icon)
 
@@ -329,7 +382,12 @@ class FontChoiceCombo(QFontComboBox):
 
     fontChanged = pyqtSignal()
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__()
 
         self.setMaximumWidth(150)
@@ -340,23 +398,25 @@ class FontChoiceCombo(QFontComboBox):
         self.currentFontChanged.connect(self.on_font)
 
     @property
-    def font(self):
+    def font(self) -> str:
+        """Font family name"""
+
         return self.currentFont().family()
 
     @font.setter
-    def font(self, font):
-        """Sets font without emitting currentTextChanged"""
+    def font(self, font: str):
+        """Sets font from family name without emitting currentTextChanged"""
 
         self.currentFontChanged.disconnect(self.on_font)
         self.setCurrentFont(QFont(font))
         self.currentFontChanged.connect(self.on_font)
 
-    def icon(self):
+    def icon(self) -> QIcon:
         """Returns QIcon for button identification"""
 
         return Icon.font_dialog
 
-    def on_font(self, font):
+    def on_font(self, font: QFont):
         """Font choice event handler"""
 
         self.fontChanged.emit()
@@ -368,7 +428,12 @@ class FontSizeCombo(QComboBox):
     label = "Font Size"
     fontSizeChanged = pyqtSignal()
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__()
 
         self.setEditable(True)
@@ -386,23 +451,27 @@ class FontSizeCombo(QComboBox):
         self.currentTextChanged.connect(self.on_text)
 
     @property
-    def size(self):
+    def size(self) -> int:
         return int(self.currentText())
 
     @size.setter
-    def size(self, size):
-        """Sets size without emitting currentTextChanged"""
+    def size(self, size: int):
+        """Sets size without emitting currentTextChanged
+
+        :param size: Size to be set
+
+        """
 
         self.currentTextChanged.disconnect(self.on_text)
         self.setCurrentText(str(size))
         self.currentTextChanged.connect(self.on_text)
 
-    def icon(self):
-        """Returns QIcon for button identification"""
+    def icon(self) -> QIcon:
+        """Returns icon for button identification"""
 
         return Icon.font_dialog
 
-    def on_text(self, size):
+    def on_text(self, size: int):
         """Font size choice event handler"""
 
         try:
@@ -420,7 +489,11 @@ class FontSizeCombo(QComboBox):
 
 
 class Widgets:
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
 
         # Format toolbar widgets
 
@@ -452,7 +525,12 @@ class FindEditor(QLineEdit):
     regexp = False
     results = False
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: Parent widget
+
+        """
+
         super().__init__(parent)
 
         self.actions = parent.main_window.main_window_actions
@@ -469,8 +547,12 @@ class FindEditor(QLineEdit):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_context_menu)
 
-    def prepend_actions(self, menu):
-        """Prepends find specific actions to menu"""
+    def prepend_actions(self, menu: QMenu):
+        """Prepends find specific actions to menu
+
+        :param menu: Find editor context menu
+
+        """
 
         toggle_case = Action(self, "Match &case",
                              self.on_toggle_case, checkable=True,
@@ -503,50 +585,75 @@ class FindEditor(QLineEdit):
                    toggle_regexp)
         menu.insertActions(menu.actions()[0], actions)
 
-    def on_context_menu(self, point):
-        """Context menu event handler"""
+    def on_context_menu(self, point: QPoint):
+        """Context menu event handler
+
+        :param point: Context menu coordinates on screen
+
+        """
 
         menu = self.createStandardContextMenu()
         menu.insertSeparator(menu.actions()[0])
         self.prepend_actions(menu)
         menu.exec(self.mapToGlobal(point))
 
-    def on_toggle_up(self, toggled):
-        """Find upwards toggle event handler"""
+    def on_toggle_up(self, toggled: bool):
+        """Find upwards toggle event handler
+
+        :param toggled: up option toggle state
+
+        """
 
         self.up = toggled
 
-    def on_toggle_word(self, toggled):
-        """Find whole word toggle event handler"""
+    def on_toggle_word(self, toggled: bool):
+        """Find whole word toggle event handler
+
+        :param toggled: whole word option toggle state
+
+        """
 
         self.word = toggled
 
-    def on_toggle_case(self, toggled):
-        """Find case sensitively toggle event handler"""
+    def on_toggle_case(self, toggled: bool):
+        """Find case sensitively toggle event handler
+
+        :param toggled: case sensitivity option toggle state
+
+        """
 
         self.case = toggled
 
-    def on_toggle_regexp(self, toggled):
-        """Find with regular expression toggle event handler"""
+    def on_toggle_regexp(self, toggled: bool):
+        """Find with regular expression toggle event handler
+
+        :param toggled: regular expression option toggle state
+
+        """
 
         self.regexp = toggled
 
-    def on_toggle_results(self, toggled):
-        """Find in results toggle event handler"""
+    def on_toggle_results(self, toggled: bool):
+        """Find in results toggle event handler
+
+        :param toggled: results option toggle state
+
+        """
 
         self.results = toggled
 
 
 class CellButton(QPushButton):
-    """Button that is used for button cells in the grid
+    """Button that is used for button cells in the grid"""
 
-    :text: str: Button text
-    :grid: QTableView
-    :key: 3-tuple of int: row, column, table
+    def __init__(self, text: str, grid: QTableView, key: Tuple[int, int, int]):
+        """
+        :param text: button label text
+        :param grid: Main grid
+        :param key: key of button's cell (row, column, table)
 
-    """
+        """
 
-    def __init__(self, text, grid, key):
         super().__init__(text, grid)
 
         self.grid = grid
@@ -562,3 +669,45 @@ class CellButton(QPushButton):
         self.grid.model.code_array.frozen_cache[repr(self.key)] = result
         self.grid.model.code_array.result_cache.clear()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
+
+
+class HelpBrowser(QTextBrowser):
+    """Help browser widget"""
+
+    def __init__(self, parent: QWidget, path: Path):
+        """
+        :param parent: Parent window
+        :param path: Path to markdown file that is displayed
+
+        """
+
+        super().__init__(parent)
+
+        self.setReadOnly(True)
+        self.setOpenExternalLinks(True)
+        self.update(path)
+
+    def update(self, path: Path):
+        """Updates content
+
+        :param path: Path to markdown file that is displayed
+
+        """
+
+        self.setSearchPaths([str(path.parents[0])])
+        self.setHtml(self.get_html(path))
+
+    def get_html(self, path: Path) -> str:
+        """Returns html content for content of browser
+
+        :param path: Path to markdown file that is displayed
+
+        """
+
+        try:
+            with open(path, encoding='utf-8') as helpfile:
+                help_text = helpfile.read()
+        except IOError as err:
+            return "Error opening file {}: {}".format(path, err)
+
+        return markdown(help_text, extras=['metadata'])

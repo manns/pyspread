@@ -20,22 +20,32 @@
 
 """
 
-- :class:`Action` is a quick one liner way to create `QAction`
--
+**Provides**
+
+ * :class:`Action` is a quick one liner way to create `QAction`
+ * :class:`MainWindowActions`
+ * :class:`ChartDialogActions`
 
 """
 
-from PyQt5.QtWidgets import QAction, QActionGroup
-from PyQt5.QtGui import QKeySequence
+from typing import Callable, List
+
+from PyQt5.QtWidgets import QAction, QActionGroup, QWidget
+from PyQt5.QtGui import QKeySequence, QIcon
 
 try:
     import matplotlib.figure as matplotlib_figure
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
-from lib.attrdict import AttrDict
-from lib.dependencies import get_enchant_version
+try:
+    from pyspread.icons import Icon
+    from pyspread.lib.attrdict import AttrDict
+    from pyspread.lib.dependencies import get_enchant_version
+except ImportError:
+    from icons import Icon
+    from lib.attrdict import AttrDict
+    from lib.dependencies import get_enchant_version
 
 
 class Action(QAction):
@@ -45,8 +55,9 @@ class Action(QAction):
 
     """
 
-    def __init__(self, parent, label, *callbacks,
-                 icon=None, shortcut=None, statustip=None, checkable=False):
+    def __init__(self, parent: QWidget, label: str, *callbacks: List[Callable],
+                 icon: QIcon = None, shortcut: str = None,
+                 statustip: str = None, checkable: bool = False):
         """
 
         :param parent: The parent object, normally :class:`pyspread.MainWindow`
@@ -56,6 +67,7 @@ class Action(QAction):
         :param shortcut: The magic kestrokes if ant
         :param statustip: The popup message
         :param checkable: Has a checkbox
+
         """
         if icon is None:
             super().__init__(label, parent, checkable=checkable)
@@ -75,7 +87,12 @@ class Action(QAction):
 class MainWindowActions(AttrDict):
     """Holds all QActions for the main window"""
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: The parent object, normally :class:`pyspread.MainWindow`
+
+        """
+
         super().__init__()
         self.parent = parent
 
@@ -660,30 +677,30 @@ class MainWindowActions(AttrDict):
                                        icon=Icon.format_borders_2,
                                        statustip='Set border width to 2')
 
-        self.format_borders_4 = Action(self.parent, "Border width 4",
+        self.format_borders_4 = Action(self.parent, "Border width 3",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_4,
-                                       statustip='Set border width to 4')
+                                       statustip='Set border width to 3')
 
-        self.format_borders_8 = Action(self.parent, "Border width 8",
+        self.format_borders_8 = Action(self.parent, "Border width 4",
                                        self.parent.grid.on_borderwidth,
                                        icon=Icon.format_borders_8,
-                                       statustip='Set border width to 8')
+                                       statustip='Set border width to 4')
 
-        self.format_borders_16 = Action(self.parent, "Border width 16",
+        self.format_borders_16 = Action(self.parent, "Border width 6",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_16,
-                                        statustip='Set border width to 16')
+                                        statustip='Set border width to 6')
 
-        self.format_borders_32 = Action(self.parent, "Border width 32",
+        self.format_borders_32 = Action(self.parent, "Border width 8",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_32,
-                                        statustip='Set border width to 32')
+                                        statustip='Set border width to 8')
 
-        self.format_borders_64 = Action(self.parent, "Border width 64",
+        self.format_borders_64 = Action(self.parent, "Border width 12",
                                         self.parent.grid.on_borderwidth,
                                         icon=Icon.format_borders_64,
-                                        statustip='Set border width to 64')
+                                        statustip='Set border width to 12')
 
         self.border_width_group = QActionGroup(self.parent)
         self.border_width_group.addAction(self.format_borders_0)
@@ -750,7 +767,12 @@ class ChartDialogActions(AttrDict):
 
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: The parent object
+
+        """
+
         super().__init__()
         self.parent = parent
         self._add_chart_template_actions()

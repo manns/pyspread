@@ -11,12 +11,12 @@ It is released under the [GPL v3. LICENSE](LICENSE)
 - API Docs: https://pyspread.gitlab.io/pyspread/
 
 
-# Install
+# Installation
 
-## On Debian testing
+## On Debian bullseye
 
-On Debian, pyspread is available as a package.
-A Python3 version is only available in testing at the moment.
+On Debian bullseye, pyspread is available as a package.
+Note that the version number for the Python3 beta release is >=1.99.1.
 
 ```bash
 su -
@@ -40,15 +40,7 @@ and if needed the suggested modules:
 Should the package pkg_resources be missing in your setup (e.g. on Ubuntu),
 then you may need to reinstall pip for Python3.
 
-#### On Debian unstable:
-
-```bash
-su -
-apt install python3-pyqt5 python3-pyqt5.qtsvg python3-numpy python3-pyqt5.qtwebengine
-apt install python3-matplotlib python3-enchant python3-pip
-```
-
-#### With pip
+### With pip
 
 The example installs the dependencies for the current user. Make sure that
 you are using the Python3 version of pip.
@@ -57,14 +49,31 @@ you are using the Python3 version of pip.
 pip3 install --user requirements.txt
 ```
 
-## Pyspread
+## Getting the bleeding edge version from the code repository
 
-Get the latest tarball at `https://gitlab.com/pyspread/downloads` or
+Note that there may unfixed bugs if you use the latest repository version.
+You may want to check the CI, which comprises unit tests at
+`https://gitlab.com/pyspread/pyspread/pipelines`.
+
+Get the latest tarball or zip at https://gitlab.com/pyspread/pyspread or
 clone the git repo at `https://gitlab.com/pyspread/pyspread.git`
 
-In order to start pyspread without installation run
+# Starting pyspread
+
+With an installation via pip, distutils or your OS's installer, simply run
 ```
-$ ./pyspread.sh
+$ pyspread
+```
+from any directory.
+
+In order to start pyspread without installation directly from the cloned
+repository or the extracted tarball or zip, run
+```
+$ ./bin/pyspread
+```
+or
+```
+$ python -m pyspread
 ```
 inside the top directory.
 

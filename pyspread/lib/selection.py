@@ -19,77 +19,87 @@
 # --------------------------------------------------------------------
 
 """
+
 Grid selection representation
-==============================
+
+
+**Provides**
 
 * :class:`Selection`: Represents grid selection independently from PyQt
 
 """
-from builtins import zip
-from builtins import range
-from builtins import object
+
+from builtins import zip, range, object
+from typing import Generator, List, Tuple
 
 
 class Selection(object):
-    """Represents grid selection
+    """Represents grid selection"""
 
-    Parameters
-    ----------
+    def __init__(self,
+                 block_top_left: List[Tuple[int, int]],
+                 block_bottom_right: List[Tuple[int, int]],
+                 rows: List[int],
+                 columns: List[int],
+                 cells: List[Tuple[int, int]]):
+        """
+        :param block_top_left: Top left edges of all selection rectangles
+        :param block_bottom_right: Top left edges of all selection rectangles
+        :param rows: Selected rows
+        :param columns: Selected columns
+        :param cells: Individually selected cells as list of (row, column)
 
-    block_top_left: List of 2-tuples
-    \tTop left edges of all selection rectangles
-    block_bottom_right: List of 2-tuples
-    \tBottom right edges of all selection rectangles
-    rows: List
-    \tList of selected rows
-    cols: List
-    \tList of selected columns
-    cells: List of 2-tuples
-    \tList of (row, column) tuples of individually selected cells
+        """
 
-    """
-
-    def __init__(self, block_top_left, block_bottom_right, rows, cols, cells):
         self.block_tl = block_top_left
         self.block_br = block_bottom_right
         self.rows = rows
-        self.cols = cols
+        self.columns = columns
         self.cells = cells
 
-    def __bool__(self):
-        """Returns True iif any attribute is non-empty"""
+    def __bool__(self) -> bool:
+        """
+        :return: True iif any attribute is non-empty
+
+        """
 
         return any(self.parameters)
 
-    def __repr__(self):
-        """String output for printing selection"""
+    def __repr__(self) -> str:
+        """
+        :return: String output for printing selection
+
+        """
 
         return "Selection" + repr(self.parameters)
 
     def __eq__(self, other):
-        """Returns True if self and other selection are equal
+        """Eqality check
 
         Selections are equal iif the order of each attribute is equal
         because order precedence may change the selection outcome in the grid.
 
+        :param other: Other selection for equality comparison
+        :type other: Selection
+        :return: True if self and other selection are equal
+
         """
 
-        attrs = ("block_tl", "block_br", "rows", "cols", "cells")
+        attrs = "block_tl", "block_br", "rows", "columns", "cells"
 
         return all(getattr(self, at) == getattr(other, at) for at in attrs)
 
-    def __contains__(self, cell):
-        """Returns True iif cell is in selection
+    def __contains__(self, cell: Tuple[int, int]):
+        """Check if cell is included in self
 
-        Parameters
-        ----------
-
-        cell: 2-Tuple
-        \tIndex of cell that is checked if it is inside selection.
+        :param cell: Index of cell to be checked
+        :return: True iif cell is in selection
 
         """
 
-        assert len(cell) == 2
+        if len(cell) != 2:
+            raise Warning("Key length is not 2. Returning None.")
+            return
 
         cell_row, cell_col = cell
 
@@ -115,7 +125,7 @@ class Selection(object):
 
         # Row and column selections
 
-        if cell_row in self.rows or cell_col in self.cols:
+        if cell_row in self.rows or cell_col in self.columns:
             return True
 
         # Cell selections
@@ -124,18 +134,17 @@ class Selection(object):
 
         return False
 
-    def __add__(self, value):
+    def __add__(self, value: Tuple[int, int]):
         """Shifts selection down and / or right
 
-        Parameters
-        ----------
-
-        value: 2-tuple
-        \tRows and cols to be shifted up
+        :param value: Number of rows / columns to be shifted down / right
+        :return: Shifted selection
+        :rtype: Selection
 
         """
 
-        def shifted_block(block0, block1, delta_row, delta_col):
+        def shifted_block(block0: int, block1: int, delta_row: int,
+                          delta_col: int) -> Tuple[int, int]:
             """Returns shifted block"""
 
             try:
@@ -152,25 +161,32 @@ class Selection(object):
 
         delta_row, delta_col = value
 
-        block_tl = [shifted_block(t, l, delta_row, delta_col)
-                    for t, l in self.block_tl]
+        block_tl = [shifted_block(top, left, delta_row, delta_col)
+                    for top, left in self.block_tl]
 
-        block_br = [shifted_block(b, r, delta_row, delta_col)
-                    for b, r in self.block_br]
+        block_br = [shifted_block(bottom, right, delta_row, delta_col)
+                    for bottom, right in self.block_br]
 
         rows = [row + delta_row for row in self.rows]
-        cols = [col + delta_col for col in self.cols]
+        columns = [col + delta_col for col in self.columns]
         cells = [(r + delta_row, c + delta_col) for r, c in self.cells]
 
-        return Selection(block_tl, block_br, rows, cols, cells)
+        return Selection(block_tl, block_br, rows, columns, cells)
 
     def __and__(self, other):
-        """Returns intersection selection of self and other"""
+        """Returns intersection selection of self and other
+
+        :param other: Other selection for intersecting
+        :type other: Selection
+        :return: Intersection selection
+        :rtype: Selection
+
+        """
 
         block_tl = []
         block_br = []
         rows = []
-        cols = []
+        columns = []
         cells = []
 
         # Blocks
@@ -214,9 +230,9 @@ class Selection(object):
 
         # Columns
 
-        for col in self.cols:
-            if col in other.cols:
-                cols.append(col)
+        for col in self.columns:
+            if col in other.columns:
+                columns.append(col)
             else:
                 for block in zip(other.block_tl, other.block_br):
                     if block[0][1] <= col <= block[1][1]:
@@ -235,31 +251,33 @@ class Selection(object):
 
         cells = list(set(cells))
 
-        return Selection(block_tl, block_br, rows, cols, cells)
+        return Selection(block_tl, block_br, rows, columns, cells)
 
     # Parameter access
 
     @property
-    def parameters(self):
-        """Returns tuple of selection parameters of self
+    def parameters(self) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]],
+                                  List[int], List[int], List[Tuple[int, int]]]:
+        """
 
-        (self.block_tl, self.block_br, self.rows, self.cols, self.cells)
+        :return: Tuple of selection parameters of self
+                 (self.block_tl, self.block_br, self.rows, self.columns,
+                  self.cells)
 
         """
 
-        return self.block_tl, self.block_br, self.rows, self.cols, self.cells
+        return (self.block_tl, self.block_br, self.rows, self.columns,
+                self.cells)
 
-    def insert(self, point, number, axis):
-        """Inserts number of rows/cols/tabs into selection at point on axis
-        Parameters
-        ----------
+    def insert(self, point: int, number: int, axis: int):
+        """Inserts number of rows/columns/tables into selection
 
-        point: Integer
-        \tAt this point the rows/cols are inserted or deleted
-        number: Integer
-        \tNumber of rows/cols to be inserted, negative number deletes
-        axis: Integer in 0, 1
-        \tDefines whether rows or cols are affected
+        Insertion takes place at point on axis.
+
+        :param point: At this point the rows/columns are inserted or deleted
+        :param number: Number of rows/columns to be inserted
+                       or deleted if negative
+        :param axis: If 0, rows are affected, if 1, columns, axis in 0, 1
 
         """
 
@@ -270,7 +288,7 @@ class Selection(object):
 
             for tl in source_list:
                 tl_list = list(tl)
-                if tl[axis] > point:
+                if tl[axis] >= point:
                     tl_list[axis] += number
                 target_list.append(tuple(tl_list))
 
@@ -284,21 +302,23 @@ class Selection(object):
         self.block_br = build_tuple_list(self.block_br, point, number, axis)
 
         if axis == 0:
-            self.rows = \
-                [row + number if row > point else row for row in self.rows]
+            self.rows = [row + number if row >= point else row
+                         for row in self.rows]
         elif axis == 1:
-            self.cols = \
-                [col + number if col > point else col for col in self.cols]
+            self.columns = [column + number if column >= point else column
+                            for column in self.columns]
         else:
             raise ValueError("Axis not in [0, 1]")
 
         self.cells = build_tuple_list(self.cells, point, number, axis)
 
-    def get_bbox(self):
-        """Returns ((top, left), (bottom, right)) of bounding box
+    def get_bbox(self) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+        """Returns bounding box
 
         A bounding box is the smallest rectangle that contains all selections.
         Non-specified boundaries are None.
+
+        :return: ((top, left), (bottom, right)) of bounding box
 
         """
 
@@ -327,7 +347,7 @@ class Selection(object):
             if bb_bottom is None or bb_bottom < row:
                 bb_bottom = row
 
-        for col in self.cols:
+        for col in self.columns:
             if bb_left is None or bb_left > col:
                 bb_left = col
             if bb_right is None or bb_right < col:
@@ -350,22 +370,20 @@ class Selection(object):
         if self.rows:
             bb_left = bb_right = None
 
-        if self.cols:
+        if self.columns:
             bb_top = bb_bottom = None
 
         return ((bb_top, bb_left), (bb_bottom, bb_right))
 
-    def get_grid_bbox(self, shape):
-        """Returns ((top, left), (bottom, right)) of bounding box
+    def get_grid_bbox(self, shape: Tuple[int, int, int]
+                      ) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+        """Returns bounding box within grid shape limits
 
         A bounding box is the smallest rectangle that contains all selections.
         Non-specified boundaries are filled i from size.
 
-        Parameters
-        ----------
-
-        shape: 3-Tuple of Integer
-        \tGrid shape
+        :param shape: Grid shape
+        :return: ((top, left), (bottom, right)) of bounding box
 
         """
 
@@ -382,25 +400,27 @@ class Selection(object):
 
         return ((bb_top, bb_left), (bb_bottom, bb_right))
 
-    def get_access_string(self, shape, table):
-        """Returns a string, with which the selection can be accessed
+    def get_access_string(self, shape: Tuple[int, int, int],
+                          table: int) -> str:
+        """Get access string
 
-        Parameters
-        ----------
-        shape: 3-tuple of Integer
-        \tShape of grid, for which the generated keys are valid
-        table: Integer
-        \tThird component of all returned keys. Must be in dimensions
+        :param shape: Grid shape, for which the generated keys are valid
+        :param table: Table for all returned keys. Must be valid table in shape
+        :return: String, with which the selection can be accessed
 
         """
 
         rows, columns, tables = shape
 
         # Negative dimensions cannot be
-        assert all(dim > 0 for dim in shape)
+        if any(dim <= 0 for dim in shape):
+            raise Warning("Invalid shape {}".format(shape))
+            return
 
         # Current table has to be in dimensions
-        assert 0 <= table < tables
+        if not 0 <= table < tables:
+            raise Warning("Table {} not in grid".format(table))
+            return
 
         string_list = []
 
@@ -417,7 +437,7 @@ class Selection(object):
 
         # Fully selected columns
         template = "[(r, {}, {}) for r in xrange({})]"
-        for column in self.cols:
+        for column in self.columns:
             string_list += [template.format(column, table, rows)]
 
         # Single cells
@@ -436,38 +456,48 @@ class Selection(object):
             template = "[S[key] for key in {} if S[key] is not None]"
             return template.format(key_string)
 
-    def shifted(self, rows, cols):
-        """Returns a new selection that is shifted by rows and cols.
+    def shifted(self, rows: int, columns: int):
+        """Get a shifted selection
 
-        Negative values for rows and cols may result in a selection
+        Negative values for rows and columns may result in a selection
         that addresses negative cells.
 
-        Parameters
-        ----------
-        rows: Integer
-        \tNumber of rows that the new selection is shifted down
-        cols: Integer
-        \tNumber of columns that the new selection is shifted right
+        :param rows: Number of rows that the selection is shifted down
+        :param columns: Number of columns that the selection is shifted right
+        :return: New selection that is shifted by rows and columns
+        :rtype: Selection
 
         """
 
-        shifted_block_tl = \
-            [(row + rows, col + cols) for row, col in self.block_tl]
-        shifted_block_br = \
-            [(row + rows, col + cols) for row, col in self.block_br]
+        shifted_block_tl = [(row + rows, col + columns)
+                            for row, col in self.block_tl]
+        shifted_block_br = [(row + rows, col + columns)
+                            for row, col in self.block_br]
         shifted_rows = [row + rows for row in self.rows]
-        shifted_cols = [col + cols for col in self.cols]
-        shifted_cells = [(row + rows, col + cols) for row, col in self.cells]
+        shifted_columns = [col + columns for col in self.columns]
+        shifted_cells = [(row + rows, col + columns)
+                         for row, col in self.cells]
 
         return Selection(shifted_block_tl, shifted_block_br, shifted_rows,
-                         shifted_cols, shifted_cells)
+                         shifted_columns, shifted_cells)
 
-    def get_right_borders_selection(self, border_choice):
-        """Returns selection of cells that need to be adjusted on border change
+    def get_right_borders_selection(self, border_choice: str):
+        """Get selection of cells, for which the right border attributes
+        need to be adjusted on border line and border color changes.
 
-        The cells that are contained in the selection are those, on which
-        the right border attributes need to be adjusted on border line and
-        border color changes.
+        border_choice names are:
+         * "All borders"
+         * "Top border"
+         * "Bottom border"
+         * "Left border"
+         * "Right border"
+         * "Outer borders"
+         * "Inner borders"
+         * "Top and bottom borders"
+
+        :param border_choice: Border choice name
+        :return: Selection of cells that need to be adjusted on border change
+        :rtype: Selection
 
         """
 
@@ -501,12 +531,23 @@ class Selection(object):
         else:
             raise ValueError("border_choice {} unknown.".format(border_choice))
 
-    def get_bottom_borders_selection(self, border_choice):
-        """Returns selection of cells that need to be adjusted on border change
+    def get_bottom_borders_selection(self, border_choice: str):
+        """Get selection of cells, for which the bottom border attributes
+        need to be adjusted on border line and border color changes.
 
-        The cells that are contained in the selection are those, on which
-        the bottom border attributes need to be adjusted on border line and
-        border color changes.
+        border_choice names are:
+         * "All borders"
+         * "Top border"
+         * "Bottom border"
+         * "Left border"
+         * "Right border"
+         * "Outer borders"
+         * "Inner borders"
+         * "Top and bottom borders"
+
+        :param border_choice: Border choice name
+        :return: Selection of cells that need to be adjusted on border change
+        :rtype: Selection
 
         """
 
@@ -541,13 +582,16 @@ class Selection(object):
         else:
             raise ValueError("border_choice {} unknown.".format(border_choice))
 
-    def single_cell_selected(self):
-        """Returns True iif a single cell is selected via self.cells"""
+    def single_cell_selected(self) -> bool:
+        """
+        :return: True iif a single cell is selected via self.cells
 
-        return (not any((self.block_tl, self.block_br, self.rows, self.cols))
-                and len(self.cells) == 1)
+        """
 
-    def cell_generator(self, shape, table=None):
+        return len(self.cells) == 1 and not any((self.block_tl, self.block_br,
+                                                 self.rows, self.columns))
+
+    def cell_generator(self, shape, table=None) -> Generator:
         """Returns a generator of cell key tuples
 
         :param shape: Grid shape

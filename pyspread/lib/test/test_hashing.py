@@ -27,7 +27,7 @@ Unit tests for hashing.py
 
 """
 
-import py.test as pytest
+import pytest
 from ..hashing import genkey, sign, verify
 
 

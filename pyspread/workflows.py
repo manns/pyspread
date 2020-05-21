@@ -28,22 +28,21 @@ from ast import literal_eval
 from base64 import b85encode
 import bz2
 from contextlib import contextmanager
-from copy import deepcopy
 import csv
 from itertools import cycle
 import io
-from itertools import takewhile, repeat
 import os.path
 from pathlib import Path
 from shutil import move
 from tempfile import NamedTemporaryFile
+from typing import Iterable, Tuple
 
-from PyQt5.QtCore \
-    import Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize
+from PyQt5.QtCore import (
+    Qt, QMimeData, QModelIndex, QBuffer, QRect, QRectF, QSize,
+    QItemSelectionModel)
 from PyQt5.QtGui import QTextDocument, QImage, QPainter, QBrush, QPen
-from PyQt5.QtWidgets \
-    import (QApplication, QProgressDialog, QMessageBox, QInputDialog,
-            QStyleOptionViewItem)
+from PyQt5.QtWidgets import (
+    QApplication, QMessageBox, QInputDialog, QStyleOptionViewItem, QTableView)
 try:
     from PyQt5.QtSvg import QSvgGenerator
 except ImportError:
@@ -54,40 +53,48 @@ try:
 except ImportError:
     matplotlib_figure = None
 
-import commands
-from dialogs \
-    import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
-            FileSaveDialog, ImageFileOpenDialog, ChartDialog, CellKeyDialog,
-            FindDialog, ReplaceDialog, CsvFileImportDialog, CsvImportDialog,
-            CsvExportDialog, CsvExportAreaDialog, CsvFileExportDialog,
-            SvgExportAreaDialog)
-from interfaces.pys import PysReader, PysWriter
-from lib.hashing import sign, verify
-from lib.selection import Selection
-from lib.typechecks import is_svg
-from lib.csv import csv_reader, convert
+try:
+    import pyspread.commands as commands
+    from pyspread.dialogs \
+        import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
+                FileSaveDialog, ImageFileOpenDialog, ChartDialog,
+                CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
+                CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
+                CsvFileExportDialog, SvgExportAreaDialog)
+    from pyspread.interfaces.pys import PysReader, PysWriter
+    from pyspread.lib.attrdict import AttrDict
+    from pyspread.lib.hashing import sign, verify
+    from pyspread.lib.selection import Selection
+    from pyspread.lib.typechecks import is_svg, check_shape_validity
+    from pyspread.lib.csv import csv_reader, convert
+    from pyspread.lib.file_helpers import \
+        (linecount, file_progress_gen, ProgressDialogCanceled)
+    from pyspread.model.model import CellAttribute
+except ImportError:
+    import commands
+    from dialogs \
+        import (DiscardChangesDialog, FileOpenDialog, GridShapeDialog,
+                FileSaveDialog, ImageFileOpenDialog, ChartDialog,
+                CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
+                CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
+                CsvFileExportDialog, SvgExportAreaDialog)
+    from interfaces.pys import PysReader, PysWriter
+    from lib.attrdict import AttrDict
+    from lib.hashing import sign, verify
+    from lib.selection import Selection
+    from lib.typechecks import is_svg, check_shape_validity
+    from lib.csv import csv_reader, convert
+    from lib.file_helpers import \
+        (linecount, file_progress_gen, ProgressDialogCanceled)
+    from model.model import CellAttribute
 
 
 class Workflows:
+
+    cell2dialog = {}  # Stores acrive chart dialogs
+
     def __init__(self, main_window):
         self.main_window = main_window
-
-    @contextmanager
-    def progress_dialog(self, title, label, maximum):
-        """:class:`~contextlib.contextmanager` that displays a progress dialog
-        """
-
-        progress_dialog = QProgressDialog(self.main_window)
-        progress_dialog.setWindowTitle(title)
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setLabelText(label)
-        progress_dialog.setMaximum(maximum)
-
-        yield progress_dialog
-
-        progress_dialog.setValue(maximum)
-        progress_dialog.close()
-        progress_dialog.deleteLater()
 
     @contextmanager
     def disable_entryline_updates(self):
@@ -168,21 +175,15 @@ class Workflows:
     def file_new(self):
         """File new workflow"""
 
-        maxshape = self.main_window.settings.maxshape
-
         # Get grid shape from user
         old_shape = self.main_window.grid.model.code_array.shape
         shape = GridShapeDialog(self.main_window, old_shape).shape
-        if shape is None:
-            # Abort changes because the dialog has been canceled
-            return
-        elif any(ax == 0 for ax in shape):
-            msg = "Invalid grid shape {}.".format(shape)
-            self.main_window.statusBar().showMessage(msg)
-            return
-        elif any(ax > axmax for axmax, ax in zip(maxshape, shape)):
-            msg = "Grid shape {} exceeds {}.".format(shape, maxshape)
-            self.main_window.statusBar().showMessage(msg)
+
+        # Check if shape is valid
+        try:
+            check_shape_validity(shape, self.main_window.settings.maxshape)
+        except ValueError as err:
+            self.main_window.statusBar().showMessage('Error: ' + str(err))
             return
 
         # Set current cell to upper left corner
@@ -218,26 +219,33 @@ class Workflows:
         # Exit safe mode
         self.main_window.safe_mode = False
 
-    def _get_filesize(self, filepath):
-        """Returns the filesize"""
+    def count_file_lines(self, filepath: Path):
+        """Returns line count of file in filepath
+
+        :param filepath: Path of file to be analyzed
+
+        """
 
         try:
-            filesize = os.path.getsize(filepath)
-        except OSError as err:
-            msg_tpl = "Error opening file {filepath}: {err}."
-            msg = msg_tpl.format(filepath=filepath, err=err)
-            self.main_window.statusBar().showMessage(msg)
+            with open(filepath, 'rb') as infile:
+                return linecount(infile)
+        except OSError as error:
+            self.main_window.statusBar().showMessage(str(error))
             return
-        return filesize
 
-    def filepath_open(self, filepath):
-        """Workflow for opening a file if a filepath is known"""
+    def filepath_open(self, filepath: Path):
+        """Workflow for opening a file if a filepath is known
+
+        :param filepath: Path of file to be opened
+
+        """
 
         grid = self.main_window.grid
         code_array = grid.model.code_array
 
-        filesize = self._get_filesize(filepath)
-        if filesize is None:
+        # Get number of lines for progess dialog
+        filelines = self.count_file_lines(filepath)
+        if not filelines:  # May not be None or 0
             return
 
         # Reset grid
@@ -266,34 +274,39 @@ class Workflows:
             fopen = bz2.open
 
         # Process events before showing the modal progress dialog
-        self.main_window.application.processEvents()
+        QApplication.instance().processEvents()
 
         # Load file into grid
+        title = "File open progress"
+        label = "Opening {}...".format(filepath.name)
+
         try:
             with fopen(filepath, "rb") as infile:
-                title = "File open progress"
-                label = "Opening {}...".format(filepath.name)
-                with self.progress_dialog(title, label,
-                                          filesize) as progress_dialog:
-                    try:
-                        for line in PysReader(infile, code_array):
-                            progress_dialog.setValue(infile.tell())
-                            self.main_window.application.processEvents()
-                            if progress_dialog.wasCanceled():
-                                grid.model.reset()
-                                self.main_window.safe_mode = False
-                                break
-                    except ValueError as error:
-                        grid.model.reset()
-                        self.main_window.statusBar().showMessage(str(error))
-                        progress_dialog.close()
-                        return
-        except OSError as err:
+                reader = PysReader(infile, code_array)
+                try:
+                    for i, _ in file_progress_gen(self.main_window, reader,
+                                                  title, label, filelines):
+                        pass
+                except ValueError as error:
+                    grid.model.reset()
+                    self.main_window.statusBar().showMessage(str(error))
+                    self.main_window.safe_mode = False
+                    return
+                except ProgressDialogCanceled:
+                    msg = "File open stopped by user at line {}.".format(i)
+                    self.main_window.statusBar().showMessage(msg)
+                    grid.model.reset()
+                    self.main_window.safe_mode = False
+                    return
+
+        except Exception as err:
+            # A lot may got wrong with a malformed pys file, includes OSError
             msg_tpl = "Error opening file {filepath}: {err}."
             msg = msg_tpl.format(filepath=filepath, err=err)
             self.main_window.statusBar().showMessage(msg)
             # Reset grid
             grid.model.reset()
+            self.main_window.safe_mode = False
             return
         # Explicitly set the grid shape
         shape = code_array.shape
@@ -313,6 +326,7 @@ class Workflows:
 
         # Change the main window last input directory state
         self.main_window.settings.last_file_input_path = filepath
+        self.main_window.settings.last_file_output_path = filepath
 
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
@@ -329,27 +343,30 @@ class Workflows:
     def file_open(self):
         """File open workflow"""
 
-        if self.main_window.unit_test:
-            # We are in a unit test and use the unit test filepath
-            filepath = self.main_window.unit_test_data
-
-        else:
-            # Get filepath from user
-            dial = FileOpenDialog(self.main_window)
-            if not dial.file_path:
-                return  # Cancel pressed
-            filepath = Path(dial.file_path).with_suffix(dial.suffix)
+        # Get filepath from user
+        dial = FileOpenDialog(self.main_window)
+        if not dial.file_path:
+            return  # Cancel pressed
+        filepath = Path(dial.file_path).with_suffix(dial.suffix)
 
         self.filepath_open(filepath)
 
     @handle_changed_since_save
-    def file_open_recent(self, filepath):
-        """File open recent workflow"""
+    def file_open_recent(self, filepath: Path):
+        """File open recent workflow
+
+        :param filepath: Path of file to be opened
+
+        """
 
         self.filepath_open(Path(filepath))
 
-    def sign_file(self, filepath):
-        """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`"""
+    def sign_file(self, filepath: Path):
+        """Signs filepath if not in :attr:`model.model.DataArray.safe_mode`
+
+        :param filepath: Path of file to be signed
+
+        """
 
         if self.main_window.safe_mode:
             msg = "File saved but not signed because it is unapproved."
@@ -381,41 +398,44 @@ class Workflows:
 
         self.main_window.statusBar().showMessage(msg)
 
-    def _save(self, filepath):
+    def _save(self, filepath: Path):
         """Save filepath using chosen_filter
 
         Compresses save file if filepath.suffix is `.pys`
 
-        Parameters
-        ----------
-        * filepath: pathlib.Path
-        \tSave file path
+        :param filepath: Path of file to be saved
 
         """
 
         code_array = self.main_window.grid.model.code_array
 
         # Process events before showing the modal progress dialog
-        self.main_window.application.processEvents()
+        QApplication.instance().processEvents()
 
         # Save grid to temporary file
+
+        title = "File save progress"
+        label = "Saving {}...".format(filepath.name)
+
         with NamedTemporaryFile(delete=False) as tempfile:
             filename = tempfile.name
             try:
                 pys_writer = PysWriter(code_array)
-                with self.progress_dialog("File save progress",
-                                          "Saving {}...".format(filepath.name),
-                                          len(pys_writer)) as progress_dialog:
-                    for i, line in enumerate(pys_writer):
+                try:
+                    for i, line in file_progress_gen(
+                            self.main_window, pys_writer, title, label,
+                            len(pys_writer)):
                         line = bytes(line, "utf-8")
                         if filepath.suffix == ".pys":
                             line = bz2.compress(line)
                         tempfile.write(line)
-                        progress_dialog.setValue(i)
-                        self.main_window.application.processEvents()
-                        if progress_dialog.wasCanceled():
-                            tempfile.delete = True  # Delete incomplete tmpfile
-                            return
+
+                except ProgressDialogCanceled:
+                    msg = "File save stopped by user."
+                    self.main_window.statusBar().showMessage(msg)
+                    tempfile.delete = True  # Delete incomplete tmpfile
+                    return
+
             except (OSError, ValueError) as err:
                 tempfile.delete = True
                 QMessageBox.critical(self.main_window, "Error saving file",
@@ -436,7 +456,7 @@ class Workflows:
         self.main_window.settings.changed_since_save = False
 
         # Set the current filepath
-        self.main_window.settings.last_file_input_path = filepath
+        self.main_window.settings.last_file_output_path = filepath
 
         # Change the main window title
         window_title = "{filename} - pyspread".format(filename=filepath.name)
@@ -447,7 +467,7 @@ class Workflows:
     def file_save(self):
         """File save workflow"""
 
-        filepath = self.main_window.settings.last_file_input_path
+        filepath = self.main_window.settings.last_file_output_path
         if filepath.suffix:
             self._save(filepath)
 
@@ -475,94 +495,164 @@ class Workflows:
     def file_import(self):
         """Import csv files"""
 
-        def rawincount(filepath):
-            """Counts lines of file"""
+        # Get filepath from user
+        dial = CsvFileImportDialog(self.main_window)
+        if not dial.file_path:
+            return  # Cancel pressed
+        filepath = Path(dial.file_path)
 
-            with open(filepath, 'rb') as f:
-                bufgen = takewhile(lambda x: x, (f.raw.read(1024*1024)
-                                                 for _ in repeat(None)))
-                return sum(buf.count(b'\n') for buf in bufgen)
+        self._csv_import(filepath)
 
-        if self.main_window.unit_test:
-            # We are in a unit test and use the unit test filepath
-            filepath = self.main_window.unit_test_data
+    def _csv_import(self, filepath: Path):
+        """Import csv from filepath
 
-        else:
-            # Get filepath from user
-            dial = CsvFileImportDialog(self.main_window)
-            if not dial.file_path:
-                return  # Cancel pressed
-            filepath = Path(dial.file_path)
+        :param filepath: Path of file to be imported
 
-        csv_dlg = CsvImportDialog(self.main_window, filepath)
+        """
+
+        filelines = self.count_file_lines(filepath)
+        if not filelines:  # May not be None or 0
+            title = "CSV Import Error"
+            text = "File {} seems to be empty.".format(filepath)
+            QMessageBox.warning(self.main_window, title, text)
+            return
+
+        # Store file import path for next time importing a file
+        self.main_window.settings.last_file_import_path = filepath
+
+        digest_types = self.main_window.settings.digest_types
+
+        csv_dlg = CsvImportDialog(self.main_window, filepath,
+                                  digest_types=digest_types)
 
         if not csv_dlg.exec():
             return
 
-        # Dialog accepted, now fill the grid
-
+        self.main_window.settings.digest_types = csv_dlg.digest_types
+        dialect = csv_dlg.dialect
+        digest_types = csv_dlg.digest_types
+        try:
+            keep_header = dialect.hasheader and dialect.keepheader
+        except AttributeError:
+            keep_header = False
         row, column, table = current = self.main_window.grid.current
         model = self.main_window.grid.model
         rows, columns, tables = model.shape
 
+        # Dialog accepted, now check if grid is large enough
+        csv_rows = filelines
+        if dialect.hasheader and not dialect.keepheader:
+            csv_rows -= 1
+        csv_columns = csv_dlg.csv_table.model.columnCount()
+        max_rows, max_columns = self.main_window.settings.maxshape[:2]
+
+        if csv_rows > rows - row or csv_columns > columns - column:
+            if csv_rows + row > max_rows or csv_columns + column > max_columns:
+                # Required grid size is too large
+                text_tpl = "The csv file {} does not fit into the grid.\n " +\
+                           "\nIt has {} rows and {} columns. Counting from " +\
+                           "the current cell, {} rows and {} columns would " +\
+                           "be needed, which exeeds the maximum shape of " +\
+                           "{} rows and {} columns. Data that does not fit " +\
+                           "inside the grid is discarded.\n \nDo you want " +\
+                           "to increase the grid size so that as much data " +\
+                           "from the csv file as possible fits in?"
+                text = text_tpl.format(filepath, csv_rows, csv_columns,
+                                       rows-row, columns-column, )
+            else:
+                # Shall we resize the grid?
+                text_tpl = \
+                    "The csv file {} does not fit into the grid.\n \n" +\
+                    "It has {} rows and {} columns. Counting from the " +\
+                    "current cell, only {} rows and {} columns remain for " +\
+                    "CSV data.\n \nData that does not fit inside the grid " +\
+                    "is discarded.\n \nDo you want to increase the grid " +\
+                    "size so that all csv file data fits in?"
+                text = text_tpl.format(filepath, csv_rows, csv_columns,
+                                       rows-row, columns-column)
+
+            title = "CSV Content Exceeds Grid Shape"
+            choices = QMessageBox.No | QMessageBox.Yes | QMessageBox.Cancel
+            default_choice = QMessageBox.No
+            choice = QMessageBox.question(self.main_window, title, text,
+                                          choices, default_choice)
+            if choice == QMessageBox.Yes:
+                # Resize grid
+                target_rows = min(max_rows, max(csv_rows + row, rows))
+                target_columns = min(max_columns,
+                                     max(csv_columns + column, columns))
+                self._resize_grid((target_rows, target_columns, tables))
+                rows = target_rows
+                columns = target_columns
+
+            elif choice == QMessageBox.Cancel:
+                return
+
+        # Now fill the grid
+
         description_tpl = "Import from csv file {} at cell {}"
         description = description_tpl.format(filepath, current)
 
-        try:
-            filelines = rawincount(filepath)
-        except OSError as error:
-            self.main_window.statusBar().showMessage(str(error))
-            return
-
         command = None
 
+        title = "csv import progress"
+        label = "Importing {}...".format(filepath.name)
+
         try:
-            with open(filepath, newline='') as csvfile:
-                title = "csv import progress"
-                label = "Importing {}...".format(filepath.name)
-                with self.progress_dialog(title, label,
-                                          filelines) as progress_dialog:
-                    try:
-                        # Enter safe mode
-                        self.main_window.safe_mode = True
+            with open(filepath, newline='', encoding='utf-8') as csvfile:
+                try:
+                    reader = csv_reader(csvfile, dialect, digest_types)
+                    for i, line in file_progress_gen(self.main_window, reader,
+                                                     title, label, filelines):
+                        if row + i >= rows:
+                            break
 
-                        reader = csv_reader(csvfile, csv_dlg.dialect,
-                                            csv_dlg.digest_types)
-                        for i, line in enumerate(reader):
-                            if row + i >= rows:
+                        for j, ele in enumerate(line):
+                            if column + j >= columns:
                                 break
-                            if i % 100 == 0:
-                                progress_dialog.setValue(i)
-                                self.main_window.application.processEvents()
-                                if progress_dialog.wasCanceled():
-                                    return
 
-                            for j, ele in enumerate(line):
-                                if column + j >= columns:
-                                    break
+                            if digest_types is None:
+                                code = str(ele)
+                            elif i == 0 and keep_header:
+                                code = repr(ele)
+                            else:
+                                code = convert(ele, digest_types[j])
+                            index = model.index(row + i, column + j)
+                            _command = commands.SetCellCode(code, model, index,
+                                                            description)
+                            try:
+                                command.mergeWith(_command)
+                            except AttributeError:
+                                command = _command
 
-                                if csv_dlg.digest_types is None:
-                                    code = str(ele)
-                                else:
-                                    code = convert(ele,
-                                                   csv_dlg.digest_types[j])
-                                index = model.index(row + i, column + j)
-                                cmd = commands.SetCellCode(code, model, index,
-                                                           description)
+                except (TypeError, ValueError) as error:
+                    title = "CSV Import Error"
+                    text_tpl = "Error importing csv file {path}.\n \n" + \
+                               "{errtype}: {error}"
+                    text = text_tpl.format(path=filepath,
+                                           errtype=type(error).__name__,
+                                           error=error)
+                    QMessageBox.warning(self.main_window, title, text)
+                    return
 
-                                if command is None:
-                                    command = cmd
-                                else:
-                                    command.mergeWith(cmd)
-                    except ValueError as error:
-                        msg = str(error)
-                        self.main_window.statusBar().showMessage(msg)
-                        return
+                except ProgressDialogCanceled:
+                    title = "CSV Import Stopped"
+                    text = "Import stopped by user at line {}.".format(i)
+                    QMessageBox.warning(self.main_window, title, text)
+                    return
 
-                    self.main_window.undo_stack.push(command)
-        except OSError as error:
-            self.main_window.statusBar().showMessage(str(error))
+        except Exception as error:
+            # A lot may go wrong with malformed csv files, includes OSError
+            title = "CSV Import Error"
+            text_tpl = "Error importing csv file {path}.\n \n" +\
+                       "{errtype}: {error}"
+            text = text_tpl.format(path=filepath, errtype=type(error).__name__,
+                                   error=error)
+            QMessageBox.warning(self.main_window, title, text)
             return
+
+        with self.busy_cursor():
+            self.main_window.undo_stack.push(command)
 
     def file_export(self):
         """Export csv and svg files"""
@@ -573,6 +663,9 @@ class Workflows:
             return  # Cancel pressed
         filepath = Path(dial.file_path)
 
+        # Store file export path for next time exporting a file
+        self.main_window.settings.last_file_export_path = filepath
+
         if "CSV" in dial.selected_filter:
             self._csv_export(filepath)
         elif "SVG" in dial.selected_filter:
@@ -581,8 +674,12 @@ class Workflows:
                 filepath = filepath.with_suffix(dial.suffix)
             self._svg_export(filepath)
 
-    def _csv_export(self, filepath):
-        """Export to csv file filepath"""
+    def _csv_export(self, filepath: Path):
+        """Export to csv file filepath
+
+        :param filepath: Path of file to be exported
+
+        """
 
         # Get area for csv export
         csv_area = CsvExportAreaDialog(self.main_window,
@@ -601,14 +698,18 @@ class Workflows:
             return
 
         try:
-            with open(filepath, "w", newline='') as csvfile:
+            with open(filepath, "w", newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile, dialect=csv_dlg.dialect)
                 writer.writerows(csv_data)
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
 
-    def _svg_export(self, filepath):
-        """Export to svg file filepath"""
+    def _svg_export(self, filepath: Path):
+        """Export to svg file filepath
+
+        :param filepath: Path of file to be exported
+
+        """
 
         with self.print_zoom():
             grid = self.main_window.grid
@@ -638,16 +739,24 @@ class Workflows:
             painter.end()
 
     @contextmanager
-    def print_zoom(self, zoom=1.0):
-        """Decorator for tasks that have to take place in standard zoom"""
+    def print_zoom(self, zoom: float = 1.0):
+        """Decorator for tasks that have to take place in standard zoom
+
+        :param zoom: Print zoom factor
+
+        """
 
         __zoom = self.main_window.grid.zoom
         self.main_window.grid.zoom = zoom
         yield
         self.main_window.grid.zoom = __zoom
 
-    def get_paint_rows(self, area):
-        """Iterator of rows to paint"""
+    def get_paint_rows(self, area: Tuple[int, int, int, int]) -> Iterable[int]:
+        """Iterator of rows to paint
+
+        :param area: Area of cells to paint (top, left, bottom, right)
+
+        """
 
         rows = self.main_window.grid.model.shape[0]
         top, _, bottom, _ = area
@@ -660,8 +769,13 @@ class Workflows:
 
         return range(top, bottom + 1)
 
-    def get_paint_columns(self, area):
-        """Iterator of columns to paint"""
+    def get_paint_columns(self,
+                          area: Tuple[int, int, int, int]) -> Iterable[int]:
+        """Iterator of columns to paint
+
+        :param area: Area of cells to paint (top, left, bottom, right)
+
+        """
 
         columns = self.main_window.grid.model.shape[1]
         _, left, _, right = area
@@ -674,21 +788,38 @@ class Workflows:
 
         return range(left, right + 1)
 
-    def get_total_height(self, area):
-        """Total height of paint_rows"""
+    def get_total_height(self, area: Tuple[int, int, int, int]) -> float:
+        """Total height of paint_rows
+
+        :param area: Area of cells to evaluate (top, left, bottom, right)
+
+        """
 
         grid = self.main_window.grid
         return sum(grid.rowHeight(row) for row in self.get_paint_rows(area))
 
-    def get_total_width(self, area):
-        """Total height of paint_columns"""
+    def get_total_width(self, area: Tuple[int, int, int, int]) -> float:
+        """Total height of paint_columns
+
+        :param area: Area of cells to evaluate (top, left, bottom, right)
+
+        """
 
         grid = self.main_window.grid
         return sum(grid.columnWidth(column)
                    for column in self.get_paint_columns(area))
 
-    def paint(self, painter, option, paint_rect, rows, columns):
-        """Grid paint workflow for printing and svg export"""
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem,
+              paint_rect: QRectF, rows: Iterable[int], columns: Iterable[int]):
+        """Grid paint workflow for printing and svg export
+
+        :param painter: Painter with which the grid is drawn
+        :param option: Style option for rendering
+        :param paint_rect: Rectangle, which is drawn at the grid borders
+        :param rows: Rows to be painted
+        :param columns: Columns to be painted
+
+        """
 
         grid = self.main_window.grid
         code_array = grid.model.code_array
@@ -739,12 +870,16 @@ class Workflows:
         """Program exit workflow"""
 
         self.main_window.settings.save()
-        self.main_window.application.quit()
+        QApplication.instance().quit()
 
     # Edit menu
 
-    def delete(self, description_tpl="Delete selection {}"):
-        """Delete cells in selection"""
+    def delete(self, description_tpl: str = "Delete selection {}"):
+        """Delete cells in selection
+
+        :param description_tpl: Description template for `QUndoCommand`
+
+        """
 
         grid = self.main_window.grid
         model = grid.model
@@ -798,8 +933,12 @@ class Workflows:
         clipboard = QApplication.clipboard()
         clipboard.setText(data_string)
 
-    def _copy_results_current(self, grid):
-        """Copy cell results for the current cell"""
+    def _copy_results_current(self, grid: QTableView):
+        """Copy cell results for the current cell
+
+        :param grid: Main grid
+
+        """
 
         current = grid.current
         data = grid.model.code_array[current]
@@ -809,7 +948,7 @@ class Workflows:
         clipboard = QApplication.clipboard()
 
         # Get renderer for current cell
-        renderer = grid.model.code_array.cell_attributes[current]["renderer"]
+        renderer = grid.model.code_array.cell_attributes[current].renderer
 
         if renderer == "text":
             clipboard.setText(repr(data))
@@ -853,8 +992,12 @@ class Workflows:
             mime_data.setImageData(png_image)
             clipboard.setMimeData(mime_data)
 
-    def _copy_results_selection(self, grid):
-        """Copy repr of selected cells result objects to the clipboard"""
+    def _copy_results_selection(self, grid: QTableView):
+        """Copy repr of selected cells result objects to the clipboard
+
+        :param grid: Main grid
+
+        """
 
         def repr_nn(ele):
             """repr which returns '' if ele is None"""
@@ -892,8 +1035,13 @@ class Workflows:
         else:
             self._copy_results_current(grid)
 
-    def _paste_to_selection(self, selection, data):
-        """Pastes data into grid filling the selection"""
+    def _paste_to_selection(self, selection: Selection, data: str):
+        """Pastes data into grid filling the selection
+
+        :param selection: Grid cell selection for pasting
+        :param data: Clipboard text
+
+        """
 
         grid = self.main_window.grid
         model = grid.model
@@ -931,8 +1079,12 @@ class Workflows:
                     break
         undo_stack.push(command)
 
-    def _paste_to_current(self, data):
-        """Pastes data into grid starting from the current cell"""
+    def _paste_to_current(self, data: str):
+        """Pastes data into grid starting from the current cell
+
+        :param data: Clipboard text
+
+        """
 
         grid = self.main_window.grid
         model = grid.model
@@ -992,15 +1144,11 @@ class Workflows:
                 else:
                     self._paste_to_current(data)
 
-    def _paste_svg(self, svg, index):
+    def _paste_svg(self, svg: str, index: QModelIndex):
         """Pastes svg image into cell
 
-        Parameters
-        ----------
-         * svg: string
-        \tSVG data
-         * index: QModelIndex
-        \tTarget cell index
+        :param svg: SVG data
+        :param index: Target cell index
 
         """
 
@@ -1017,19 +1165,22 @@ class Workflows:
             command = commands.SetCellCode(code, model, index, description)
             self.main_window.undo_stack.push(command)
 
-    def _paste_image(self, image_data, index):
+    def _paste_image(self, image_data: bytes, index: QModelIndex):
         """Pastes svg image into cell
 
-        Parameters
-        ----------
-         * image_data: bytes
-        \tRaw image data. May be anything that QImage handles.
-         * index: QModelIndex
-        \tTarget cell index
+        :param image_data: Raw image data. May be anything that QImage handles.
+        :param index: Target cell index
 
         """
 
-        def gen_chunk(string, length):
+        def gen_chunk(string: str, length: int) -> Iterable[str]:
+            """Generator for chunks of string
+
+            :param string: String to be chunked
+            :param length: Chunk length
+
+            """
+
             for i in range(0, len(string), length):
                 yield string[i:i+length]
 
@@ -1132,8 +1283,12 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
-    def _get_next_match(self, find_dialog):
-        """Returns tuple of find string and next matching cell key"""
+    def _get_next_match(self, find_dialog: FindDialog):
+        """Returns tuple of find string and next matching cell key
+
+        :param find_dialog: Find dialog from which the search origins
+
+        """
 
         grid = self.main_window.grid
         findnextmatch = grid.model.code_array.findnextmatch
@@ -1156,8 +1311,15 @@ class Workflows:
                 regexp=find_dialog.regex_checkbox.isChecked(),
                 results=find_dialog.results_checkbox.isChecked())
 
-    def _display_match_msg(self, find_string, next_match, regexp):
-        """Displays find match message in statusbar"""
+    def _display_match_msg(self, find_string: str, next_match: str,
+                           regexp: str):
+        """Displays find match message in statusbar
+
+        :param find_string: Message component
+        :param next_match: Message component
+        :param regexp: Message component
+
+        """
 
         str_name = "Regular expression" if regexp else "String"
         msg_tpl = "{str_name} {find_string} found in cell {next_match}."
@@ -1166,8 +1328,12 @@ class Workflows:
                              next_match=next_match)
         self.main_window.statusBar().showMessage(msg)
 
-    def find_dialog_on_find(self, find_dialog):
-        """Edit -> Find workflow, after pressing find button in FindDialog"""
+    def find_dialog_on_find(self, find_dialog: FindDialog):
+        """Edit -> Find workflow, after pressing find button in FindDialog
+
+        :param find_dialog: Find dialog of origin
+
+        """
 
         find_string, next_match = self._get_next_match(find_dialog)
 
@@ -1214,10 +1380,16 @@ class Workflows:
         find_dialog.raise_()
         find_dialog.activateWindow()
 
-    def replace_dialog_on_replace(self, replace_dialog, toggled=False, max_=1):
+    def replace_dialog_on_replace(self, replace_dialog: ReplaceDialog,
+                                  toggled: bool = False,
+                                  max_: int = 1) -> bool:
         """Edit -> Replace workflow when pushing Replace in ReplaceDialog
 
         Returns True if there is a match
+
+        :param replace_dialog: Replace dialog of origin
+        :param toggled: Replace dialog toggle state
+        :param max_: Maximum number of replace actions, -1 is unlimited
 
         """
 
@@ -1246,8 +1418,12 @@ class Workflows:
 
             return True
 
-    def replace_dialog_on_replace_all(self, replace_dialog):
-        """Edit -> Replace workflow when pushing ReplaceAll in ReplaceDialog"""
+    def replace_dialog_on_replace_all(self, replace_dialog: ReplaceDialog):
+        """Edit -> Replace workflow when pushing ReplaceAll in ReplaceDialog
+
+        :param replace_dialog: Replace dialog of origin
+
+        """
 
         while self.replace_dialog_on_replace(replace_dialog, max_=-1):
             pass
@@ -1255,24 +1431,27 @@ class Workflows:
     def edit_resize(self):
         """Edit -> Resize workflow"""
 
-        grid = self.main_window.grid
-
-        maxshape = self.main_window.settings.maxshape
-
         # Get grid shape from user
-        old_shape = grid.model.code_array.shape
+        old_shape = self.main_window.grid.model.code_array.shape
         title = "Resize grid"
         shape = GridShapeDialog(self.main_window, old_shape, title=title).shape
-        if shape is None:
-            # Abort changes because the dialog has been canceled
-            return
-        elif any(ax == 0 for ax in shape):
-            msg = "Invalid grid shape {}.".format(shape)
-            self.main_window.statusBar().showMessage(msg)
-            return
-        elif any(ax > axmax for axmax, ax in zip(maxshape, shape)):
-            msg = "Grid shape {} exceeds {}.".format(shape, maxshape)
-            self.main_window.statusBar().showMessage(msg)
+        self._resize_grid(shape)
+
+    def _resize_grid(self, shape: Tuple[int, int, int]):
+        """Resize grid
+
+        :param shape: New grid shape
+
+        """
+
+        grid = self.main_window.grid
+        old_shape = self.main_window.grid.model.code_array.shape
+
+        # Check if shape is valid
+        try:
+            check_shape_validity(shape, self.main_window.settings.maxshape)
+        except ValueError as err:
+            self.main_window.statusBar().showMessage('Error: ' + str(err))
             return
 
         self.main_window.grid.current = 0, 0, 0
@@ -1307,8 +1486,12 @@ class Workflows:
 
         """
 
-        def remove_tabu_keys(attr):
-            """Remove keys that are not copied from attr"""
+        def remove_tabu_keys(attr: AttrDict):
+            """Remove keys that are not copied from attr
+
+            :param attr: Attribute dict that holds cell attributes
+
+            """
 
             tabu_attrs = "merge_area", "frozen"
             for tabu_attr in tabu_attrs:
@@ -1332,7 +1515,7 @@ class Workflows:
         (top, left), (bottom, right) = \
             selection.get_grid_bbox(grid.model.shape)
 
-        table_cell_attributes = deepcopy(cell_attributes.for_table(table))
+        table_cell_attributes = cell_attributes.for_table(table)
         for __selection, _, attrs in table_cell_attributes:
             new_selection = selection & __selection
             if new_selection:
@@ -1370,7 +1553,10 @@ class Workflows:
         cas_data = mime_data.data("application/x-pyspread-cell-attributes")
         cas_data_str = str(cas_data, encoding='utf-8')
         cas = literal_eval(cas_data_str)
-        assert isinstance(cas, list)
+        if not isinstance(cas, list):
+            msg_tpl = "{} has type {} that is not instance of list"
+            msg = msg_tpl.format(cas, type(cas))
+            raise Warning(msg)
 
         tabu_attrs = "merge_area", "frozen"
 
@@ -1381,12 +1567,13 @@ class Workflows:
             if not any(tabu_attr in attrs for tabu_attr in tabu_attrs):
                 selection = Selection(*selection_params)
                 shifted_selection = selection.shifted(row, column)
-                new_cell_attribute = shifted_selection, table, attrs
-
+                attr_dict = AttrDict()
+                attr_dict.update(attrs)
+                new_cell_attribute = CellAttribute(shifted_selection, table,
+                                                   attr_dict)
                 selected_idx = []
                 for key in shifted_selection.cell_generator(model.shape):
                     selected_idx.append(model.index(*key))
-
                 command = commands.SetCellFormat(new_cell_attribute, model,
                                                  grid.currentIndex(),
                                                  selected_idx, description)
@@ -1404,10 +1591,13 @@ class Workflows:
         filepath = Path(dial.file_path)
 
         index = self.main_window.grid.currentIndex()
+        self.main_window.grid.clearSelection()
+        self.main_window.grid.selectionModel().select(
+                index, QItemSelectionModel.Select)
 
         if filepath.suffix == ".svg":
             try:
-                with open(filepath, "r") as svgfile:
+                with open(filepath, "r", encoding='utf-8') as svgfile:
                     svg = svgfile.read()
             except OSError as err:
                 msg_tpl = "Error opening file {filepath}: {err}."
@@ -1431,17 +1621,34 @@ class Workflows:
 
         code_array = self.main_window.grid.model.code_array
         code = code_array(self.main_window.grid.current)
+        current = self.main_window.grid.current
 
-        chart_dialog = ChartDialog(self.main_window)
+        if current in self.cell2dialog:
+            self.cell2dialog[current].activateWindow()
+            self.cell2dialog[current].setFocus()
+            return
+
+        chart_dialog = ChartDialog(self.main_window, current)
+        self.cell2dialog[current] = chart_dialog
+
         if code is not None:
             chart_dialog.editor.setPlainText(code)
+
         chart_dialog.show()
+
         if chart_dialog.exec_() == ChartDialog.Accepted:
             code = chart_dialog.editor.toPlainText()
+            self.main_window.grid.current = current
             index = self.main_window.grid.currentIndex()
+            self.main_window.grid.clearSelection()
+            self.main_window.grid.selectionModel().select(
+                    index, QItemSelectionModel.Select)
             self.main_window.grid.on_matplotlib_renderer_pressed(True)
 
             model = self.main_window.grid.model
             description = "Insert chart into cell {}".format(index)
             command = commands.SetCellCode(code, model, index, description)
+
             self.main_window.undo_stack.push(command)
+
+        self.cell2dialog.pop(current)

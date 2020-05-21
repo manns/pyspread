@@ -38,17 +38,19 @@ import math  # Yes, it is required
 from os.path import abspath, dirname, join
 import sys
 
-import py.test as pytest
+import pytest
 import numpy
 
 pyspread_path = abspath(join(dirname(__file__) + "/../.."))
 sys.path.insert(0, pyspread_path)
 
-from model.model \
-    import KeyValueStore, CellAttributes, DictGrid, DataArray, CodeArray
+from model.model import (KeyValueStore, CellAttributes, DictGrid, DataArray,
+                         CodeArray, CellAttribute, DefaultCellAttributeDict)
 
+from lib.attrdict import AttrDict
 from lib.selection import Selection
 sys.path.pop(0)
+
 
 class Settings:
     """Simulates settings class"""
@@ -88,9 +90,9 @@ class TestCellAttributes(object):
 
         selection = Selection([], [], [], [], [(23, 12)])
         table = 0
-        attr = {"angle": 0.2}
+        attr = AttrDict([("angle", 0.2)])
 
-        self.cell_attr.append((selection, table, attr))
+        self.cell_attr.append(CellAttribute(selection, table, attr))
 
         # Check if 1 item - the actual action has been added
         assert not self.cell_attr._attr_cache
@@ -101,11 +103,14 @@ class TestCellAttributes(object):
         selection_1 = Selection([(2, 2)], [(4, 5)], [55], [55, 66], [(34, 56)])
         selection_2 = Selection([], [], [], [], [(32, 53), (34, 56)])
 
-        self.cell_attr.append((selection_1, 0, {"testattr": 3}))
-        self.cell_attr.append((selection_2, 0, {"testattr": 2}))
+        ca1 = CellAttribute(selection_1, 0, AttrDict([("testattr", 3)]))
+        ca2 = CellAttribute(selection_2, 0, AttrDict([("testattr", 2)]))
 
-        assert self.cell_attr[32, 53, 0]["testattr"] == 2
-        assert self.cell_attr[2, 2, 0]["testattr"] == 3
+        self.cell_attr.append(ca1)
+        self.cell_attr.append(ca2)
+
+        assert self.cell_attr[32, 53, 0].testattr == 2
+        assert self.cell_attr[2, 2, 0].testattr == 3
 
     def test_get_merging_cell(self):
         """Test get_merging_cell"""
@@ -114,9 +119,17 @@ class TestCellAttributes(object):
         selection_2 = Selection([(3, 2)], [(9, 9)], [], [], [])
         selection_3 = Selection([(2, 2)], [(9, 9)], [], [], [])
 
-        self.cell_attr.append((selection_1, 0, {"merge_area": (2, 2, 5, 5)}))
-        self.cell_attr.append((selection_2, 0, {"merge_area": (3, 2, 9, 9)}))
-        self.cell_attr.append((selection_3, 1, {"merge_area": (2, 2, 9, 9)}))
+        attr_dict_1 = AttrDict([("merge_area", (2, 2, 5, 5))])
+        attr_dict_2 = AttrDict([("merge_area", (3, 2, 9, 9))])
+        attr_dict_3 = AttrDict([("merge_area", (2, 2, 9, 9))])
+
+        cell_attribute_1 = CellAttribute(selection_1, 0, attr_dict_1)
+        cell_attribute_2 = CellAttribute(selection_2, 0, attr_dict_2)
+        cell_attribute_3 = CellAttribute(selection_3, 1, attr_dict_3)
+
+        self.cell_attr.append(cell_attribute_1)
+        self.cell_attr.append(cell_attribute_2)
+        self.cell_attr.append(cell_attribute_3)
 
         # Cell 1. 1, 0 is not merged
         assert self.cell_attr.get_merging_cell((1, 1, 0)) is None
@@ -180,7 +193,7 @@ class TestDataArray(object):
         self.data_array[(1, 2, 3)] = "12"
         self.data_array[(1, 2, 4)] = "13"
 
-        assert "12" == self.data_array.pop((1, 2, 3))
+        assert self.data_array.pop((1, 2, 3)) == "12"
 
         assert sorted(self.data_array.keys()) == [(1, 2, 4)]
 
@@ -244,8 +257,13 @@ class TestDataArray(object):
     def test_set_cell_attributes(self):
         """Unit test for _set_cell_attributes"""
 
-        cell_attributes = ["Test"]
-        self.data_array.cell_attributes[:] = cell_attributes
+        cell_attributes = self.data_array.cell_attributes
+
+        attr = CellAttribute(Selection([], [], [], [], []), 0,
+                             AttrDict([("Test", None)]))
+        cell_attributes.clear()
+        cell_attributes.append(attr)
+
         assert self.data_array.cell_attributes == cell_attributes
 
     param_adjust_cell_attributes = [
@@ -265,24 +283,27 @@ class TestDataArray(object):
 
         row, col, tab = src
 
-        val = {"angle": 0.2}
+        cell_attributes = self.data_array.cell_attributes
 
-        attrs = [(Selection([], [], [], [], [(row, col)]), tab, val)]
-        self.data_array.cell_attributes[:] = attrs
+        attr_dict = AttrDict([("angle", 0.2)])
+        attr = CellAttribute(Selection([], [], [], [], [(row, col)]), tab,
+                             attr_dict)
+        cell_attributes.clear()
+        cell_attributes.append(attr)
+
         self.data_array._adjust_cell_attributes(inspoint, noins, axis)
 
         if target is None:
-            for key in val:
+            for key in attr_dict:
                 # Should be at default value
-                cell_attributes = self.data_array.cell_attributes
-                default_ca = cell_attributes.default_cell_attributes[key]
+                default_ca = DefaultCellAttributeDict()[key]
                 assert cell_attributes[src][key] == default_ca
         else:
-            for key in val:
-                assert self.data_array.cell_attributes[target][key] == val[key]
+            for key in attr_dict:
+                assert cell_attributes[target][key] == attr_dict[key]
 
     param_test_insert = [
-        ({(2, 3, 0): "42"}, 1, 1, 0,  None,
+        ({(2, 3, 0): "42"}, 1, 1, 0, None,
          {(2, 3, 0): None, (3, 3, 0): "42"}),
         ({(0, 0, 0): "0", (0, 0, 2): "2"}, 1, 1, 2, None,
          {(0, 0, 3): "2", (0, 0, 4): None}),
@@ -325,7 +346,7 @@ class TestDataArray(object):
         self.data_array[2, 3, 4] = "42"
 
         try:
-            self.data_array.delete(1, 1000, 0)
+            self.data_array.delete(1, 1, 20)
             assert False
         except ValueError:
             pass

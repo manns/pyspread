@@ -21,18 +21,29 @@
 from contextlib import contextmanager
 
 from PyQt5.QtCore import Qt, QEvent
-from PyQt5.QtGui import QTextOption
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QTextOption, QKeyEvent
+from PyQt5.QtWidgets import QWidget, QMainWindow
 
-import commands
-from lib.spelltextedit import SpellTextEdit
-from lib.string_helpers import quote
+try:
+    import pyspread.commands as commands
+    from pyspread.lib.spelltextedit import SpellTextEdit
+    from pyspread.lib.string_helpers import quote
+except ImportError:
+    import commands
+    from lib.spelltextedit import SpellTextEdit
+    from lib.string_helpers import quote
 
 
 class Entryline(SpellTextEdit):
     """The entry line for pyspread"""
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+
+        :param main_window: Application main window
+
+        """
+
         super().__init__()
 
         self.main_window = main_window
@@ -48,10 +59,13 @@ class Entryline(SpellTextEdit):
 
     # Overrides
 
-    def eventFilter(self, source, event):
+    def eventFilter(self, source: QWidget, event: QEvent):
         """Quotes editor content for <Ctrl>+<Enter> and <Ctrl>+<Return>
 
         Overrides SpellTextEdit default shortcut. Counts as undoable action.
+
+        :param source: Source widget of event
+        :param event: Event to be filtered
 
         """
 
@@ -78,8 +92,12 @@ class Entryline(SpellTextEdit):
         yield
         self.highlighter.setDocument(doc)
 
-    def keyPressEvent(self, event):
-        """Key press event filter"""
+    def keyPressEvent(self, event: QKeyEvent):
+        """Key press event filter
+
+        :param event: Key event
+
+        """
 
         if event.key() in (Qt.Key_Enter, Qt.Key_Return) \
            and not event.modifiers() == Qt.ShiftModifier:
@@ -102,16 +120,22 @@ class Entryline(SpellTextEdit):
                                        description)
         self.main_window.undo_stack.push(command)
 
-    def on_toggle_spell_check(self, signal):
-        """Spell check toggle event handler"""
+    def on_toggle_spell_check(self, signal: bool):
+        """Spell check toggle event handler
+
+        :param signal: Spell check is enabled if True
+
+        """
 
         self.highlighter.enable_enchant = True if signal else False
 
-    def setPlainText(self, text):
+    def setPlainText(self, text: str):
         """Overides setPlainText
 
         Additionally shows busy cursor and disables highlighter on long texts,
         and omits identical replace.
+
+        :param text: Text to be set
 
         """
 

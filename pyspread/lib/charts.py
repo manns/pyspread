@@ -31,10 +31,12 @@ Provides
 
 """
 
+from collections import OrderedDict
 from copy import copy
 from io import StringIO
 import datetime
-from collections import OrderedDict
+from pathlib import Path
+from typing import IO, List, Union
 
 try:
     from matplotlib.figure import Figure
@@ -44,8 +46,13 @@ except ImportError:
     Figure = Sankey = dates = object
 
 
-def fig2x(figure, format):
-    """Returns svg from matplotlib chart"""
+def fig2x(figure: Figure, format: Union[str, Path, IO]) -> str:
+    """Returns svg from matplotlib chart
+
+    :param figure: Matplotlib figure object
+    :param format: matplotlib.pyplot.savefig format, normally filename suffix
+
+    """
 
     # Save svg to file like object svg_io
     io = StringIO()
@@ -61,7 +68,12 @@ def fig2x(figure, format):
 
 
 class ChartFigure(Figure):
-    """Chart figure class with drawing method"""
+    """Chart figure class with drawing method
+
+    **This class is deprecated and exists solely for compatibility with
+    pyspread <1.99.0**
+
+    """
 
     plot_type_fixed_attrs = {
         "plot": ["xdata", "ydata"],
@@ -97,7 +109,13 @@ class ChartFigure(Figure):
         "hatches": "hatches",
     }
 
-    def __init__(self, *attributes):
+    def __init__(self, *attributes: List[dict]):
+        """
+        :param attributes: List of dicts that contain matplotlib attributes
+                           The first list element is defining the axes
+                           The following list elements are defining plots
+
+        """
 
         Figure.__init__(self, (5.0, 4.0), facecolor="white")
 
@@ -113,14 +131,10 @@ class ChartFigure(Figure):
 
         self.tight_layout(pad=1.5)
 
-    def _xdate_setter(self, xdate_format='%Y-%m-%d'):
+    def _xdate_setter(self, xdate_format: str = '%Y-%m-%d'):
         """Makes x axis a date axis with auto format
 
-        Parameters
-        ----------
-
-        xdate_format: String
-        \tSets date formatting
+        :param xdate_format: Sets date formatting
 
         """
 
@@ -141,8 +155,12 @@ class ChartFigure(Figure):
             # The autofmt method does not work in matplotlib 1.3.0
             # self.autofmt_xdate()
 
-    def _setup_axes(self, axes_data):
-        """Sets up axes for drawing chart"""
+    def _setup_axes(self, axes_data: dict):
+        """Sets up axes for drawing chart
+
+        :param axes_data: Dicts with keys that match matplotlib axes attributes
+
+        """
 
         self.__axes.clear()
 
@@ -182,8 +200,12 @@ class ChartFigure(Figure):
 
                 key2setter[key](axes_data[key], **kwargs)
 
-    def _setup_legend(self, axes_data):
-        """Sets up legend for drawing chart"""
+    def _setup_legend(self, axes_data: dict):
+        """Sets up legend for drawing chart
+
+        :param axes_data: Dicts with keys that match matplotlib axes attributes
+
+        """
 
         if "legend" in axes_data and axes_data["legend"]:
             self.__axes.legend()

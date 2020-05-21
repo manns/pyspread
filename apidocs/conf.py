@@ -52,6 +52,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.graphviz',
     'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints',
 
     'recommonmark'
 ]

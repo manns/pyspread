@@ -27,7 +27,7 @@ Unit tests for selection.py
 
 """
 
-import py.test as pytest
+import pytest
 
 from ..selection import Selection
 

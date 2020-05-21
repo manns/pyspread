@@ -38,20 +38,31 @@
 from functools import partial
 from pathlib import Path
 
-from PyQt5.QtWidgets import QMenuBar, QMenu, QAction
+from PyQt5.QtWidgets import (
+        QMenuBar, QMenu, QAction, QMainWindow, QWidget, QToolBar)
 
 try:
     import matplotlib.figure as matplotlib_figure
 except ImportError:
     matplotlib_figure = None
 
-from icons import Icon
+try:
+    from pyspread.actions import MainWindowActions
+    from pyspread.icons import Icon
+except ImportError:
+    from actions import MainWindowActions
+    from icons import Icon
 
 
 class MenuBar(QMenuBar):
     """The main menubar """
 
-    def __init__(self, main_window):
+    def __init__(self, main_window: QMainWindow):
+        """
+        :param main_window: Application main window
+
+        """
+
         super().__init__()
 
         self.main_window = main_window
@@ -75,7 +86,13 @@ class MenuBar(QMenuBar):
 class FileMenu(QMenu):
     """File menu for the main menubar"""
 
-    def __init__(self, parent, actions):
+    def __init__(self, parent: QWidget, actions: MainWindowActions):
+        """
+        :param parent: Parent widget
+        :param actions: Main window actions
+
+        """
+
         super().__init__('&File', parent)
 
         self.parent = parent
@@ -106,7 +123,13 @@ class FileMenu(QMenu):
 class EditMenu(QMenu):
     """Edit menu for the main menubar"""
 
-    def __init__(self, parent, actions):
+    def __init__(self, parent: QWidget, actions: MainWindowActions):
+        """
+        :param parent: Parent widget
+        :param actions: Main window actions
+
+        """
+
         super().__init__('&Edit', parent)
 
         self.addAction(actions.undo)
@@ -137,7 +160,13 @@ class EditMenu(QMenu):
 class ViewMenu(QMenu):
     """View menu for the main menubar"""
 
-    def __init__(self, parent, actions):
+    def __init__(self, parent: QWidget, actions: MainWindowActions):
+        """
+        :param parent: Parent widget
+        :param actions: Main window actions
+
+        """
+
         super().__init__('&View', parent)
 
         self.addAction(actions.fullscreen)
@@ -169,7 +198,13 @@ class ViewMenu(QMenu):
 class FormatMenu(QMenu):
     """Format menu for the main menubar"""
 
-    def __init__(self, parent, actions):
+    def __init__(self, parent: QWidget, actions: MainWindowActions):
+        """
+        :param parent: Parent widget
+        :param actions: Main window actions
+
+        """
+
         super().__init__('&Format', parent)
 
         self.addAction(actions.copy_format)
@@ -233,7 +268,13 @@ class FormatMenu(QMenu):
 class MacroMenu(QMenu):
     """Macro menu for the main menubar"""
 
-    def __init__(self, parent, actions):
+    def __init__(self, parent: QWidget, actions: MainWindowActions):
+        """
+        :param parent: Parent widget
+        :param actions: Main window actions
+
+        """
+
         super().__init__('&Macro', parent)
 
         self.addAction(actions.insert_image)
@@ -244,7 +285,13 @@ class MacroMenu(QMenu):
 class HelpMenu(QMenu):
     """Help menu for the main menubar"""
 
-    def __init__(self, parent, actions):
+    def __init__(self, parent: QWidget, actions: MainWindowActions):
+        """
+        :param parent: Parent widget
+        :param actions: Main window actions
+
+        """
+
         super().__init__('&Help', parent)
 
         self.addAction(actions.manual)
@@ -258,7 +305,13 @@ class HelpMenu(QMenu):
 class FileHistoryMenu(QMenu):
     """Menu that displays the file history"""
 
-    def __init__(self, parent, actions):
+    def __init__(self, parent: QWidget, actions: MainWindowActions):
+        """
+        :param parent: Parent widget
+        :param actions: Main window actions
+
+        """
+
         super().__init__('&Recent files', parent)
 
         self.main_window = parent.parent.main_window
@@ -287,7 +340,12 @@ class FileHistoryMenu(QMenu):
 class BorderChoiceMenu(QMenu):
     """QMenu for choosing cell borders that shall be manipulated"""
 
-    def __init__(self, actions):
+    def __init__(self, actions: MainWindowActions):
+        """
+        :param actions: Main window actions
+
+        """
+
         super().__init__()
 
         self.setTitle("Formatted borders")
@@ -306,7 +364,12 @@ class BorderChoiceMenu(QMenu):
 class BorderWidthMenu(QMenu):
     """QMenu for choosing the cell border width"""
 
-    def __init__(self, actions):
+    def __init__(self, actions: MainWindowActions):
+        """
+        :param actions: Main window actions
+
+        """
+
         super().__init__()
 
         self.setTitle("Border width")
@@ -325,7 +388,12 @@ class BorderWidthMenu(QMenu):
 class GridContextMenu(QMenu):
     """Context menu for grid"""
 
-    def __init__(self, actions):
+    def __init__(self, actions: MainWindowActions):
+        """
+        :param actions: Main window actions
+
+        """
+
         super().__init__()
 
         self.addAction(actions.cut)
@@ -348,7 +416,12 @@ class GridContextMenu(QMenu):
 class HorizontalHeaderContextMenu(QMenu):
     """Context menu for horizontal grid header"""
 
-    def __init__(self, actions):
+    def __init__(self, actions: MainWindowActions):
+        """
+        :param actions: Main window actions
+
+        """
+
         super().__init__()
 
         self.addAction(actions.insert_columns)
@@ -358,7 +431,12 @@ class HorizontalHeaderContextMenu(QMenu):
 class VerticalHeaderContextMenu(QMenu):
     """Context menu for vertical grid header"""
 
-    def __init__(self, actions):
+    def __init__(self, actions: MainWindowActions):
+        """
+        :param actions: Main window actions
+
+        """
+
         super().__init__()
 
         self.addAction(actions.insert_rows)
@@ -368,7 +446,12 @@ class VerticalHeaderContextMenu(QMenu):
 class TableChoiceContextMenu(QMenu):
     """Context menu for table choice"""
 
-    def __init__(self, actions):
+    def __init__(self, actions: MainWindowActions):
+        """
+        :param actions: Main window actions
+
+        """
+
         super().__init__()
 
         self.addAction(actions.insert_table)
@@ -378,7 +461,12 @@ class TableChoiceContextMenu(QMenu):
 class ToolbarManagerMenu(QMenu):
     """Menu with all actions of a toolbar that allows toggling visibility"""
 
-    def __init__(self, toolbar):
+    def __init__(self, toolbar: QToolBar):
+        """
+        :param toolbar: Toolbar that the menu is managing
+
+        """
+
         super().__init__()
         self.toolbar = toolbar
 
@@ -389,8 +477,12 @@ class ToolbarManagerMenu(QMenu):
                 self.addAction(self._get_toggle_action(action))
         self.update_checked_states()
 
-    def _get_toggle_action(self, action):
-        """Returns a toggle actions for a QAction instance"""
+    def _get_toggle_action(self, action: QAction) -> QAction:
+        """Returns a toggle action for a toolbar action
+
+        :param action: Toolbar action for which the toggle state is returned
+
+        """
 
         taction = QAction(action.icon(), action.text(), action, checkable=True)
         taction.triggered.connect(partial(self.on_toggled, action))
@@ -403,7 +495,12 @@ class ToolbarManagerMenu(QMenu):
         for tool_action, action in zip(self.toolbar.actions(), self.actions()):
             action.setChecked(tool_action.isVisible())
 
-    def on_toggled(self, action, toggled):
-        """Action toggle event handler"""
+    def on_toggled(self, action: QAction, toggled: bool):
+        """Action toggle event handler
+
+        :param action: Toolbar action for which visibility is toggled
+        :param toggled: If False then action is set invisible and vice versa
+
+        """
 
         action.setVisible(toggled)

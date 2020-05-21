@@ -22,6 +22,11 @@
 
 High resolution svg support for qimage and :mod:`matplotlib.figure`
 
+**Provides**
+
+* :class:`QImageSvg`
+
+
 """
 
 from io import StringIO
@@ -33,10 +38,10 @@ except ImportError:
     QSvgRenderer = None
 
 try:
-    import matplotlib.figure as matplotlib_figure
+    from matplotlib.figure import Figure
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 except ImportError:
-    matplotlib_figure = None
+    Figure = None
 
 
 class QImageSvg(QImage):
@@ -46,8 +51,12 @@ class QImageSvg(QImage):
 
     """
 
-    def from_svg_bytes(self, svg_bytes):
-        """Paints an svg from a bytes object"""
+    def from_svg_bytes(self, svg_bytes: bytes):
+        """Paints an svg from a bytes object
+
+        :param svg_bytes: SVG file content
+
+        """
 
         renderer = QSvgRenderer(svg_bytes)
         painter = QPainter(self)
@@ -55,8 +64,13 @@ class QImageSvg(QImage):
         renderer.render(painter)
         painter.end()
 
-    def _matplotlib_figure2svg_bytes(self, figure):
-        """Returns an SVG bytes string from a matplotlib figure"""
+    def _matplotlib_figure2svg_bytes(self, figure: Figure) -> bytes:
+        """Converts a a matplotlib figure to an SVG bytes object
+
+        :param figure: Matplotib figure
+        :return: SVG file content
+
+        """
 
         canvas = FigureCanvasQTAgg(figure)
         svg_filelike = StringIO()
@@ -67,12 +81,16 @@ class QImageSvg(QImage):
 
         return svg_bytes
 
-    def from_matplotlib(self, figure):
-        """Paints an svg from a matplotlib figure"""
+    def from_matplotlib(self, figure: Figure):
+        """Paints an svg from a matplotlib figure
 
-        if not isinstance(figure, matplotlib_figure.Figure):
+        :param figure: Matplotib figure
+
+        """
+
+        if not isinstance(figure, Figure):
             msg_tpl = "figure must be instance of {}."
-            msg = msg_tpl.format(matplotlib_figure.Figure)
+            msg = msg_tpl.format(Figure)
             raise ValueError(msg)
 
         svg_bytes = self._matplotlib_figure2svg_bytes(figure)

@@ -6,6 +6,7 @@ API
     :maxdepth: 3
 
     actions.rst
+    cli.rst
     commands.rst
     dialogs.rst
     entryline.rst

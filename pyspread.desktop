@@ -1,3 +1,4 @@
+#!/usr/bin/env xdg-open
 [Desktop Entry]
 Categories=Math;Spreadsheet;Office
 Comment[en_US]=A Python based spreadsheet

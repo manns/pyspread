@@ -24,21 +24,20 @@
 
  * :func:`quote`
  * :func:`wrap_text`
+ * :func:`get_svg_size`
 
 """
 
 import xml.etree.ElementTree as ET
 import textwrap
+from typing import Tuple
 
 
-def quote(code):
-    """Returns quoted code if not already quoted and if possible
+def quote(code: str) -> str:
+    """Quote code
 
-    Parameters
-    ----------
-
-    * code: String
-    \tCode that is to be quoted
+    :param code: Code to be quoted
+    :return: Quoted code if not already quoted and quoting possible
 
     """
 
@@ -65,18 +64,13 @@ def quote(code):
 
 
 def wrap_text(text, width=80, maxlen=2000):
-    """Returns wrapped text
+    """Wrap text to line width
 
-    Parameters
-    ----------
-
-    * text: String
-    \tThe text to bewrapped
-    * width: Integer, defaulys to 80
-    \tWidth of the text to be wrapped
-    * maxlen, defaults to 2000
-    \tMaximum total text length before text in truncated and extended by [...]
-    \tIf None then truncation is disabled
+    :param text: The text to be wrapped
+    :param width: Width of the text to be wrapped
+    :param maxlen: Maximum total text length before text in truncated and
+                   extended by [...]. If None then truncation is disabled.
+    :return: Wrapped text
 
     """
 
@@ -88,8 +82,13 @@ def wrap_text(text, width=80, maxlen=2000):
     return "\n".join(textwrap.wrap(text, width=width))
 
 
-def get_svg_size(svg_bytes):
-    """Returns width, height tuple from svg"""
+def get_svg_size(svg_bytes: bytes) -> Tuple[int, int]:
+    """Get SVG size
+
+    :param svg_bytes: SVG image data
+    :return: Width, height
+
+    """
 
     tree = ET.fromstring(svg_bytes)
     width_str = tree.get("width")
