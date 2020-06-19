@@ -180,7 +180,10 @@ class CellAttributes(list):
             for i, ele in enumerate(reversed(self)):
                 if ele[0] == selection and ele[1] == table \
                    and "merge_area" in ele[2]:
-                    self.pop(-1 - i)
+                    try:
+                        self.pop(-1 - i)
+                    except IndexError:
+                        pass
             if attr["merge_area"] is not None:
                 super().append(cell_attribute)
         else:
