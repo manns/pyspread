@@ -2153,7 +2153,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         self.editor = super(GridCellDelegate, self).createEditor(parent,
                                                                  option, index)
-
+        self.editor.setPalette(self.editor.style().standardPalette())
         self.editor.installEventFilter(self)
         return self.editor
 
