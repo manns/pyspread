@@ -49,8 +49,10 @@ except ImportError:
     QSvgGenerator = None
 
 try:
+    import matplotlib
     import matplotlib.figure as matplotlib_figure
 except ImportError:
+    matplotlib = None
     matplotlib_figure = None
 
 try:
@@ -60,7 +62,7 @@ try:
                 FileSaveDialog, ImageFileOpenDialog, ChartDialog,
                 CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
-                CsvFileExportDialog, SvgExportAreaDialog)
+                FileExportDialog)
     from pyspread.interfaces.pys import PysReader, PysWriter
     from pyspread.lib.attrdict import AttrDict
     from pyspread.lib.hashing import sign, verify
@@ -77,7 +79,7 @@ except ImportError:
                 FileSaveDialog, ImageFileOpenDialog, ChartDialog,
                 CellKeyDialog, FindDialog, ReplaceDialog, CsvFileImportDialog,
                 CsvImportDialog, CsvExportDialog, CsvExportAreaDialog,
-                CsvFileExportDialog, SvgExportAreaDialog)
+                FileExportDialog)
     from interfaces.pys import PysReader, PysWriter
     from lib.attrdict import AttrDict
     from lib.hashing import sign, verify
@@ -658,8 +660,26 @@ class Workflows:
     def file_export(self):
         """Export csv and svg files"""
 
+        # Determine what filters ae available
+        filters_list = ["CSV (*.csv)"]
+
+        current = self.main_window.grid.current
+        code_array = self.main_window.grid.model.code_array
+
+        res = code_array[current]
+
+        if isinstance(res, QImage):
+            filters_list.append("JPG of current cell (*.jpg)")
+
+        if isinstance(res, QImage) \
+           or isinstance(res, matplotlib.figure.Figure):
+            filters_list.append("PNG of current cell (*.png)")
+
+        if isinstance(res, matplotlib.figure.Figure):
+            filters_list.append("SVG of current cell (*.svg)")
+
         # Get filepath from user
-        dial = CsvFileExportDialog(self.main_window)
+        dial = FileExportDialog(self.main_window, filters_list)
         if not dial.file_path:
             return  # Cancel pressed
         filepath = Path(dial.file_path)
@@ -669,11 +689,25 @@ class Workflows:
 
         if "CSV" in dial.selected_filter:
             self._csv_export(filepath)
+            return
+
+        # Extend filepath suffix if needed
+        if filepath.suffix != dial.suffix:
+            filepath = filepath.with_suffix(dial.suffix)
+
+        if "JPG" in dial.selected_filter:
+            if isinstance(res, QImage):
+                self._qimage_export(str(filepath), file_format="jpg")
+
+        if "PNG" in dial.selected_filter:
+            if isinstance(res, QImage):
+                self._qimage_export(str(filepath), file_format="png")
+            elif isinstance(res, matplotlib.figure.Figure):
+                self._matplotlib_export(filepath, file_format="png")
+
         elif "SVG" in dial.selected_filter:
-            # Extend filepath suffix if needed
-            if filepath.suffix != dial.suffix:
-                filepath = filepath.with_suffix(dial.suffix)
-            self._svg_export(filepath)
+            if isinstance(res, matplotlib.figure.Figure):
+                self._matplotlib_export(filepath, file_format="svg")
 
     def _csv_export(self, filepath: Path):
         """Export to csv file filepath
@@ -706,40 +740,43 @@ class Workflows:
         except OSError as error:
             self.main_window.statusBar().showMessage(str(error))
 
-    def _svg_export(self, filepath: Path):
-        """Export to svg file filepath
+    def _qimage_export(self, filepath: Path, file_format: str):
+        """Export to png file filepath
 
         :param filepath: Path of file to be exported
+        :param file_format: File format to be exported, e.g. png
 
         """
 
-        with self.print_zoom():
-            grid = self.main_window.grid
+        code_array = self.main_window.grid.model.code_array
+        qimage = code_array[self.main_window.grid.current]
 
-            generator = QSvgGenerator()
-            generator.setFileName(str(filepath))
+        try:
+            if not qimage.save(filepath, file_format):
+                msg = "Could not save {}".format(filepath)
+                self.main_window.statusBar().showMessage(msg)
+        except Exception as error:
+            self.main_window.statusBar().showMessage(str(error))
 
-            # Get area for svg export
-            svg_area = SvgExportAreaDialog(self.main_window, grid,
-                                           title="Svg export area").area
-            if svg_area is None:
-                return
+    def _matplotlib_export(self, filepath: Path, file_format: str):
+        """Export to svg file filepath
 
-            rows = self.get_paint_rows(svg_area.top, svg_area.bottom)
-            columns = self.get_paint_columns(svg_area.left, svg_area.right)
-            total_height = self.get_total_height(svg_area.top, svg_area.bottom)
-            total_width = self.get_total_width(svg_area.left, svg_area.right)
+        :param filepath: Path of file to be exported
+        :param file_format: File format to be exported, e.g. png or svg
 
-            generator.setSize(QSize(total_width, total_height))
-            paint_rect = QRectF(0, 0, total_width, total_height)
-            generator.setViewBox(paint_rect)
-            option = QStyleOptionViewItem()
+        """
 
-            painter = QPainter(generator)
+        if matplotlib is None:
+            # matplotlib is not installed
+            return
 
-            self.paint(painter, option, paint_rect, rows, columns)
+        code_array = self.main_window.grid.model.code_array
+        figure = code_array[self.main_window.grid.current]
 
-            painter.end()
+        try:
+            figure.savefig(filepath, format=file_format)
+        except Exception as error:
+            self.main_window.statusBar().showMessage(str(error))
 
     @contextmanager
     def print_zoom(self, zoom: float = 1.0):

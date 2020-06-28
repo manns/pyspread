@@ -31,13 +31,13 @@
  * :class:`SinglePageArea`
  * :class:`MultiPageArea`
  * :class:`CsvExportAreaDialog`
- * :class:`SvgExportAreaDialog`
  * :class:`PrintAreaDialog`
  * (:class:`FileDialogBase`)
  * :class:`FileOpenDialog`
  * :class:`FileSaveDialog`
  * :class:`ImageFileOpenDialog`
  * :class:`CsvFileImportDialog`
+ * :class:`FileExportDialog`
  * :class:`FindDialog`
  * :class:`ChartDialog`
  * :class:`CsvImportDialog`
@@ -418,17 +418,6 @@ class CsvExportAreaDialog(DataEntryDialog):
                 return
 
 
-class SvgExportAreaDialog(CsvExportAreaDialog):
-    """Modal dialog for entering svg export area
-
-    Initially, this dialog is filled with the selection bounding box
-    if present or with the visible area of <= 1 cell is selected.
-
-    """
-
-    groupbox_title = "SVG export area"
-
-
 class PrintAreaDialog(CsvExportAreaDialog):
     """Modal dialog for entering print area
 
@@ -679,21 +668,26 @@ class CsvFileImportDialog(FileDialogBase):
                                         self.filters_list[0])
 
 
-class CsvFileExportDialog(FileDialogBase):
+class FileExportDialog(FileDialogBase):
     """Modal dialog for exporting csv files"""
 
     title = "Export data"
-    filters_list = [
-        "CSV file (*.*)",
-        "SVG file (*.svg)",
-    ]
+
+    def __init__(self, main_window: QMainWindow, filters_list: List[str]):
+        """
+        :param main_window: Application main window
+        :param filters_list: List of filter strings
+
+        """
+
+        self.filters_list = filters_list
+        super().__init__(main_window)
 
     @property
     def suffix(self) -> str:
         """Suffix for filepath"""
 
-        if self.filters_list.index(self.selected_filter):
-            return ".svg"
+        return ".{}".format(self.selected_filter.split()[0].lower())
 
     def show_dialog(self):
         """Present dialog and update values"""
