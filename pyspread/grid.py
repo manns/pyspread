@@ -1835,20 +1835,16 @@ class GridCellDelegate(QStyledItemDelegate):
 
         return self.main_window.grid
 
-    def _render_markup(self, painter: QPainter, rect: QRectF,
-                       option: QStyleOptionViewItem, index: QModelIndex):
-        """HTML markup renderer
+    def _get_render_text_document(self, rect: QRectF,
+                                  option: QStyleOptionViewItem,
+                                  index: QModelIndex) -> QTextDocument:
+        """Returns styled QTextDocument that is ready for setting content
 
-        :param painter: Painter with which markup is rendered
         :param rect: Cell rect of the cell to be painted
         :param option: Style option for rendering
         :param index: Index of cell for which markup is rendered
 
         """
-
-        self.initStyleOption(option, index)
-
-        style = option.widget.style()
 
         doc = QTextDocument()
 
@@ -1862,9 +1858,32 @@ class GridCellDelegate(QStyledItemDelegate):
         css = "background-color: {bg_color};".format(bg_color=bg_color)
         doc.setDefaultStyleSheet(css)
 
-        doc.setHtml(option.text)
         doc.setTextWidth(rect.width())
 
+        doc.setUseDesignMetrics(True)
+
+        text_option = doc.defaultTextOption()
+        text_option.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+
+        doc.setDefaultTextOption(text_option)
+
+        return doc
+
+    def _render_text_document(self, doc: QTextDocument,
+                              painter: QPainter, rect: QRectF,
+                              option: QStyleOptionViewItem,
+                              index: QModelIndex):
+        """QTextDocument renderer
+
+        :param doc: Text document to be painted
+        :param painter: Painter with which markup is rendered
+        :param rect: Cell rect of the cell to be painted
+        :param option: Style option for rendering
+        :param index: Index of cell for which markup is rendered
+
+        """
+
+        style = option.widget.style()
         option.text = ""
         style.drawControl(QStyle.CE_ItemViewItem, option, painter,
                           option.widget)
@@ -1877,6 +1896,40 @@ class GridCellDelegate(QStyledItemDelegate):
         with painter_save(painter):
             painter.translate(rect.topLeft())
             doc.documentLayout().draw(painter, ctx)
+
+    def _render_text(self, painter: QPainter, rect: QRectF,
+                     option: QStyleOptionViewItem, index: QModelIndex):
+        """HTML markup renderer
+
+        :param painter: Painter with which markup is rendered
+        :param rect: Cell rect of the cell to be painted
+        :param option: Style option for rendering
+        :param index: Index of cell for which markup is rendered
+
+        """
+
+        self.initStyleOption(option, index)
+
+        doc = self._get_render_text_document(rect, option, index)
+        doc.setPlainText(option.text)
+        self._render_text_document(doc, painter, rect, option, index)
+
+    def _render_markup(self, painter: QPainter, rect: QRectF,
+                       option: QStyleOptionViewItem, index: QModelIndex):
+        """HTML markup renderer
+
+        :param painter: Painter with which markup is rendered
+        :param rect: Cell rect of the cell to be painted
+        :param option: Style option for rendering
+        :param index: Index of cell for which markup is rendered
+
+        """
+
+        self.initStyleOption(option, index)
+
+        doc = self._get_render_text_document(rect, option, index)
+        doc.setHtml(option.text)
+        self._render_text_document(doc, painter, rect, option, index)
 
     def _get_aligned_image_rect(
             self, rect: QRectF, index: QModelIndex,
@@ -2081,7 +2134,7 @@ class GridCellDelegate(QStyledItemDelegate):
                             int(rect.height() + 1.5))
 
         if renderer == "text":
-            super(GridCellDelegate, self).paint(painter, option, index)
+            self._render_text(painter, rect, option, index)
 
         elif renderer == "markup":
             self._render_markup(painter, rect, option, index)
@@ -2114,6 +2167,7 @@ class GridCellDelegate(QStyledItemDelegate):
         doc = QTextDocument()
         doc.setHtml(options.text)
         doc.setTextWidth(options.rect.width())
+
         return QSize(doc.idealWidth(), doc.size().height())
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
