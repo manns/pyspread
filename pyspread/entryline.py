@@ -52,7 +52,7 @@ class Entryline(SpellTextEdit):
 
         """
 
-        super().__init__()
+        super().__init__(line_numbers=False)
 
         self.main_window = main_window
 

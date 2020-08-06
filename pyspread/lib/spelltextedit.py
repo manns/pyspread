@@ -210,7 +210,7 @@ class SpellTextEdit(QPlainTextEdit):
     max_suggestions = 20
     spaces_per_tab = 4
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, line_numbers=True):
 
         super().__init__()
 
@@ -224,10 +224,11 @@ class SpellTextEdit(QPlainTextEdit):
         self.setTabStopDistance(_distance * self.spaces_per_tab)
 
         # Line number area
-        self.line_number_area = LineNumberArea(self)
-        self.blockCountChanged.connect(self.update_line_number_area_width)
-        self.updateRequest.connect(self.update_line_number_area)
-        self.update_line_number_area_width()
+        if line_numbers:
+            self.line_number_area = LineNumberArea(self)
+            self.blockCountChanged.connect(self.update_line_number_area_width)
+            self.updateRequest.connect(self.update_line_number_area)
+            self.update_line_number_area_width()
 
         # Start with a default dictionary based on the current locale.
         self.highlighter = PythonEnchantHighlighter(self.document())
@@ -275,7 +276,10 @@ class SpellTextEdit(QPlainTextEdit):
         line_number_area_rect = QRect(crect.left(), crect.top(),
                                       self.get_line_number_area_width(),
                                       crect.height())
-        self.line_number_area.setGeometry(line_number_area_rect)
+        try:
+            self.line_number_area.setGeometry(line_number_area_rect)
+        except AttributeError:
+            pass
 
     def keyPressEvent(self, event):
         """Overide to change tab into spaces_per_tab spaces"""
