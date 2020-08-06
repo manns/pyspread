@@ -354,7 +354,11 @@ class SpellTextEdit(QPlainTextEdit):
     def createLanguagesMenu(self, parent=None):
         """Create and return a menu for selecting the spell-check language."""
 
-        curr_lang = self.highlighter.dict().tag
+        try:
+            curr_lang = self.highlighter.dict().tag
+        except AttributeError:
+            curr_lang = None
+
         lang_menu = QMenu("Language", parent)
         lang_actions = QActionGroup(lang_menu)
 
