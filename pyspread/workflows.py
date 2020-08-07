@@ -183,6 +183,10 @@ class Workflows:
         shape = GridShapeDialog(self.main_window, old_shape).shape
 
         # Check if shape is valid
+
+        if shape is None:
+            return
+
         try:
             check_shape_validity(shape, self.main_window.settings.maxshape)
         except ValueError as err:
