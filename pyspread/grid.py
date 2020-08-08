@@ -1893,8 +1893,17 @@ class GridCellDelegate(QStyledItemDelegate):
         text_color = self.grid.model.data(index, role=Qt.TextColorRole)
         ctx.palette.setColor(QPalette.Text, text_color)
 
+        key = index.row(), index.column(), self.grid.table
+        vertical_align = self.cell_attributes[key].vertical_align
+
+        y_offset = 0
+        if vertical_align == 'align_center':
+            y_offset += rect.height() / 2 - doc.size().height() / 2
+        elif vertical_align == 'align_bottom':
+            y_offset += rect.height() - doc.size().height()
+
         with painter_save(painter):
-            painter.translate(rect.topLeft())
+            painter.translate(rect.x(), rect.y() + y_offset)
             doc.documentLayout().draw(painter, ctx)
 
     def _render_text(self, painter: QPainter, rect: QRectF,
