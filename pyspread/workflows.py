@@ -344,6 +344,9 @@ class Workflows:
         # Add to file history
         self.main_window.settings.add_to_file_history(filepath.as_posix())
 
+        # Update recent files in the file menu
+        self.main_window.menuBar().file_menu.history_submenu.update()
+
         return filepath
 
     @handle_changed_since_save
@@ -441,13 +444,13 @@ class Workflows:
                     msg = "File save stopped by user."
                     self.main_window.statusBar().showMessage(msg)
                     tempfile.delete = True  # Delete incomplete tmpfile
-                    return
+                    return False
 
             except (OSError, ValueError) as err:
                 tempfile.delete = True
                 QMessageBox.critical(self.main_window, "Error saving file",
                                      str(err))
-                return
+                return False
         try:
             if filepath.exists() and not os.access(filepath, os.W_OK):
                 raise PermissionError("No write access to {}".format(filepath))
@@ -457,7 +460,7 @@ class Workflows:
             # No tmp file present
             QMessageBox.critical(self.main_window, "Error saving file",
                                  str(err))
-            return
+            return False
 
         # Change the main window filepath state
         self.main_window.settings.changed_since_save = False
@@ -475,13 +478,13 @@ class Workflows:
         """File save workflow"""
 
         filepath = self.main_window.settings.last_file_output_path
-        if filepath.suffix:
-            self._save(filepath)
+        if filepath.suffix and self._save(filepath) is not False:
+            return
 
         # New, changed file that has never been saved before
-        elif self.file_save_as() is False:
-            # Now the user has aborted the file save as dialog
-            return False
+        # Now the user has aborted the file save as dialog or
+        # there was a write error
+        return self.file_save_as()
 
     def file_save_as(self):
         """File save as workflow"""

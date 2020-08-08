@@ -264,7 +264,6 @@ class Settings:
         # Application state
 
         setting2attr("last_file_input_path")
-        setting2attr("last_file_output_path")
         setting2attr("last_file_import_path")
         setting2attr("last_file_export_path")
         setting2attr("max_file_history", mapper=int)
