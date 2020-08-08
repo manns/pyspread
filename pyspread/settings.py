@@ -188,9 +188,6 @@ class Settings:
         if self.last_file_input_path is not None:
             settings.setValue("last_file_input_path",
                               self.last_file_input_path)
-        if self.last_file_output_path is not None:
-            settings.setValue("last_file_output_path",
-                              self.last_file_output_path)
         if self.last_file_import_path is not None:
             settings.setValue("last_file_import_path",
                               self.last_file_import_path)
