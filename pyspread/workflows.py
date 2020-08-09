@@ -500,7 +500,7 @@ class Workflows:
         if filepath.suffix != dial.suffix:
             filepath = filepath.with_suffix(dial.suffix)
 
-        self._save(filepath)
+        return self._save(filepath)
 
     def file_import(self):
         """Import csv files"""

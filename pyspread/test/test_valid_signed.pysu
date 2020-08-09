@@ -3,7 +3,7 @@
 [shape]
 1000	100	3
 [grid]
-0	0	0	'"test"'
+0	0	0	'1'
 [attributes]
 [row_heights]
 [col_widths]
