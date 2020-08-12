@@ -316,6 +316,9 @@ class PysReader:
         elif key == "markup" and value:
             return "renderer", "markup"
 
+        elif key == "angle" and value < 0:
+            return "angle", 360 + value
+
         elif key == "merge_area":
             # Value in v1.0 None if the cell was merged
             # In v 2.0 this is no longer necessary
