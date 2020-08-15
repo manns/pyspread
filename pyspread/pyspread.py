@@ -687,7 +687,7 @@ def main():
     """Pyspread main"""
 
     parser = PyspreadArgumentParser()
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
 
     app = QApplication(sys.argv)
     main_window = MainWindow(args.file, reset_settings=args.reset_settings)
