@@ -1360,11 +1360,13 @@ class CodeArray(DataArray):
         def nn(val: numpy.array) -> numpy.array:
             """Returns flat numpy array without None values"""
             try:
-                return numpy.array([_f for _f in val.flat if _f])
+                return numpy.array([_f for _f in val.flat if _f is not None],
+                                   dtype="O")
 
             except AttributeError:
                 # Probably no numpy array
-                return numpy.array([_f for _f in val if _f])
+                return numpy.array([_f for _f in val if _f is not None],
+                                   dtype="O")
 
         env_dict = {'X': key[0], 'Y': key[1], 'Z': key[2], 'bz2': bz2,
                     'base64': base64, 'nn': nn, 'Figure': Figure,
