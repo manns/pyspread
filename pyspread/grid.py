@@ -163,6 +163,10 @@ class Grid(QTableView):
         # Initially, select top left cell on table 0
         self.current = 0, 0, 0
 
+        # Store initial viewport
+        self.table_scrolls = {0: (self.verticalScrollBar().value(),
+                                  self.horizontalScrollBar().value())}
+
     @contextmanager
     def undo_resizing_row(self):
         """Sets self.__undo_resizing_row to True for context"""
@@ -2367,6 +2371,8 @@ class TableChoice(QTabBar):
         self.grid = grid
         self.no_tables = no_tables
 
+        self.last = 0
+
         self.currentChanged.connect(self.on_table_changed)
 
     @property
@@ -2433,6 +2439,10 @@ class TableChoice(QTabBar):
 
         """
 
+        self.grid.table_scrolls[self.last] = \
+            (self.grid.verticalScrollBar().value(),
+             self.grid.horizontalScrollBar().value())
+
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.grid.update_cell_spans()
@@ -2441,3 +2451,11 @@ class TableChoice(QTabBar):
         self.grid.update_index_widgets()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
         self.grid.gui_update()
+        try:
+            v_pos, h_pos = self.grid.table_scrolls[current]
+        except KeyError:
+            v_pos = h_pos = 0
+        self.grid.verticalScrollBar().setValue(v_pos)
+        self.grid.horizontalScrollBar().setValue(h_pos)
+
+        self.last = current
