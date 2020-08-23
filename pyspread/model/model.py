@@ -878,10 +878,12 @@ class DataArray:
         del_sizes = []
 
         for pos, table in cell_sizes:
-            if pos > insertion_point and (tab is None or tab == table):
+            if pos >= insertion_point and (tab is None or tab == table):
                 if 0 <= pos + no_to_insert < self.shape[axis]:
                     new_sizes[(pos + no_to_insert, table)] = \
                         cell_sizes[(pos, table)]
+                if pos < insertion_point + no_to_insert:
+                    new_sizes[(pos, table)] = cell_sizes[(pos, table)]
                 del_sizes.append((pos, table))
 
         for pos, table in new_sizes:
