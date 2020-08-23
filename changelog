@@ -25,6 +25,20 @@ New functionality:
  * Fixes in csv reader post processing
  * Printing multiple tables at once added
  * Tutorial fixes
+ * Opening invalid files made more robust
+ * Improvements for UI in dark themes
+ * SVG export restricted to single cells due to clipping issue in QtSvg
+ * Default text color changed to black
+ * Cell wrapping improved. No ellipses are painted any more
+ * Last file output path not stored persistently any more
+ * Rendering vertical alignment fixed
+ * Canceling file save on quit now prevents quitting
+ * Some fixes for old pys files
+ * pyspread can now be started from jupyter console
+ * Newly inserted rows and columns now get sizes of current ones
+ * nn function fixed
+ * Insertion operations that destroy data now show a warning message dialog
+ * View position in tables are now remembered when switching (non-persistantly)
 
 
 1.99.2
