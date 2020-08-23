@@ -42,7 +42,7 @@ import numpy
 from PyQt5.QtWidgets \
     import (QTableView, QStyledItemDelegate, QTabBar, QWidget, QMainWindow,
             QStyleOptionViewItem, QApplication, QStyle, QAbstractItemDelegate,
-            QHeaderView, QFontDialog, QInputDialog, QLineEdit)
+            QHeaderView, QFontDialog, QInputDialog, QLineEdit, QMessageBox)
 from PyQt5.QtGui \
     import (QColor, QBrush, QFont, QPainter, QPalette, QImage, QKeyEvent,
             QTextOption, QAbstractTextDocumentLayout, QTextDocument,
@@ -59,6 +59,7 @@ except ImportError:
 
 try:
     import pyspread.commands as commands
+    from pyspread.dialogs import DiscardDataDialog
     from pyspread.grid_renderer import painter_save, CellRenderer
     from pyspread.model.model import (CodeArray, CellAttribute,
                                       DefaultCellAttributeDict)
@@ -74,6 +75,7 @@ try:
     from pyspread.widgets import CellButton
 except ImportError:
     import commands
+    from dialogs import DiscardDataDialog
     from grid_renderer import painter_save, CellRenderer
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
@@ -1232,6 +1234,48 @@ class Grid(QTableView):
                                            description)
             self.main_window.undo_stack.push(command)
 
+    def is_row_data_discarded(self, count: int) -> bool:
+        """Shows user dialog if data is to be discarded
+
+        :param count: Rows to be inserted
+
+        """
+
+        no_rows = self.model.shape[0]
+        rows = list(range(no_rows-count, no_rows+1))
+        selection = Selection([], [], rows, [], [])
+        sel_cell_gen = selection.cell_generator(self.model.shape,
+                                                self.main_window.grid.table)
+        return any(self.model.code_array(key) is not None
+                   for key in sel_cell_gen)
+
+    def is_column_data_discarded(self, count: int) -> bool:
+        """Shows user dialog if data is to be discarded
+
+        :param count: Columns to be inserted
+
+        """
+
+        no_columns = self.model.shape[1]
+        columns = list(range(no_columns-count, no_columns+1))
+        selection = Selection([], [], [], columns, [])
+        sel_cell_gen = selection.cell_generator(self.model.shape,
+                                                self.main_window.grid.table)
+        return any(self.model.code_array(key) is not None
+                   for key in sel_cell_gen)
+
+    def is_table_data_discarded(self, count: int) -> bool:
+        """Shows user dialog if data is to be discarded
+
+        :param count: Tables to be inserted
+
+        """
+
+        no_tables = self.model.shape[2]
+        tables = list(range(no_tables-count, no_tables+1))
+        return any(key[2] in tables and self.model.code_array(key) is not None
+                   for key in self.model.code_array)
+
     def on_insert_rows(self):
         """Insert rows event handler"""
 
@@ -1241,6 +1285,13 @@ class Grid(QTableView):
         except TypeError:
             top = bottom = self.row
         count = bottom - top + 1
+
+        if self.is_row_data_discarded(count):
+            text = ("Inserting rows will discard data.\n \n"
+                    "You may want to resize the grid before insertion.\n"
+                    "Note that row insertion can be undone.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
 
         index = self.currentIndex()
         description_tpl = "Insert {} rows above row {}"
@@ -1276,6 +1327,13 @@ class Grid(QTableView):
             left = right = self.column
         count = right - left + 1
 
+        if self.is_column_data_discarded(count):
+            text = ("Inserting columns will discard data.\n \n"
+                    "You may want to resize the grid before insertion.\n"
+                    "Note that column insertion can be undone.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
+
         index = self.currentIndex()
         description_tpl = "Insert {} columns left of column {}"
         description = description_tpl.format(count, self.column)
@@ -1302,6 +1360,13 @@ class Grid(QTableView):
 
     def on_insert_table(self):
         """Insert table event handler"""
+
+        if self.is_table_data_discarded(1):
+            text = ("Inserting tables will discard data.\n \n"
+                    "You may want to resize the grid before insertion.\n"
+                    "Note that table insertion can be undone.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
 
         description = "Insert table in front of table {}".format(self.table)
         command = commands.InsertTable(self.main_window.grid, self.model,

@@ -25,6 +25,7 @@
 **Modal dialogs**
 
  * :class:`DiscardChangesDialog`
+ * :class:`DiscardDataDialog`
  * :class:`ApproveWarningDialog`
  * :class:`DataEntryDialog`
  * :class:`GridShapeDialog`
@@ -133,6 +134,23 @@ class DiscardChangesDialog:
             return True
         if button_approval == QMessageBox.Save:
             return False
+
+
+class DiscardDataDialog(DiscardChangesDialog):
+    """Modal dialog that asks if the user wants to discard data"""
+
+    title = "Data to be discarded"
+    choices = QMessageBox.Discard | QMessageBox.Cancel
+    default_choice = QMessageBox.Cancel
+
+    def __init__(self, main_window: QMainWindow, text: str):
+        """
+        :param main_window: Application main window
+        :param text: Message text
+
+        """
+        self.main_window = main_window
+        self.text = text
 
 
 class ApproveWarningDialog:

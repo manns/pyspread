@@ -346,7 +346,9 @@ class InsertRows(QUndoCommand):
         rows = list(range(no_rows-self.count, no_rows+1))
         selection = Selection([], [], rows, [], [])
         for key in selection.cell_generator(self.model.shape, self.grid.table):
-            self.old_code[key] = self.model.code_array(key)
+            old_code = self.model.code_array(key)
+            if old_code is not None:
+                self.old_code[key] = old_code
 
         with self.model.inserting_rows(self.index, self.first, self.last):
             self.model.insertRows(self.row, self.count)
@@ -465,7 +467,9 @@ class InsertColumns(QUndoCommand):
         columns = list(range(no_columns-self.count, no_columns+1))
         selection = Selection([], [], [], columns, [])
         for key in selection.cell_generator(self.model.shape, self.grid.table):
-            self.old_code[key] = self.model.code_array(key)
+            old_code = self.model.code_array(key)
+            if old_code is not None:
+                self.old_code[key] = old_code
 
         with self.model.inserting_columns(self.index, self.first, self.last):
             self.model.insertColumns(self.column, self.count)
