@@ -2,5 +2,5 @@ include AUTHORS changelog LICENSE MANIFEST.in README.md THANKS requirements.txt
 include *.py *.pth *.bat *.desktop
 recursive-include bin
 recursive-include pyspread/share *.py *.pysu *.svg *.ico *.html *.png *.css COPYING LICENSE
-recursive-include pyspread *.pysu *.py
+recursive-include pyspread *.pysu *.py *.csv
 recursive-exclude pyspread *.pyc
