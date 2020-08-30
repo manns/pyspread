@@ -40,6 +40,9 @@ test_debian_experimental:
 ## Release to pypi
 deploy_pypi:
   stage: release
+  variables:
+    TWINE_USERNAME: $TWINE_USERNAME
+    TWINE_PASSWORD: $TWINE_PASSWORD
   script:
     - pip3 install twine
     - python3 setup.py sdist bdist_wheel
