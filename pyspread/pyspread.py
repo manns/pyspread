@@ -160,11 +160,25 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(Icon.pyspread)
 
-        self.safe_mode_widget = QSvgWidget(str(IconPath.warning), self)
+        # Safe mode widget
+        self.safe_mode_widget = QSvgWidget(str(IconPath.safe_mode),
+                                           self.statusBar())
         msg = "%s is in safe mode.\nExpressions are not evaluated." % APP_NAME
         self.safe_mode_widget.setToolTip(msg)
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
         self.safe_mode_widget.hide()
+
+        # Selection mode widget
+        self.selection_mode_widget = QSvgWidget(str(IconPath.selection_mode),
+                                                self.statusBar())
+        msg = "Selection mode active. Cells cannot be edited.\n" + \
+              "Selecting cells adds relative references into the entry " + \
+              "line. Additionally pressing `Meta` switches to absolute " + \
+              "references.\nEnd selection mode by clicking into the entry " + \
+              "line or with `Esc` when focusing the grid."
+        self.selection_mode_widget.setToolTip(msg)
+        self.statusBar().addPermanentWidget(self.selection_mode_widget)
+        self.selection_mode_widget.hide()
 
         # Disable the approve fiel menu button
         self.main_window_actions.approve.setEnabled(False)

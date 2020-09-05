@@ -354,6 +354,7 @@ class Grid(QTableView):
         """Sets or unsets selection mode
 
         In selection mode, cells cannot be edited.
+        This triggers the selection_mode icon in the statusbar.
 
         :param on: If True, selection mode is set, if False unset
 
@@ -362,6 +363,7 @@ class Grid(QTableView):
         if on:
             self.current_selection_mode_start = tuple(self.current)
             self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            self.main_window.selection_mode_widget.show()
         else:
             self.selection_mode_exiting = True
             if self.current_selection_mode_start is not None:
@@ -371,6 +373,7 @@ class Grid(QTableView):
                                  | QAbstractItemView.EditKeyPressed
                                  | QAbstractItemView.AnyKeyPressed)
             self.selection_mode_exiting = False
+            self.main_window.selection_mode_widget.hide()
 
     # Overrides
 
@@ -417,9 +420,7 @@ class Grid(QTableView):
         elif (event.key() == Qt.Key_Escape
               and self.editTriggers() == QAbstractItemView.NoEditTriggers):
             # Leave cell selection mode
-            self.setEditTriggers(QAbstractItemView.DoubleClicked
-                                 | QAbstractItemView.EditKeyPressed
-                                 | QAbstractItemView.AnyKeyPressed)
+            self.selection_mode = False
         else:
             super().keyPressEvent(event)
 

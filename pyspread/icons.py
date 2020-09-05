@@ -44,7 +44,8 @@ class IconPath:
     pyspread = ICON_PATH / 'pyspread.svg'
 
     # Status icons
-    warning = STATUS_PATH / 'dialog-warning.svg'
+    safe_mode = STATUS_PATH / 'status-safe-mode.svg'
+    selection_mode = STATUS_PATH / 'status-selection-mode.svg'
 
     # File menu icons
     new = ACTION_PATH / 'document-new.svg'
