@@ -533,8 +533,13 @@ class Grid(QTableView):
             cursor = self.main_window.entry_line.textCursor()
             text_anchor = cursor.anchor()
             text_position = cursor.position()
-            text = self.selection.get_relative_access_string(
-                self.model.shape, self.current_selection_mode_start)
+            if QApplication.queryKeyboardModifiers() == Qt.MetaModifier:
+                text = self.selection.get_absolute_access_string(
+                    self.model.shape, self.table)
+            else:
+                text = self.selection.get_relative_access_string(
+                    self.model.shape, self.current_selection_mode_start)
+
             self.main_window.entry_line.insertPlainText(text)
             cursor.setPosition(min(text_anchor, text_position))
             cursor.setPosition(min(text_anchor, text_position) + len(text),
