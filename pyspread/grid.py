@@ -146,7 +146,7 @@ class Grid(QTableView):
 
         self._zoom = 1.0  # Initial zoom level for the grid
 
-        self.current_selection_mode_start = self.current
+        self.current_selection_mode_start = None
         self.selection_mode_exiting = False  # True only during exit
 
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
@@ -289,6 +289,11 @@ class Grid(QTableView):
     def selection(self) -> Selection:
         """Pyspread selection based on self's QSelectionModel"""
 
+        if len(self.selected_idx) == 1:
+            # Return current cell selection to get accurate results
+            current = tuple(self.current[:2])
+            return Selection([], [], [], [], [current])
+
         selection = self.selectionModel().selection()
 
         block_top_left = []
@@ -355,11 +360,13 @@ class Grid(QTableView):
         """
 
         if on:
-            self.current_selection_mode_start = self.current
+            self.current_selection_mode_start = tuple(self.current)
             self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         else:
             self.selection_mode_exiting = True
-            self.current = self.current_selection_mode_start
+            if self.current_selection_mode_start is not None:
+                self.current = self.current_selection_mode_start
+                self.current_selection_mode_start = None
             self.setEditTriggers(QAbstractItemView.DoubleClicked
                                  | QAbstractItemView.EditKeyPressed
                                  | QAbstractItemView.AnyKeyPressed)
@@ -519,13 +526,15 @@ class Grid(QTableView):
         """
 
         if self.selection_mode_exiting:
+            # Do not update entry_line to preserve selection
             return
 
         if self.selection_mode:
             cursor = self.main_window.entry_line.textCursor()
             text_anchor = cursor.anchor()
             text_position = cursor.position()
-            text = repr(self.selection)
+            text = self.selection.get_relative_access_string(
+                self.model.shape, self.current_selection_mode_start)
             self.main_window.entry_line.insertPlainText(text)
             cursor.setPosition(min(text_anchor, text_position))
             cursor.setPosition(min(text_anchor, text_position) + len(text),
