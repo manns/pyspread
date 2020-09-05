@@ -214,26 +214,27 @@ class TestSelection:
 
         assert sel.get_bbox() == res
 
-    param_get_access_string = [
+    param_get_absolute_access_string = [
         (Selection([], [], [], [], [(32, 53), (34, 56)]), (1000, 100, 3), 0,
          "[S[key] for key in [(32, 53, 0)] + [(34, 56, 0)] "
          "if S[key] is not None]"),
         (Selection([], [], [4, 5], [53], []), (1000, 100, 3), 2,
-         "[S[key] for key in [(4, c, 2) for c in xrange(100)] + "
-         "[(5, c, 2) for c in xrange(100)] + [(r, 53, 2) for r in "
-         "xrange(1000)] if S[key] is not None]"),
+         "[S[key] for key in [(4, c, 2) for c in range(100)] + "
+         "[(5, c, 2) for c in range(100)] + [(r, 53, 2) for r in "
+         "range(1000)] if S[key] is not None]"),
         (Selection([(0, 0), (2, 2)], [(1, 1), (7, 5)], [], [], []),
          (1000, 100, 3), 0,
-         "[S[key] for key in [(r, c, 0) for r in xrange(0, 2) for c in "
-         "xrange(0, 2)] + [(r, c, 0) for r in xrange(2, 8) for c in "
-         "xrange(2, 6)] if S[key] is not None]"),
+         "[S[key] for key in [(r, c, 0) for r in range(0, 2) for c in "
+         "range(0, 2)] + [(r, c, 0) for r in range(2, 8) for c in "
+         "range(2, 6)] if S[key] is not None]"),
     ]
 
-    @pytest.mark.parametrize("sel, shape, table, res", param_get_access_string)
-    def test_get_access_string(self, sel, shape, table, res):
+    @pytest.mark.parametrize("sel, shape, table, res",
+                             param_get_absolute_access_string)
+    def test_get_absolute_access_string(self, sel, shape, table, res):
         """Unit test for get_access_string"""
 
-        assert sel.get_access_string(shape, table) == res
+        assert sel.get_absolute_access_string(shape, table) == res
 
     param_test_shifted = [
         (Selection([], [], [], [], [(32, 53), (34, 56)]), 0, 0,
