@@ -63,6 +63,8 @@ class Entryline(SpellTextEdit):
 
         self.installEventFilter(self)
 
+        self.last_key = None
+
         # self.highlighter.setDocument(self.document())
 
     # Overrides
@@ -107,13 +109,18 @@ class Entryline(SpellTextEdit):
 
         """
 
-        if event.key() in (Qt.Key_Enter, Qt.Key_Return) \
+        self.last_key = event.key()
+
+        if self.last_key in (Qt.Key_Enter, Qt.Key_Return) \
            and not event.modifiers() == Qt.ShiftModifier:
             self.store_data()
             self.main_window.grid.row += 1
-        elif event.key() == Qt.Key_Tab:
+        elif self.last_key == Qt.Key_Tab:
             self.store_data()
             self.main_window.grid.column += 1
+        elif self.last_key == Qt.Key_Insert:
+            self.main_window.grid.selection_mode = \
+                not self.main_window.grid.selection_mode
         else:
             super().keyPressEvent(event)
 

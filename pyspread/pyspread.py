@@ -40,7 +40,7 @@ import sys
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QSplitter,
                              QMessageBox, QDockWidget, QUndoStack,
-                             QStyleOptionViewItem)
+                             QStyleOptionViewItem, QAbstractItemView)
 try:
     from PyQt5.QtSvg import QSvgWidget
 except ImportError:
@@ -220,6 +220,7 @@ class MainWindow(QMainWindow):
 
         self.macro_dock.installEventFilter(self)
 
+        QApplication.instance().focusChanged.connect(self.on_focus_changed)
         self.gui_update.connect(self.on_gui_update)
         self.refresh_timer.timeout.connect(self.on_refresh_timer)
 
@@ -603,6 +604,12 @@ class MainWindow(QMainWindow):
         about_msg = about_msg_template.format(version=VERSION, license=LICENSE,
                                               devs=devs, doc_devs=doc_devs)
         QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
+
+    def on_focus_changed(self, old: QWidget, now: QWidget):
+        """Handles grid clicks from entry line"""
+
+        if old == self.grid and now == self.entry_line:
+            self.grid.selection_mode = False
 
     def on_gui_update(self, attributes: CellAttributes):
         """GUI update that shall be called on each cell change

@@ -42,11 +42,12 @@ import numpy
 from PyQt5.QtWidgets \
     import (QTableView, QStyledItemDelegate, QTabBar, QWidget, QMainWindow,
             QStyleOptionViewItem, QApplication, QStyle, QAbstractItemDelegate,
-            QHeaderView, QFontDialog, QInputDialog, QLineEdit, QMessageBox)
+            QHeaderView, QFontDialog, QInputDialog, QLineEdit,
+            QAbstractItemView)
 from PyQt5.QtGui \
     import (QColor, QBrush, QFont, QPainter, QPalette, QImage, QKeyEvent,
             QTextOption, QAbstractTextDocumentLayout, QTextDocument,
-            QWheelEvent, QContextMenuEvent)
+            QWheelEvent, QContextMenuEvent, QTextCursor)
 from PyQt5.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
             QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel)
@@ -144,6 +145,9 @@ class Grid(QTableView):
         self.setCornerButtonEnabled(False)
 
         self._zoom = 1.0  # Initial zoom level for the grid
+
+        self.current_selection_mode_start = self.current
+        self.selection_mode_exiting = False  # True only during exit
 
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
@@ -334,6 +338,33 @@ class Grid(QTableView):
             self._zoom = zoom
             self.update_zoom()
 
+    @property
+    def selection_mode(self) -> bool:
+        """In selection mode, cells cannot be edited"""
+
+        return self.editTriggers() == QAbstractItemView.NoEditTriggers
+
+    @selection_mode.setter
+    def selection_mode(self, on: bool):
+        """Sets or unsets selection mode
+
+        In selection mode, cells cannot be edited.
+
+        :param on: If True, selection mode is set, if False unset
+
+        """
+
+        if on:
+            self.current_selection_mode_start = self.current
+            self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        else:
+            self.selection_mode_exiting = True
+            self.current = self.current_selection_mode_start
+            self.setEditTriggers(QAbstractItemView.DoubleClicked
+                                 | QAbstractItemView.EditKeyPressed
+                                 | QAbstractItemView.AnyKeyPressed)
+            self.selection_mode_exiting = False
+
     # Overrides
 
     def closeEditor(self, editor: QWidget,
@@ -366,12 +397,22 @@ class Grid(QTableView):
         """
 
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
-            if event.modifiers() & Qt.ShiftModifier:
+            if self.selection_mode:
+                # Return exits selection mode
+                self.selection_mode = False
+                self.main_window.entry_line.setFocus()
+            elif event.modifiers() & Qt.ShiftModifier:
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
         elif event.key() == Qt.Key_Delete:
             self.main_window.workflows.delete()
+        elif (event.key() == Qt.Key_Escape
+              and self.editTriggers() == QAbstractItemView.NoEditTriggers):
+            # Leave cell selection mode
+            self.setEditTriggers(QAbstractItemView.DoubleClicked
+                                 | QAbstractItemView.EditKeyPressed
+                                 | QAbstractItemView.AnyKeyPressed)
         else:
             super().keyPressEvent(event)
 
@@ -477,9 +518,23 @@ class Grid(QTableView):
 
         """
 
-        code = self.model.code_array(self.current)
-        self.main_window.entry_line.setPlainText(code)
-        self.gui_update()
+        if self.selection_mode_exiting:
+            return
+
+        if self.selection_mode:
+            cursor = self.main_window.entry_line.textCursor()
+            text_anchor = cursor.anchor()
+            text_position = cursor.position()
+            text = repr(self.selection)
+            self.main_window.entry_line.insertPlainText(text)
+            cursor.setPosition(min(text_anchor, text_position))
+            cursor.setPosition(min(text_anchor, text_position) + len(text),
+                               QTextCursor.KeepAnchor)
+            self.main_window.entry_line.setTextCursor(cursor)
+        else:
+            code = self.model.code_array(self.current)
+            self.main_window.entry_line.setPlainText(code)
+            self.gui_update()
 
     def on_row_resized(self, row: int, old_height: float, new_height: float):
         """Row resized event handler
