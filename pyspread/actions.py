@@ -238,6 +238,12 @@ class MainWindowActions(AttrDict):
                               shortcut='Shift+Ctrl+f',
                               statustip='Replace sub-strings in cells')
 
+        self.toggle_selection_mode = Action(
+            self.parent, "Selection mode",
+            self.parent.grid.set_selection_mode,
+            icon=Icon.selection_mode, checkable=True,
+            statustip='Enter/leave selection mode')
+
         self.quote = Action(self.parent, "&Quote",
                             self.parent.grid.on_quote,
                             icon=Icon.quote,

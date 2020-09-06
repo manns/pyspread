@@ -375,6 +375,15 @@ class Grid(QTableView):
             self.selection_mode_exiting = False
             self.main_window.selection_mode_widget.hide()
 
+    def set_selection_mode(self, value=True):
+        """Setter for selection mode
+
+        :param value: If True, selection mode is set, if False unset
+
+        """
+
+        self.selection_mode = value
+
     # Overrides
 
     def closeEditor(self, editor: QWidget,
