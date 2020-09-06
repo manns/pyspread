@@ -4,6 +4,17 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+1.99.4
+------
+
+This is the fourth Beta release for pyspread 2.0.
+
+This version adds a selection mode for creating cell references with the mouse.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1) PyQt5 (≥ 5.10, requires PyQt5.Svg)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
 
 1.99.3
 ------
