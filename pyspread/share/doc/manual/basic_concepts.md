@@ -15,6 +15,8 @@ Normally, only one line of code that contains a [Python expression](https://docs
 
 In order to enter a new line in one cell, press `<Shift> + <Enter>`. Only pressing `<Enter>` accepts the entered code and switches to the next cell.
 
+While editing cell code in the entry line (not in a cell editor), pressing `<Insert>` switches the grid to selection mode, which is indicated by an icon in the statusbar. In selection mode, you may select cells in the grid, for which a relative reference is generated in the entry line. Pressing `<Meta>` while clicking instead results in absolute reference. You can exit seelction mode by selecting the entry line, by focusing the entry line and pressing `<Insert>` again or by presing `<Escape>` while inside the grid. Note that you cannot edit cell code in cell editors while in selection mode.
+
 ### Example
 
 Let us enter an expression into the top left cell in table 0:

@@ -7,13 +7,13 @@ title: Macro actions
 
 # Macro menu
 
-## Macro 🠞 Insert image
+## Macro → Insert image
 
 The **`Insert bitmap`** option in the Macros menu lets the user choose an image file and creates cell code that represents an image and chooses the image cell renderer.
 
-## Macro 🠞 Insert chart
+## Macro → Insert chart
 
-The **`Macros 🠞 Insert chart...`** option provides an easy way of generating
+The **`Macros → Insert chart...`** option provides an easy way of generating
 matplotlib figures. They generate multi-line code. The last line is an expression that yields a `matplotlib.figure.Figure` object.
 
 ![Chart dialog](images/screenshot_chartdialog.png)
