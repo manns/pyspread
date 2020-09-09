@@ -1800,7 +1800,7 @@ class GridTableModel(QAbstractTableModel):
             """Returns str(obj), on RecursionError returns error message"""
             try:
                 return str(obj)
-            except RecursionError as err:
+            except Exception as err:
                 return str(err)
 
         key = self.current(index)
