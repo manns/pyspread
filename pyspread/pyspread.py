@@ -38,9 +38,9 @@ import os
 import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
-from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QSplitter,
-                             QMessageBox, QDockWidget, QUndoStack,
-                             QStyleOptionViewItem, QAbstractItemView)
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication,
+                             QMessageBox, QDockWidget, QUndoStack, QVBoxLayout,
+                             QStyleOptionViewItem)
 try:
     from PyQt5.QtSvg import QSvgWidget
 except ImportError:
@@ -218,25 +218,37 @@ class MainWindow(QMainWindow):
 
         self.macro_panel = MacroPanel(self, self.grid.model.code_array)
 
-        self.main_splitter = QSplitter(Qt.Vertical, self)
-        self.setCentralWidget(self.main_splitter)
+        self.main_panel = QWidget(self)
 
-        self.main_splitter.addWidget(self.entry_line)
-        self.main_splitter.addWidget(self.grid)
-        self.main_splitter.addWidget(self.grid.table_choice)
-        self.main_splitter.setSizes([self.entry_line.minimumHeight(),
-                                     9999, 20])
+        self.entry_line_dock = QDockWidget("Entry Line", self)
+        self.entry_line_dock.setObjectName("Entry Line Panel")
+        self.entry_line_dock.setWidget(self.entry_line)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.entry_line_dock)
+        self.resizeDocks([self.entry_line_dock], [10], Qt.Horizontal)
 
         self.macro_dock = QDockWidget("Macros", self)
         self.macro_dock.setObjectName("Macro Panel")
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 
+        self._layout()
+
+        self.entry_line_dock.installEventFilter(self)
         self.macro_dock.installEventFilter(self)
 
         QApplication.instance().focusChanged.connect(self.on_focus_changed)
         self.gui_update.connect(self.on_gui_update)
         self.refresh_timer.timeout.connect(self.on_refresh_timer)
+
+    def _layout(self):
+        """Layouts for main window"""
+
+        self.central_layout = QVBoxLayout(self.main_panel)
+        self.central_layout.addWidget(self.grid)
+        self.central_layout.addWidget(self.grid.table_choice)
+
+        self.main_panel.setLayout(self.central_layout)
+        self.setCentralWidget(self.main_panel)
 
     def eventFilter(self, source: QWidget, event: QEvent) -> bool:
         """Overloaded event filter for handling QDockWidget close events
@@ -248,10 +260,13 @@ class MainWindow(QMainWindow):
 
         """
 
-        if event.type() == QEvent.Close \
-           and isinstance(source, QDockWidget) \
-           and source.windowTitle() == "Macros":
-            self.main_window_actions.toggle_macro_panel.setChecked(False)
+        if event.type() == QEvent.Close and isinstance(source, QDockWidget):
+            if source.windowTitle() == "Macros":
+                self.main_window_actions.toggle_macro_dock.setChecked(False)
+            elif source.windowTitle() == "Entry Line":
+                self.main_window_actions.toggle_entry_line_dock.setChecked(
+                    False)
+
         return super().eventFilter(source, event)
 
     def _init_toolbars(self):
@@ -285,11 +300,11 @@ class MainWindow(QMainWindow):
         findtoolbar_visible = self.find_toolbar.isVisibleTo(self)
         actions.toggle_find_toolbar.setChecked(findtoolbar_visible)
 
-        entryline_visible = self.entry_line.isVisibleTo(self)
-        actions.toggle_entry_line.setChecked(entryline_visible)
+        entryline_visible = self.entry_line_dock.isVisibleTo(self)
+        actions.toggle_entry_line_dock.setChecked(entryline_visible)
 
         macrodock_visible = self.macro_dock.isVisibleTo(self)
-        actions.toggle_macro_panel.setChecked(macrodock_visible)
+        actions.toggle_macro_dock.setChecked(macrodock_visible)
 
     @property
     def safe_mode(self) -> bool:
@@ -566,23 +581,24 @@ class MainWindow(QMainWindow):
 
         self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
-    def on_toggle_entry_line(self, toggled: bool):
+    def on_toggle_entry_line_dock(self, toggled: bool):
         """Entryline toggle event handler
 
         :param toggled: Toggle state
 
         """
 
-        self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
+        self._toggle_widget(self.entry_line_dock, "toggle_entry_line_dock",
+                            toggled)
 
-    def on_toggle_macro_panel(self, toggled: bool):
+    def on_toggle_macro_dock(self, toggled: bool):
         """Macro panel toggle event handler
 
         :param toggled: Toggle state
 
         """
 
-        self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
+        self._toggle_widget(self.macro_dock, "toggle_macro_dock", toggled)
 
     def on_manual(self):
         """Show manual browser"""

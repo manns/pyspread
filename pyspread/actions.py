@@ -325,15 +325,14 @@ class MainWindowActions(AttrDict):
                                           statustip='Show/hide the find '
                                                     'toolbar')
 
-        self.toggle_entry_line = Action(self.parent, "Entry line",
-                                        self.parent.on_toggle_entry_line,
-                                        checkable=True,
-                                        statustip='Show/hide the entry line')
+        self.toggle_entry_line_dock = Action(
+            self.parent, "Entry line", self.parent.on_toggle_entry_line_dock,
+            checkable=True, statustip='Show/hide the entry line')
 
-        self.toggle_macro_panel = Action(self.parent, "Macro panel",
-                                         self.parent.on_toggle_macro_panel,
-                                         checkable=True, shortcut='F4',
-                                         statustip='Show/hide the macro panel')
+        self.toggle_macro_dock = Action(
+            self.parent, "Macro panel", self.parent.on_toggle_macro_dock,
+            checkable=True, shortcut='F4',
+            statustip='Show/hide the macro panel')
 
         self.goto_cell = Action(self.parent, "Go to cell",
                                 self.parent.workflows.view_goto_cell,

@@ -61,7 +61,7 @@ class Settings:
     # Names of widgets with persistant states
     widget_names = ["main_window", "main_toolbar", "find_toolbar",
                     "format_toolbar", "macro_toolbar", "entry_line",
-                    "main_splitter"]
+                    "entry_line_dock"]
 
     # Shape of initial grid (rows, columns, tables)
     shape = 1000, 100, 3
@@ -230,7 +230,7 @@ class Settings:
                 settings.setValue(toolbar_visibility_name,
                                   [a.isVisible() for a in widget.actions()])
 
-            if widget_name == "entry_line":
+            if widget_name == "entry_line_dock":
                 settings.setValue("entry_line_isvisible", widget.isVisible())
 
         settings.sync()
@@ -297,7 +297,7 @@ class Settings:
                 manager_button = widget.widgetForAction(widget.actions()[-1])
                 manager_button.menu().update_checked_states()
 
-            if widget_name == "entry_line" \
+            if widget_name == "entry_line_dock" \
                and settings.value("entry_line_isvisible") is not None:
                 visible = settings.value("entry_line_isvisible") in ['true',
                                                                      True]
