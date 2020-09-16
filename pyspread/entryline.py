@@ -111,10 +111,12 @@ class Entryline(SpellTextEdit):
 
         self.last_key = event.key()
 
-        if self.last_key in (Qt.Key_Enter, Qt.Key_Return) \
-           and not event.modifiers() == Qt.ShiftModifier:
-            self.store_data()
-            self.main_window.grid.row += 1
+        if self.last_key in (Qt.Key_Enter, Qt.Key_Return):
+            if event.modifiers() == Qt.ShiftModifier:
+                self.insertPlainText('\n')
+            else:
+                self.store_data()
+                self.main_window.grid.row += 1
         elif self.last_key == Qt.Key_Tab:
             self.store_data()
             self.main_window.grid.column += 1

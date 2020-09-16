@@ -25,6 +25,7 @@
  * :class:`Action` is a quick one liner way to create `QAction`
  * :class:`MainWindowActions`
  * :class:`ChartDialogActions`
+ * :class:`SpellTextEditActions`
 
 """
 
@@ -902,3 +903,21 @@ class ChartDialogActions(AttrDict):
                                         statustip='Insert code for surface '
                                                   'chart')
         self.chart_surface_2_1.setData("chart_surface_2_1.py")
+
+
+class SpellTextEditActions(AttrDict):
+    """Holds QActions for SpellTextEdit"""
+
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: The parent object, normally :class:`pyspread.MainWindow`
+
+        """
+
+        super().__init__()
+        self.parent = parent
+
+        self.toggle_line_numbers = Action(self.parent, "Line numbers",
+                                          self.parent.show_line_numbers,
+                                          checkable=True,
+                                          statustip='Show/hide line numbers')

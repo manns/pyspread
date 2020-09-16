@@ -125,6 +125,11 @@ from PyQt5.QtGui import (QFocusEvent, QSyntaxHighlighter, QTextBlockUserData,
 from PyQt5.QtWidgets import (QAction, QActionGroup, QApplication, QMenu,
                              QPlainTextEdit, QWidget)
 
+try:
+    from pyspread.actions import SpellTextEditActions
+except ImportError:
+    from actions import SpellTextEditActions
+
 
 def format(color, style=''):
     """Return a QTextCharFormat with the given attributes."""
@@ -168,7 +173,7 @@ class LineNumberArea(QWidget):
         self.parent = parent
 
     def sizeHint(self):
-        return QSize(self.parent.line_number_area_width(), 0)
+        return QSize(self.parent.get_line_number_area_width(), 0)
 
     def paintEvent(self, event: QEvent):
         """Paint event called by parent"""
@@ -212,7 +217,11 @@ class SpellTextEdit(QPlainTextEdit):
 
     def __init__(self, parent=None, line_numbers=True):
 
+        self.line_numbers = line_numbers
+
         super().__init__()
+
+        self.actions = SpellTextEditActions(self)
 
         # If a <Tab> is present then it should be of width 4
         try:
@@ -224,11 +233,11 @@ class SpellTextEdit(QPlainTextEdit):
         self.setTabStopDistance(_distance * self.spaces_per_tab)
 
         # Line number area
-        if line_numbers:
-            self.line_number_area = LineNumberArea(self)
-            self.blockCountChanged.connect(self.update_line_number_area_width)
-            self.updateRequest.connect(self.update_line_number_area)
-            self.update_line_number_area_width()
+        self.line_number_area = LineNumberArea(self)
+        self.blockCountChanged.connect(self.update_line_number_area_width)
+        self.updateRequest.connect(self.update_line_number_area)
+        self.update_line_number_area_width()
+        self.show_line_numbers(self.line_numbers)
 
         # Start with a default dictionary based on the current locale.
         self.highlighter = PythonEnchantHighlighter(self.document())
@@ -240,8 +249,25 @@ class SpellTextEdit(QPlainTextEdit):
                 # One of those has occured.
                 warn(str(err), ImportWarning)
 
+    def show_line_numbers(self, visible: bool):
+        """Show line number area if visible else hide it
+
+        :param visible: Line number area visibility
+
+        """
+
+        if visible:
+            self.line_number_area.show()
+        else:
+            self.line_number_area.hide()
+
+        self.update_line_number_area_width()
+
     def get_line_number_area_width(self) -> int:
         """Returns width of line number area"""
+
+        if not self.line_number_area.isVisible():
+            return 0
 
         margin = 3
         digit_width = self.fontMetrics().width('9')
@@ -315,6 +341,12 @@ class SpellTextEdit(QPlainTextEdit):
             menu = self.createStandardContextMenu(pos)
         except TypeError:  # Before Qt 5.5
             menu = self.createStandardContextMenu()
+
+        # Add a toggle action for line numbers
+        menu.addSeparator()
+        menu.addAction(self.actions.toggle_line_numbers)
+        self.actions.toggle_line_numbers.setChecked(
+            self.line_number_area.isVisible())
 
         # Add a submenu for setting the spell-check language
         menu.addSeparator()
