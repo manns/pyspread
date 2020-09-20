@@ -25,16 +25,20 @@
 **Modal dialogs**
 
  * :class:`DiscardChangesDialog`
+ * :class:`DiscardDataDialog`
  * :class:`ApproveWarningDialog`
  * :class:`DataEntryDialog`
  * :class:`GridShapeDialog`
- * :class:`PrintAreaDialog`
+ * :class:`SinglePageArea`
+ * :class:`MultiPageArea`
  * :class:`CsvExportAreaDialog`
+ * :class:`PrintAreaDialog`
  * (:class:`FileDialogBase`)
  * :class:`FileOpenDialog`
  * :class:`FileSaveDialog`
  * :class:`ImageFileOpenDialog`
  * :class:`CsvFileImportDialog`
+ * :class:`FileExportDialog`
  * :class:`FindDialog`
  * :class:`ChartDialog`
  * :class:`CsvImportDialog`
@@ -54,9 +58,9 @@ except ImportError:
 from functools import partial
 import io
 from pathlib import Path
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, Tuple, Union
 
-from PyQt5.QtCore import Qt, QPoint, QSize, QEvent, QUrl
+from PyQt5.QtCore import Qt, QPoint, QSize, QEvent
 from PyQt5.QtWidgets \
     import (QApplication, QMessageBox, QFileDialog, QDialog, QLineEdit, QLabel,
             QFormLayout, QVBoxLayout, QGroupBox, QDialogButtonBox, QSplitter,
@@ -82,7 +86,6 @@ try:
     from pyspread.widgets import HelpBrowser
     from pyspread.lib.csv import (sniff, csv_reader, get_header, typehandlers,
                                   convert)
-    from pyspread.lib.markdown2 import markdown
     from pyspread.lib.spelltextedit import SpellTextEdit
     from pyspread.settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 except ImportError:
@@ -90,7 +93,6 @@ except ImportError:
     from toolbar import ChartTemplatesToolBar
     from widgets import HelpBrowser
     from lib.csv import sniff, csv_reader, get_header, typehandlers, convert
-    from lib.markdown2 import markdown
     from lib.spelltextedit import SpellTextEdit
     from settings import TUTORIAL_PATH, MANUAL_PATH, MPL_TEMPLATE_PATH
 
@@ -130,8 +132,25 @@ class DiscardChangesDialog:
                                               self.default_choice)
         if button_approval == QMessageBox.Discard:
             return True
-        elif button_approval == QMessageBox.Save:
+        if button_approval == QMessageBox.Save:
             return False
+
+
+class DiscardDataDialog(DiscardChangesDialog):
+    """Modal dialog that asks if the user wants to discard data"""
+
+    title = "Data to be discarded"
+    choices = QMessageBox.Discard | QMessageBox.Cancel
+    default_choice = QMessageBox.Cancel
+
+    def __init__(self, main_window: QMainWindow, text: str):
+        """
+        :param main_window: Application main window
+        :param text: Message text
+
+        """
+        self.main_window = main_window
+        self.text = text
 
 
 class ApproveWarningDialog:
@@ -173,7 +192,7 @@ class ApproveWarningDialog:
                                               self.default_choice)
         if button_approval == QMessageBox.Yes:
             return True
-        elif button_approval == QMessageBox.No:
+        if button_approval == QMessageBox.No:
             return False
 
 
@@ -306,19 +325,37 @@ class GridShapeDialog(DataEntryDialog):
             pass
 
 
-class PrintAreaDialog(DataEntryDialog):
-    """Modal dialog for entering print area
+@dataclass
+class SinglePageArea:
+    """Holds single page area boundaries e.g. for export"""
+
+    top: int
+    left: int
+    bottom: int
+    right: int
+
+
+@dataclass
+class MultiPageArea(SinglePageArea):
+    """Holds multi page area boundaries e.g. for printing"""
+
+    first: int
+    last: int
+
+
+class CsvExportAreaDialog(DataEntryDialog):
+    """Modal dialog for entering csv export area
 
     Initially, this dialog is filled with the selection bounding box
     if present or with the visible area of <= 1 cell is selected.
 
     """
 
-    groupbox_title = "Print area"
+    groupbox_title = "Page area"
     labels = ["Top", "Left", "Bottom", "Right"]
+    area_cls = SinglePageArea
 
-    def __init__(self, parent: QWidget, grid: QTableView,
-                 title: str = "Print settings"):
+    def __init__(self, parent: QWidget, grid: QTableView, title: str):
         """
         :param parent: Parent widget, e.g. main window
         :param grid: The main grid widget
@@ -326,30 +363,60 @@ class PrintAreaDialog(DataEntryDialog):
 
         """
 
+        self.grid = grid
         self.shape = grid.model.shape
 
-        row_validator = QIntValidator()
-        row_validator.setBottom(0)  # Do not allow negative values
+        super().__init__(parent, title, self.labels, self._initial_values,
+                         self.groupbox_title, self.validator_list)
+
+    @property
+    def _validator(self):
+        """Returns int validator for positive numbers"""
+
+        validator = QIntValidator()
+        validator.setBottom(0)
+        return validator
+
+    @property
+    def _row_validator(self) -> QIntValidator:
+        """Returns row validator"""
+
+        row_validator = self._validator
         row_validator.setTop(self.shape[0] - 1)
-        column_validator = QIntValidator()
-        column_validator.setBottom(0)  # Do not allow negative values
+        return row_validator
+
+    @property
+    def _column_validator(self) -> QIntValidator:
+        """Returns column validator"""
+
+        column_validator = self._validator
         column_validator.setTop(self.shape[1] - 1)
+        return column_validator
+
+    @property
+    def validator_list(self) -> List[QIntValidator]:
+        """Returns list of validators for dialog"""
+
+        return [self._row_validator, self._column_validator] * 2
+
+    @property
+    def _initial_values(self) -> Tuple[int, int, int, int]:
+        """Returns tuple of initial values"""
+
+        grid = self.grid
+        shape = grid.model.shape
 
         if grid.selection and len(grid.selected_idx) > 1:
             (bb_top, bb_left), (bb_bottom, bb_right) = \
-                grid.selection.get_grid_bbox(self.shape)
+                grid.selection.get_grid_bbox(shape)
         else:
             bb_top, bb_bottom = grid.rowAt(0), grid.rowAt(grid.height())
             bb_left, bb_right = grid.columnAt(0), grid.columnAt(grid.width())
 
-        initial_values = bb_top, bb_left, bb_bottom, bb_right
-
-        validators = [row_validator, column_validator] * 2
-        super().__init__(parent, title, self.labels, initial_values,
-                         self.groupbox_title, validators)
+        return bb_top, bb_left, bb_bottom, bb_right
 
     @property
-    def area(self) -> Tuple[int, int, int, int]:
+    def area(self) -> Union[SinglePageArea, MultiPageArea]:
         """Executes the dialog and returns top, left, bottom, right
 
         Returns None if the dialog is canceled.
@@ -364,21 +431,47 @@ class PrintAreaDialog(DataEntryDialog):
 
         if data is not None:
             try:
-                return tuple(data)
+                return self.area_cls(*data)
             except ValueError:
                 return
 
 
-class CsvExportAreaDialog(PrintAreaDialog):
-    """Modal dialog for entering csv export area"""
+class PrintAreaDialog(CsvExportAreaDialog):
+    """Modal dialog for entering print area
 
-    groupbox_title = "CSV export area"
+    Initially, this dialog is filled with the selection bounding box
+    if present or with the visible area of <= 1 cell is selected.
+    Initially, the current table is selected.
 
+    """
 
-class SvgExportAreaDialog(PrintAreaDialog):
-    """Modal dialog for entering svg export area"""
+    labels = ["Top", "Left", "Bottom", "Right", "First table", "Last table"]
+    area_cls = MultiPageArea
 
-    groupbox_title = "SVG export area"
+    @property
+    def _table_validator(self) -> QIntValidator:
+        """Returns column validator"""
+
+        table_validator = self._validator
+        table_validator.setTop(self.shape[1] - 1)
+        return table_validator
+
+    @property
+    def validator_list(self) -> List[QIntValidator]:
+        """Returns list of validators for dialog"""
+
+        validators = super().validator_list
+        validators += [self._table_validator] * 2
+        return validators
+
+    @property
+    def _initial_values(self) -> Tuple[int, int, int, int, int, int]:
+        """Returns tuple of initial values"""
+
+        bb_top, bb_left, bb_bottom, bb_right = super()._initial_values
+        table = self.grid.table
+
+        return bb_top, bb_left, bb_bottom, bb_right, table, table
 
 
 class PreferencesDialog(DataEntryDialog):
@@ -476,7 +569,6 @@ class FileDialogBase:
     """
 
     file_path = None
-    suffix = None
 
     title = "Choose file"
 
@@ -498,8 +590,7 @@ class FileDialogBase:
 
         if self.filters_list.index(self.selected_filter):
             return ".pys"
-        else:
-            return ".pysu"
+        return ".pysu"
 
     def __init__(self, main_window: QMainWindow):
         """
@@ -515,7 +606,7 @@ class FileDialogBase:
     def show_dialog(self):
         """Sublasses must overload this method"""
 
-        raise Exception("show_dialog() - Needs method overload")
+        raise NotImplementedError
 
 
 class FileOpenDialog(FileDialogBase):
@@ -595,23 +686,26 @@ class CsvFileImportDialog(FileDialogBase):
                                         self.filters_list[0])
 
 
-class CsvFileExportDialog(FileDialogBase):
+class FileExportDialog(FileDialogBase):
     """Modal dialog for exporting csv files"""
 
     title = "Export data"
-    filters_list = [
-        "CSV file (*.*)",
-        "SVG file (*.svg)",
-    ]
+
+    def __init__(self, main_window: QMainWindow, filters_list: List[str]):
+        """
+        :param main_window: Application main window
+        :param filters_list: List of filter strings
+
+        """
+
+        self.filters_list = filters_list
+        super().__init__(main_window)
 
     @property
     def suffix(self) -> str:
         """Suffix for filepath"""
 
-        if self.filters_list.index(self.selected_filter):
-            return ".svg"
-        else:
-            return
+        return ".{}".format(self.selected_filter.split()[0].lower())
 
     def show_dialog(self):
         """Present dialog and update values"""
@@ -660,8 +754,9 @@ class FindDialog(QDialog):
         self.extension.hide()
 
         self.more_button.toggled.connect(self.extension.setVisible)
-        self.find_button.clicked.connect(
-                partial(workflows.find_dialog_on_find, self))
+
+        self.find_button.clicked.connect(partial(workflows.find_dialog_on_find,
+                                                 self))
 
         # Restore state
         state = self.main_window.settings.find_dialog_state
@@ -803,11 +898,11 @@ class ReplaceDialog(FindDialog):
         self.setTabOrder(self.search_text_editor, self.replace_text_editor)
         self.setTabOrder(self.more_button, self.replace_button)
 
-        self.replace_button.clicked.connect(
-                partial(workflows.replace_dialog_on_replace, self))
+        p_onreplace = partial(workflows.replace_dialog_on_replace, self)
+        self.replace_button.clicked.connect(p_onreplace)
 
-        self.replace_all_button.clicked.connect(
-                partial(workflows.replace_dialog_on_replace_all, self))
+        p_onreplaceall = partial(workflows.replace_dialog_on_replace_all, self)
+        self.replace_all_button.clicked.connect(p_onreplaceall)
 
 
 class ChartDialog(QDialog):
@@ -1205,6 +1300,8 @@ class CsvTable(QTableView):
         """
 
         class TypeCombo(QComboBox):
+            """ComboBox for type choice"""
+
             def __init__(self):
                 super().__init__()
 
@@ -1240,11 +1337,10 @@ class CsvTable(QTableView):
                 else:
                     self.horizontalHeader().hide()
 
-                for i, row in enumerate(csv_reader(csvfile, dialect,
-                                                   digest_types)):
+                for i, row in enumerate(csv_reader(csvfile, dialect)):
                     if i >= self.no_rows:
                         break
-                    elif i == 0:
+                    if i == 0:
                         self.add_choice_row(len(row))
                     if digest_types is None:
                         item_row = map(QStandardItem, map(str, row))
@@ -1298,6 +1394,8 @@ class CsvImportDialog(QDialog):
         self.digest_types = digest_types
 
         self.sniff_size = parent.settings.sniff_size
+
+        self.dialect = None
 
         self.setWindowTitle(self.title)
 
@@ -1410,10 +1508,10 @@ class CsvExportDialog(QDialog):
     title = "CSV export"
     maxrows = 10
 
-    def __init__(self, parent: QWidget, csv_area: Tuple[int, int, int, int]):
+    def __init__(self, parent: QWidget, csv_area: SinglePageArea):
         """
         :param parent: Parent window
-        :param csv_area: Grid area to be exported (top, left, bottom, right)
+        :param csv_area: Grid area to be exported
 
         """
 
@@ -1459,7 +1557,10 @@ class CsvExportDialog(QDialog):
     def apply(self):
         """Button event handler, applies parameters to csv_preview"""
 
-        top, left, bottom, right = self.csv_area
+        top = self.csv_area.top
+        left = self.csv_area.left
+        bottom = self.csv_area.bottom
+        right = self.csv_area.right
         table = self.parent.grid.table
 
         bottom = min(bottom-top, self.maxrows-1) + top

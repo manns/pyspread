@@ -97,12 +97,12 @@ class DefaultCellAttributeDict(AttrDict):
         self.borderwidth_right = 1
         self.bordercolor_bottom = None
         self.bordercolor_right = None
-        self.bgcolor = 255, 255, 255
+        self.bgcolor = 255, 255, 255  # Do not use theme
         self.textfont = None
         self.pointsize = 10
         self.fontweight = None
         self.fontstyle = None
-        self.textcolor = None
+        self.textcolor = 0, 0, 0  # Do not use theme
         self.underline = False
         self.strikethrough = False
         self.locked = False
@@ -180,7 +180,10 @@ class CellAttributes(list):
             for i, ele in enumerate(reversed(self)):
                 if ele[0] == selection and ele[1] == table \
                    and "merge_area" in ele[2]:
-                    self.pop(-1 - i)
+                    try:
+                        self.pop(-1 - i)
+                    except IndexError:
+                        pass
             if attr["merge_area"] is not None:
                 super().append(cell_attribute)
         else:
@@ -875,10 +878,12 @@ class DataArray:
         del_sizes = []
 
         for pos, table in cell_sizes:
-            if pos > insertion_point and (tab is None or tab == table):
+            if pos >= insertion_point and (tab is None or tab == table):
                 if 0 <= pos + no_to_insert < self.shape[axis]:
                     new_sizes[(pos + no_to_insert, table)] = \
                         cell_sizes[(pos, table)]
+                if pos < insertion_point + no_to_insert:
+                    new_sizes[(pos, table)] = cell_sizes[(pos, table)]
                 del_sizes.append((pos, table))
 
         for pos, table in new_sizes:
@@ -1355,11 +1360,13 @@ class CodeArray(DataArray):
         def nn(val: numpy.array) -> numpy.array:
             """Returns flat numpy array without None values"""
             try:
-                return numpy.array([_f for _f in val.flat if _f])
+                return numpy.array([_f for _f in val.flat if _f is not None],
+                                   dtype="O")
 
             except AttributeError:
                 # Probably no numpy array
-                return numpy.array([_f for _f in val if _f])
+                return numpy.array([_f for _f in val if _f is not None],
+                                   dtype="O")
 
         env_dict = {'X': key[0], 'Y': key[1], 'Z': key[2], 'bz2': bz2,
                     'base64': base64, 'nn': nn, 'Figure': Figure,

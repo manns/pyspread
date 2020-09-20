@@ -39,7 +39,7 @@ import ast
 import csv
 from dateutil.parser import parse
 from pathlib import Path
-from typing import IO, Iterable, List
+from typing import TextIO, Iterable, List
 
 
 def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
@@ -60,7 +60,7 @@ def sniff(filepath: Path, sniff_size: int) -> csv.Dialect:
     return dialect
 
 
-def get_header(csvfile: IO, dialect: csv.Dialect) -> str:
+def get_header(csvfile: TextIO, dialect: csv.Dialect) -> List[str]:
     """Returns list of first line items of file filepath"""
 
     csvfile.seek(0)
@@ -72,13 +72,11 @@ def get_header(csvfile: IO, dialect: csv.Dialect) -> str:
     return header
 
 
-def csv_reader(csvfile: IO, dialect: csv.Dialect,
-               digest_types: List[str] = None) -> Iterable[str]:
-    """Generator of digested values from csv file in filepath
+def csv_reader(csvfile: TextIO, dialect: csv.Dialect) -> Iterable[str]:
+    """Generator of str values from csv file in filepath, ignores header
 
     :param csvfile: Csv file to read
     :param dialect: Csv dialect
-    :param digest_types: Names of types of data for each column
 
     """
 
@@ -114,7 +112,7 @@ def convert(string: str, digest_type: str) -> str:
         digest_type = 'repr'
 
     try:
-        return str(typehandlers[digest_type](string))
+        return repr(typehandlers[digest_type](string))
 
     except Exception:
         return repr(string)
@@ -146,7 +144,7 @@ def make_object(obj):
 
 typehandlers = {
     'object': ast.literal_eval,
-    'repr': repr,
+    'repr': lambda x: x,
     'bool': bool,
     'int': int,
     'float': float,

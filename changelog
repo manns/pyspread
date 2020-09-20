@@ -4,6 +4,67 @@ Changelog for pyspread
 Note: This changelog does not comprise development of pyspread for Python2
       It starts with the first Alpha release 1.99.0.0
 
+1.99.4
+------
+
+This is the fourth Beta release for pyspread 2.0.
+
+This version adds a selection mode for creating cell references with the mouse.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1), PyQt5 (≥ 5.10, requires PyQt5.Svg), setuptools (>=40.0)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt      
+      
+      
+1.99.4
+------
+
+This is the fourth Beta release for pyspread 2.0.
+
+This version adds a selection mode for creating cell references with the mouse.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1) PyQt5 (≥ 5.10, requires PyQt5.Svg)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+1.99.3
+------
+
+This is the third Beta release for pyspread 2.0.
+
+This version concentrates on usability improvements.
+
+Dependencies:
+ * Mandatory: Python (≥ 3.6), numpy (>=1.1) PyQt5 (≥ 5.10, requires PyQt5.Svg)
+ * Recommended: matplotlib (>=1.1.1), pyenchant (>=1.1), pip (>=18)
+ * For building the apidocs with Sphinx see apidocs/requirements.txt
+
+New functionality:
+ * Cell edges now are rendered properly
+ * Rendering fixes for images and charts
+ * Line numbers added to macro and chart editors
+ * Chart dialog is not modal any more
+ * Fixes in csv reader post processing
+ * Printing multiple tables at once added
+ * Tutorial fixes
+ * Opening invalid files made more robust
+ * Improvements for UI in dark themes
+ * SVG export restricted to single cells due to clipping issue in QtSvg
+ * Default text color changed to black
+ * Cell wrapping improved. No ellipses are painted any more
+ * Last file output path not stored persistently any more
+ * Rendering vertical alignment fixed
+ * Canceling file save on quit now prevents quitting
+ * Some fixes for old pys files
+ * pyspread can now be started from jupyter console
+ * Newly inserted rows and columns now get sizes of current ones
+ * nn function fixed
+ * Insertion operations that destroy data now show a warning message dialog
+ * View position in tables are now remembered when switching (non-persistantly)
+
+
 1.99.2
 ------
 

@@ -18,6 +18,14 @@
 # along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------
 
+"""
+
+**Provides**
+
+ * :class:`Entryline`
+
+"""
+
 from contextlib import contextmanager
 
 from PyQt5.QtCore import Qt, QEvent
@@ -44,7 +52,7 @@ class Entryline(SpellTextEdit):
 
         """
 
-        super().__init__()
+        super().__init__(line_numbers=False)
 
         self.main_window = main_window
 
@@ -54,6 +62,8 @@ class Entryline(SpellTextEdit):
         self.setWordWrapMode(QTextOption.WrapAnywhere)
 
         self.installEventFilter(self)
+
+        self.last_key = None
 
         # self.highlighter.setDocument(self.document())
 
@@ -99,13 +109,20 @@ class Entryline(SpellTextEdit):
 
         """
 
-        if event.key() in (Qt.Key_Enter, Qt.Key_Return) \
-           and not event.modifiers() == Qt.ShiftModifier:
-            self.store_data()
-            self.main_window.grid.row += 1
-        elif event.key() == Qt.Key_Tab:
+        self.last_key = event.key()
+
+        if self.last_key in (Qt.Key_Enter, Qt.Key_Return):
+            if event.modifiers() == Qt.ShiftModifier:
+                self.insertPlainText('\n')
+            else:
+                self.store_data()
+                self.main_window.grid.row += 1
+        elif self.last_key == Qt.Key_Tab:
             self.store_data()
             self.main_window.grid.column += 1
+        elif self.last_key == Qt.Key_Insert:
+            self.main_window.grid.selection_mode = \
+                not self.main_window.grid.selection_mode
         else:
             super().keyPressEvent(event)
 
@@ -127,7 +144,7 @@ class Entryline(SpellTextEdit):
 
         """
 
-        self.highlighter.enable_enchant = True if signal else False
+        self.highlighter.enable_enchant = bool(signal)
 
     def setPlainText(self, text: str):
         """Overides setPlainText

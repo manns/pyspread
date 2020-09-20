@@ -98,7 +98,7 @@ class MacroPanel(QDialog):
         try:
             ast.parse(self.code_array.macros)
 
-        except Exception as ex:
+        except Exception:
             # Grab the traceback and return it
             stringio = StringIO()
             excinfo = exc_info()

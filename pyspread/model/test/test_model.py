@@ -254,6 +254,31 @@ class TestDataArray(object):
         assert [[list(e) for e in c] for c in cell_array] == \
             [[[None] * 5] * 5] * 5
 
+    param_adjust_rowcol = [
+        ({(0, 0): 3.0}, 0, 2, 0, 0, (0, 0), 3.0),
+        ({(0, 0): 3.0}, 0, 2, 0, 0, (2, 0), 3.0),
+        ({(0, 0): 3.0}, 0, 1, 1, 0, (1, 0), 3.0),
+        ({(0, 0): 3.0}, 0, 1, 1, 0, (0, 1), 0.0),
+    ]
+
+    @pytest.mark.parametrize("vals, ins_point, no2ins, axis, tab, target, res",
+                             param_adjust_rowcol)
+    def test_adjust_rowcol(self, vals, ins_point, no2ins, axis, tab, target,
+                           res):
+        """Unit test for _adjust_rowcol"""
+
+        if axis == 0:
+            __vals = self.data_array.row_heights
+        elif axis == 1:
+            __vals = self.data_array.col_widths
+        else:
+            raise ValueError("{} out of 0, 1".format(axis))
+
+        __vals.update(vals)
+
+        self.data_array._adjust_rowcol(ins_point, no2ins, axis, tab)
+        assert __vals[target] == res
+
     def test_set_cell_attributes(self):
         """Unit test for _set_cell_attributes"""
 

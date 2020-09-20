@@ -261,6 +261,8 @@ class ColorButton(QToolButton):
 
     @property
     def color(self) -> QColor:
+        """Chosen color"""
+
         return self._color
 
     @color.setter
@@ -308,10 +310,10 @@ class ColorButton(QToolButton):
         dlg.setWindowModality(Qt.ApplicationModal)
         dlg.setOptions(QColorDialog.DontUseNativeDialog)
 
-        p = self.mapFromGlobal(QCursor.pos())
-        p.setX(p.x() + (self.rect().width() / 2))
-        p.setY(p.y() + (self.rect().height() / 2))
-        dlg.move(self.mapToGlobal(p))
+        pos = self.mapFromGlobal(QCursor.pos())
+        pos.setX(pos.x() + (self.rect().width() / 2))
+        pos.setY(pos.y() + (self.rect().height() / 2))
+        dlg.move(self.mapToGlobal(pos))
 
         if dlg.exec_():
             self.color = dlg.currentColor()
@@ -489,6 +491,8 @@ class FontSizeCombo(QComboBox):
 
 
 class Widgets:
+    """Container class for widgets"""
+
     def __init__(self, main_window: QMainWindow):
         """
         :param main_window: Application main window
@@ -710,4 +714,5 @@ class HelpBrowser(QTextBrowser):
         except IOError as err:
             return "Error opening file {}: {}".format(path, err)
 
-        return markdown(help_text, extras=['metadata'])
+        return markdown(help_text, extras=['metadata', 'code-friendly',
+                                           'fenced-code-blocks'])

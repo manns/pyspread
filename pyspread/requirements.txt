@@ -1,0 +1,9 @@
+# Mandatory
+PyQt5 (>=5.10)
+numpy (>=1.1)
+setuptools (>=40.0)
+
+# Optional
+matplotlib (>=1.1.1)
+pyenchant (>=1.1)
+pip (>=18)

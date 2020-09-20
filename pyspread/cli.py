@@ -22,6 +22,8 @@
 
 **Provides**
 
+* :func:`check_mandatory_dependencies`:
+* :class:`PathAction`:
 * :class:`CommandLineParser`:
 
 """
@@ -31,11 +33,56 @@ from pathlib import Path
 import sys
 
 try:
+    import PyQt5.QtSvg as pyqtsvg
+except ImportError:
+    pyqtsvg = None
+
+try:
     from pyspread.__init__ import APP_NAME, VERSION
     from pyspread.installer import REQUIRED_DEPENDENCIES
 except ImportError:
     from __init__ import APP_NAME, VERSION
     from installer import REQUIRED_DEPENDENCIES
+
+
+def check_mandatory_dependencies():
+    """Checks mandatory dependencies and exits if they are not met"""
+
+    def dependency_warning(message: str):
+        """Print warning message to stdout
+
+        :param message: Warning message to be displayed
+
+        """
+
+        sys.stdout.write('warning: {}\n'.format(message))
+
+    # Check Python version
+    major = sys.version_info.major
+    minor = sys.version_info.minor
+    micro = sys.version_info.micro
+    if major < 3 or major == 3 and minor < 6:
+        msg_tpl = "Python has version {}.{}.{} but ≥ 3.6 is required."
+        msg = msg_tpl.format(major, minor, micro)
+        dependency_warning(msg)
+
+    for module in REQUIRED_DEPENDENCIES:
+        if module.is_installed() is None:
+            # pkg_resources module is missing, no dependency checks
+            pass
+        elif not module.is_installed():
+            msg_tpl = "Required module {} not found."
+            msg = msg_tpl.format(module.name)
+            dependency_warning(msg)
+        elif module.version < module.required_version:
+            msg_tpl = "Module {} has version {} but {} is required."
+            msg = msg_tpl.format(module.name, module.version,
+                                 module.required_version)
+            dependency_warning(msg)
+    if pyqtsvg is None:
+        # Import of mandatory module failed
+        msg = "Required module PyQt5.QtSvg not found."
+        dependency_warning(msg)
 
 
 class PathAction(Action):
@@ -50,11 +97,11 @@ class PathAction(Action):
             setattr(namespace, self.dest, None)
 
 
-class ArgumentParser(ArgumentParser):
+class PyspreadArgumentParser(ArgumentParser):
     """Parser for the command line"""
 
     def __init__(self):
-        self.check_mandatory_dependencies()
+        check_mandatory_dependencies()
 
         description = "pyspread is a non-traditional spreadsheet that is " \
                       "based on and written in the programming language " \
@@ -75,43 +122,3 @@ class ArgumentParser(ArgumentParser):
 
         file_help = 'open pyspread file in pys or pysu format'
         self.add_argument('file', action=PathAction, nargs="*", help=file_help)
-
-    def check_mandatory_dependencies(self):
-        """Checks mandatory dependencies and exits if they are not met"""
-
-        # Check Python version
-        major = sys.version_info.major
-        minor = sys.version_info.minor
-        micro = sys.version_info.micro
-        if major < 3 or major == 3 and minor < 6:
-            msg_tpl = "Python has version {}.{}.{} but ≥ 3.6 is required."
-            msg = msg_tpl.format(major, minor, micro)
-            self.dependency_warning(msg)
-
-        for module in REQUIRED_DEPENDENCIES:
-            if module.is_installed() is None:
-                # pkg_resources module is missing, no dependency checks
-                pass
-            elif not module.is_installed():
-                msg_tpl = "Required module {} not found."
-                msg = msg_tpl.format(module.name)
-                self.dependency_warning(msg)
-            elif module.version < module.required_version:
-                msg_tpl = "Module {} has version {} but {} is required."
-                msg = msg_tpl.format(module.name, module.version,
-                                     module.required_version)
-                self.dependency_warning(msg)
-        try:
-            import PyQt5.QtSvg
-        except ImportError:
-            msg = "Required module PyQt5.QtSvg not found."
-            self.dependency_warning(msg)
-
-    def dependency_warning(self, message: str):
-        """Print warning message to stdout
-
-        :param message: Warning message to be displayed
-
-        """
-
-        sys.stdout.write('warning: {}\n'.format(message))

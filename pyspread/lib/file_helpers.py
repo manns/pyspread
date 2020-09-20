@@ -114,3 +114,6 @@ def file_progress_gen(main_window, file: IO, title: str, label: str,
                         raise ProgressDialogCanceled(msg)
         except GeneratorExit:  # Catch for cleaning up with progress_dialog
             pass
+        except Exception as error:
+            main_window.grid.model.reset()
+            main_window.statusBar().showMessage(str(error))

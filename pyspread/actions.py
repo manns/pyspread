@@ -25,6 +25,7 @@
  * :class:`Action` is a quick one liner way to create `QAction`
  * :class:`MainWindowActions`
  * :class:`ChartDialogActions`
+ * :class:`SpellTextEditActions`
 
 """
 
@@ -238,6 +239,12 @@ class MainWindowActions(AttrDict):
                               shortcut='Shift+Ctrl+f',
                               statustip='Replace sub-strings in cells')
 
+        self.toggle_selection_mode = Action(
+            self.parent, "Selection mode",
+            self.parent.grid.set_selection_mode,
+            icon=Icon.selection_mode, checkable=True,
+            statustip='Enter/leave selection mode')
+
         self.quote = Action(self.parent, "&Quote",
                             self.parent.grid.on_quote,
                             icon=Icon.quote,
@@ -319,15 +326,14 @@ class MainWindowActions(AttrDict):
                                           statustip='Show/hide the find '
                                                     'toolbar')
 
-        self.toggle_entry_line = Action(self.parent, "Entry line",
-                                        self.parent.on_toggle_entry_line,
-                                        checkable=True,
-                                        statustip='Show/hide the entry line')
+        self.toggle_entry_line_dock = Action(
+            self.parent, "Entry line", self.parent.on_toggle_entry_line_dock,
+            checkable=True, statustip='Show/hide the entry line')
 
-        self.toggle_macro_panel = Action(self.parent, "Macro panel",
-                                         self.parent.on_toggle_macro_panel,
-                                         checkable=True, shortcut='F4',
-                                         statustip='Show/hide the macro panel')
+        self.toggle_macro_dock = Action(
+            self.parent, "Macro panel", self.parent.on_toggle_macro_dock,
+            checkable=True, shortcut='F4',
+            statustip='Show/hide the macro panel')
 
         self.goto_cell = Action(self.parent, "Go to cell",
                                 self.parent.workflows.view_goto_cell,
@@ -423,7 +429,7 @@ class MainWindowActions(AttrDict):
                                 shortcut='Ctrl+u',
                                 checkable=True,
                                 statustip='Toggle underline for the '
-                                             'selected cells')
+                                          'selected cells')
 
         self.strikethrough = Action(self.parent, "&Strikethrough",
                                     self.parent.grid.on_strikethrough_pressed,
@@ -897,3 +903,21 @@ class ChartDialogActions(AttrDict):
                                         statustip='Insert code for surface '
                                                   'chart')
         self.chart_surface_2_1.setData("chart_surface_2_1.py")
+
+
+class SpellTextEditActions(AttrDict):
+    """Holds QActions for SpellTextEdit"""
+
+    def __init__(self, parent: QWidget):
+        """
+        :param parent: The parent object, normally :class:`pyspread.MainWindow`
+
+        """
+
+        super().__init__()
+        self.parent = parent
+
+        self.toggle_line_numbers = Action(self.parent, "Line numbers",
+                                          self.parent.show_line_numbers,
+                                          checkable=True,
+                                          statustip='Show/hide line numbers')

@@ -42,11 +42,12 @@ import numpy
 from PyQt5.QtWidgets \
     import (QTableView, QStyledItemDelegate, QTabBar, QWidget, QMainWindow,
             QStyleOptionViewItem, QApplication, QStyle, QAbstractItemDelegate,
-            QHeaderView, QFontDialog, QInputDialog, QLineEdit)
+            QHeaderView, QFontDialog, QInputDialog, QLineEdit,
+            QAbstractItemView)
 from PyQt5.QtGui \
     import (QColor, QBrush, QFont, QPainter, QPalette, QImage, QKeyEvent,
             QTextOption, QAbstractTextDocumentLayout, QTextDocument,
-            QWheelEvent, QContextMenuEvent)
+            QWheelEvent, QContextMenuEvent, QTextCursor)
 from PyQt5.QtCore \
     import (Qt, QAbstractTableModel, QModelIndex, QVariant, QEvent, QSize,
             QRect, QRectF, QItemSelectionModel, QObject, QAbstractItemModel)
@@ -59,6 +60,7 @@ except ImportError:
 
 try:
     import pyspread.commands as commands
+    from pyspread.dialogs import DiscardDataDialog
     from pyspread.grid_renderer import painter_save, CellRenderer
     from pyspread.model.model import (CodeArray, CellAttribute,
                                       DefaultCellAttributeDict)
@@ -74,6 +76,7 @@ try:
     from pyspread.widgets import CellButton
 except ImportError:
     import commands
+    from dialogs import DiscardDataDialog
     from grid_renderer import painter_save, CellRenderer
     from model.model import CodeArray, CellAttribute, DefaultCellAttributeDict
     from lib.attrdict import AttrDict
@@ -143,6 +146,9 @@ class Grid(QTableView):
 
         self._zoom = 1.0  # Initial zoom level for the grid
 
+        self.current_selection_mode_start = None
+        self.selection_mode_exiting = False  # True only during exit
+
         self.verticalHeader().sectionResized.connect(self.on_row_resized)
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
 
@@ -160,6 +166,10 @@ class Grid(QTableView):
 
         # Initially, select top left cell on table 0
         self.current = 0, 0, 0
+
+        # Store initial viewport
+        self.table_scrolls = {0: (self.verticalScrollBar().value(),
+                                  self.horizontalScrollBar().value())}
 
     @contextmanager
     def undo_resizing_row(self):
@@ -279,6 +289,11 @@ class Grid(QTableView):
     def selection(self) -> Selection:
         """Pyspread selection based on self's QSelectionModel"""
 
+        if len(self.selected_idx) == 1:
+            # Return current cell selection to get accurate results
+            current = tuple(self.current[:2])
+            return Selection([], [], [], [], [current])
+
         selection = self.selectionModel().selection()
 
         block_top_left = []
@@ -328,6 +343,47 @@ class Grid(QTableView):
             self._zoom = zoom
             self.update_zoom()
 
+    @property
+    def selection_mode(self) -> bool:
+        """In selection mode, cells cannot be edited"""
+
+        return self.editTriggers() == QAbstractItemView.NoEditTriggers
+
+    @selection_mode.setter
+    def selection_mode(self, on: bool):
+        """Sets or unsets selection mode
+
+        In selection mode, cells cannot be edited.
+        This triggers the selection_mode icon in the statusbar.
+
+        :param on: If True, selection mode is set, if False unset
+
+        """
+
+        if on:
+            self.current_selection_mode_start = tuple(self.current)
+            self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            self.main_window.selection_mode_widget.show()
+        else:
+            self.selection_mode_exiting = True
+            if self.current_selection_mode_start is not None:
+                self.current = self.current_selection_mode_start
+                self.current_selection_mode_start = None
+            self.setEditTriggers(QAbstractItemView.DoubleClicked
+                                 | QAbstractItemView.EditKeyPressed
+                                 | QAbstractItemView.AnyKeyPressed)
+            self.selection_mode_exiting = False
+            self.main_window.selection_mode_widget.hide()
+
+    def set_selection_mode(self, value=True):
+        """Setter for selection mode
+
+        :param value: If True, selection mode is set, if False unset
+
+        """
+
+        self.selection_mode = value
+
     # Overrides
 
     def closeEditor(self, editor: QWidget,
@@ -360,12 +416,20 @@ class Grid(QTableView):
         """
 
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
-            if event.modifiers() & Qt.ShiftModifier:
+            if self.selection_mode:
+                # Return exits selection mode
+                self.selection_mode = False
+                self.main_window.entry_line.setFocus()
+            elif event.modifiers() & Qt.ShiftModifier:
                 self.current = self.row, self.column + 1
             else:
                 self.current = self.row + 1, self.column
         elif event.key() == Qt.Key_Delete:
             self.main_window.workflows.delete()
+        elif (event.key() == Qt.Key_Escape
+              and self.editTriggers() == QAbstractItemView.NoEditTriggers):
+            # Leave cell selection mode
+            self.selection_mode = False
         else:
             super().keyPressEvent(event)
 
@@ -471,9 +535,30 @@ class Grid(QTableView):
 
         """
 
-        code = self.model.code_array(self.current)
-        self.main_window.entry_line.setPlainText(code)
-        self.gui_update()
+        if self.selection_mode_exiting:
+            # Do not update entry_line to preserve selection
+            return
+
+        if self.selection_mode:
+            cursor = self.main_window.entry_line.textCursor()
+            text_anchor = cursor.anchor()
+            text_position = cursor.position()
+            if QApplication.queryKeyboardModifiers() == Qt.MetaModifier:
+                text = self.selection.get_absolute_access_string(
+                    self.model.shape, self.table)
+            else:
+                text = self.selection.get_relative_access_string(
+                    self.model.shape, self.current_selection_mode_start)
+
+            self.main_window.entry_line.insertPlainText(text)
+            cursor.setPosition(min(text_anchor, text_position))
+            cursor.setPosition(min(text_anchor, text_position) + len(text),
+                               QTextCursor.KeepAnchor)
+            self.main_window.entry_line.setTextCursor(cursor)
+        else:
+            code = self.model.code_array(self.current)
+            self.main_window.entry_line.setPlainText(code)
+            self.gui_update()
 
     def on_row_resized(self, row: int, old_height: float, new_height: float):
         """Row resized event handler
@@ -1232,6 +1317,48 @@ class Grid(QTableView):
                                            description)
             self.main_window.undo_stack.push(command)
 
+    def is_row_data_discarded(self, count: int) -> bool:
+        """Shows user dialog if data is to be discarded
+
+        :param count: Rows to be inserted
+
+        """
+
+        no_rows = self.model.shape[0]
+        rows = list(range(no_rows-count, no_rows+1))
+        selection = Selection([], [], rows, [], [])
+        sel_cell_gen = selection.cell_generator(self.model.shape,
+                                                self.main_window.grid.table)
+        return any(self.model.code_array(key) is not None
+                   for key in sel_cell_gen)
+
+    def is_column_data_discarded(self, count: int) -> bool:
+        """Shows user dialog if data is to be discarded
+
+        :param count: Columns to be inserted
+
+        """
+
+        no_columns = self.model.shape[1]
+        columns = list(range(no_columns-count, no_columns+1))
+        selection = Selection([], [], [], columns, [])
+        sel_cell_gen = selection.cell_generator(self.model.shape,
+                                                self.main_window.grid.table)
+        return any(self.model.code_array(key) is not None
+                   for key in sel_cell_gen)
+
+    def is_table_data_discarded(self, count: int) -> bool:
+        """Shows user dialog if data is to be discarded
+
+        :param count: Tables to be inserted
+
+        """
+
+        no_tables = self.model.shape[2]
+        tables = list(range(no_tables-count, no_tables+1))
+        return any(key[2] in tables and self.model.code_array(key) is not None
+                   for key in self.model.code_array)
+
     def on_insert_rows(self):
         """Insert rows event handler"""
 
@@ -1241,6 +1368,13 @@ class Grid(QTableView):
         except TypeError:
             top = bottom = self.row
         count = bottom - top + 1
+
+        if self.is_row_data_discarded(count):
+            text = ("Inserting rows will discard data.\n \n"
+                    "You may want to resize the grid before insertion.\n"
+                    "Note that row insertion can be undone.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
 
         index = self.currentIndex()
         description_tpl = "Insert {} rows above row {}"
@@ -1276,6 +1410,13 @@ class Grid(QTableView):
             left = right = self.column
         count = right - left + 1
 
+        if self.is_column_data_discarded(count):
+            text = ("Inserting columns will discard data.\n \n"
+                    "You may want to resize the grid before insertion.\n"
+                    "Note that column insertion can be undone.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
+
         index = self.currentIndex()
         description_tpl = "Insert {} columns left of column {}"
         description = description_tpl.format(count, self.column)
@@ -1302,6 +1443,13 @@ class Grid(QTableView):
 
     def on_insert_table(self):
         """Insert table event handler"""
+
+        if self.is_table_data_discarded(1):
+            text = ("Inserting tables will discard data.\n \n"
+                    "You may want to resize the grid before insertion.\n"
+                    "Note that table insertion can be undone.")
+            if DiscardDataDialog(self.main_window, text).choice is not True:
+                return
 
         description = "Insert table in front of table {}".format(self.table)
         command = commands.InsertTable(self.main_window.grid, self.model,
@@ -1652,7 +1800,7 @@ class GridTableModel(QAbstractTableModel):
             """Returns str(obj), on RecursionError returns error message"""
             try:
                 return str(obj)
-            except RecursionError as err:
+            except Exception as err:
                 return str(err)
 
         key = self.current(index)
@@ -1835,20 +1983,16 @@ class GridCellDelegate(QStyledItemDelegate):
 
         return self.main_window.grid
 
-    def _render_markup(self, painter: QPainter, rect: QRectF,
-                       option: QStyleOptionViewItem, index: QModelIndex):
-        """HTML markup renderer
+    def _get_render_text_document(self, rect: QRectF,
+                                  option: QStyleOptionViewItem,
+                                  index: QModelIndex) -> QTextDocument:
+        """Returns styled QTextDocument that is ready for setting content
 
-        :param painter: Painter with which markup is rendered
         :param rect: Cell rect of the cell to be painted
         :param option: Style option for rendering
         :param index: Index of cell for which markup is rendered
 
         """
-
-        self.initStyleOption(option, index)
-
-        style = option.widget.style()
 
         doc = QTextDocument()
 
@@ -1862,9 +2006,32 @@ class GridCellDelegate(QStyledItemDelegate):
         css = "background-color: {bg_color};".format(bg_color=bg_color)
         doc.setDefaultStyleSheet(css)
 
-        doc.setHtml(option.text)
         doc.setTextWidth(rect.width())
 
+        doc.setUseDesignMetrics(True)
+
+        text_option = doc.defaultTextOption()
+        text_option.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+
+        doc.setDefaultTextOption(text_option)
+
+        return doc
+
+    def _render_text_document(self, doc: QTextDocument,
+                              painter: QPainter, rect: QRectF,
+                              option: QStyleOptionViewItem,
+                              index: QModelIndex):
+        """QTextDocument renderer
+
+        :param doc: Text document to be painted
+        :param painter: Painter with which markup is rendered
+        :param rect: Cell rect of the cell to be painted
+        :param option: Style option for rendering
+        :param index: Index of cell for which markup is rendered
+
+        """
+
+        style = option.widget.style()
         option.text = ""
         style.drawControl(QStyle.CE_ItemViewItem, option, painter,
                           option.widget)
@@ -1874,9 +2041,52 @@ class GridCellDelegate(QStyledItemDelegate):
         text_color = self.grid.model.data(index, role=Qt.TextColorRole)
         ctx.palette.setColor(QPalette.Text, text_color)
 
+        key = index.row(), index.column(), self.grid.table
+        vertical_align = self.cell_attributes[key].vertical_align
+
+        y_offset = 0
+        if vertical_align == 'align_center':
+            y_offset += rect.height() / 2 - doc.size().height() / 2
+        elif vertical_align == 'align_bottom':
+            y_offset += rect.height() - doc.size().height()
+
         with painter_save(painter):
-            painter.translate(rect.topLeft())
+            painter.translate(rect.x(), rect.y() + y_offset)
             doc.documentLayout().draw(painter, ctx)
+
+    def _render_text(self, painter: QPainter, rect: QRectF,
+                     option: QStyleOptionViewItem, index: QModelIndex):
+        """HTML markup renderer
+
+        :param painter: Painter with which markup is rendered
+        :param rect: Cell rect of the cell to be painted
+        :param option: Style option for rendering
+        :param index: Index of cell for which markup is rendered
+
+        """
+
+        self.initStyleOption(option, index)
+
+        doc = self._get_render_text_document(rect, option, index)
+        doc.setPlainText(option.text)
+        self._render_text_document(doc, painter, rect, option, index)
+
+    def _render_markup(self, painter: QPainter, rect: QRectF,
+                       option: QStyleOptionViewItem, index: QModelIndex):
+        """HTML markup renderer
+
+        :param painter: Painter with which markup is rendered
+        :param rect: Cell rect of the cell to be painted
+        :param option: Style option for rendering
+        :param index: Index of cell for which markup is rendered
+
+        """
+
+        self.initStyleOption(option, index)
+
+        doc = self._get_render_text_document(rect, option, index)
+        doc.setHtml(option.text)
+        self._render_text_document(doc, painter, rect, option, index)
 
     def _get_aligned_image_rect(
             self, rect: QRectF, index: QModelIndex,
@@ -2081,7 +2291,7 @@ class GridCellDelegate(QStyledItemDelegate):
                             int(rect.height() + 1.5))
 
         if renderer == "text":
-            super(GridCellDelegate, self).paint(painter, option, index)
+            self._render_text(painter, rect, option, index)
 
         elif renderer == "markup":
             self._render_markup(painter, rect, option, index)
@@ -2114,6 +2324,7 @@ class GridCellDelegate(QStyledItemDelegate):
         doc = QTextDocument()
         doc.setHtml(options.text)
         doc.setTextWidth(options.rect.width())
+
         return QSize(doc.idealWidth(), doc.size().height())
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
@@ -2153,7 +2364,7 @@ class GridCellDelegate(QStyledItemDelegate):
 
         self.editor = super(GridCellDelegate, self).createEditor(parent,
                                                                  option, index)
-
+        self.editor.setPalette(self.editor.style().standardPalette())
         self.editor.installEventFilter(self)
         return self.editor
 
@@ -2239,6 +2450,8 @@ class TableChoice(QTabBar):
         self.grid = grid
         self.no_tables = no_tables
 
+        self.last = 0
+
         self.currentChanged.connect(self.on_table_changed)
 
     @property
@@ -2305,6 +2518,10 @@ class TableChoice(QTabBar):
 
         """
 
+        self.grid.table_scrolls[self.last] = \
+            (self.grid.verticalScrollBar().value(),
+             self.grid.horizontalScrollBar().value())
+
         with self.grid.undo_resizing_row():
             with self.grid.undo_resizing_column():
                 self.grid.update_cell_spans()
@@ -2313,3 +2530,11 @@ class TableChoice(QTabBar):
         self.grid.update_index_widgets()
         self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
         self.grid.gui_update()
+        try:
+            v_pos, h_pos = self.grid.table_scrolls[current]
+        except KeyError:
+            v_pos = h_pos = 0
+        self.grid.verticalScrollBar().setValue(v_pos)
+        self.grid.horizontalScrollBar().setValue(h_pos)
+
+        self.last = current

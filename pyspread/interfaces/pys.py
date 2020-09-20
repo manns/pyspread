@@ -276,7 +276,9 @@ class PysReader:
         row, col, tab, code = self._split_tidy(line, maxsplit=3)
         key = self._get_key(row, col, tab)
 
-        self.code_array.dict_grid[key] = str(self._code_convert_1_2(key, code))
+        if all(0 <= key[i] < self.code_array.shape[i] for i in range(3)):
+            self.code_array.dict_grid[key] = str(self._code_convert_1_2(key,
+                                                                        code))
 
     @version_handler
     def _pys2code(self, line: str):
@@ -288,7 +290,9 @@ class PysReader:
 
         row, col, tab, code = self._split_tidy(line, maxsplit=3)
         key = self._get_key(row, col, tab)
-        self.code_array.dict_grid[key] = ast.literal_eval(code)
+
+        if all(0 <= key[i] < self.code_array.shape[i] for i in range(3)):
+            self.code_array.dict_grid[key] = ast.literal_eval(code)
 
     def _attr_convert_1to2(self, key: str, value: Any) -> Tuple[str, Any]:
         """Converts key, value attribute pair from v1.0 to v2.0
@@ -311,6 +315,9 @@ class PysReader:
 
         elif key == "markup" and value:
             return "renderer", "markup"
+
+        elif key == "angle" and value < 0:
+            return "angle", 360 + value
 
         elif key == "merge_area":
             # Value in v1.0 None if the cell was merged

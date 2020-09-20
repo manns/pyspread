@@ -23,6 +23,10 @@ su -
 apt install pyspread
 ```
 
+## Other platforms with packaged releases
+
+![Packaged](https://repology.org/badge/vertical-allrepos/pyspread.svg?header&columns=4)
+
 ## Other platforms
 
 ### Prerequisites
@@ -31,6 +35,7 @@ Get the prerequisites:
 - Python (>=3.6)
 - PyQt5 (>=5.10) (must include PyQtSvg)
 - numpy (>=1.1)
+- setuptools (>=40.0)
 
 and if needed the suggested modules:
 - matplotlib (>=1.1.1)

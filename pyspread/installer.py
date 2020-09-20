@@ -1,5 +1,34 @@
 # -*- coding: utf-8 -*-
 
+# Copyright Martin Manns
+# Distributed under the terms of the GNU General Public License
+
+# --------------------------------------------------------------------
+# pyspread is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pyspread is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with pyspread.  If not, see <http://www.gnu.org/licenses/>.
+# --------------------------------------------------------------------
+
+"""
+
+**Provides**
+
+* :class:`Module`
+* :class:`DependenciesDialog`
+* :class:`InstallPackageDialog`
+
+"""
+
+
 try:
     from dataclasses import dataclass
 except ImportError:
@@ -15,7 +44,7 @@ from PyQt5.QtCore import QProcess, QSize
 from PyQt5.QtGui import QColor, QTextCursor
 from PyQt5.QtWidgets import (
         QDialog, QButtonGroup, QVBoxLayout, QHBoxLayout, QTreeWidgetItem,
-        QToolButton, QGroupBox, QTreeWidget, QCheckBox, QLineEdit, QPushButton,
+        QToolButton, QGroupBox, QTreeWidget, QCheckBox, QLineEdit,
         QPlainTextEdit, QWidget, QPushButton)
 
 try:
@@ -34,6 +63,8 @@ except ImportError:
 
 @dataclass
 class Module:
+    """Module checker"""
+
     name: str
     description: str
     required_version: str  # The minimum version number that is required
@@ -52,9 +83,9 @@ class Module:
     def is_installed(self) -> bool:
         """True if the module is installed"""
 
-        version = self.version
+        __version = self.version
 
-        return bool(version) if version is not None else None
+        return bool(__version) if __version is not None else None
 
 # Required dependencies
 # ---------------------
@@ -251,6 +282,8 @@ class InstallPackageDialog(QDialog):
         self.txtCommand.setText(cmd)
 
     def on_butt_execute(self):
+        """Execute button event handler"""
+
         self.buttSudo.setDisabled(True)
         self.buttExecute.setDisabled(True)
 
@@ -259,21 +292,29 @@ class InstallPackageDialog(QDialog):
         self.process.start(self.txtCommand.text())
 
     def on_read_standard(self):
-        c = str(self.txtStdOut.toPlainText())
-        s = str(self.process.readAllStandardOutput())
+        """Stdout read event handler"""
 
-        ss = c + "\n" + self.line_str + "\n" + s
-        self.txtStdOut.setPlainText(ss)
+        msg_tpl = "{}\n{}\n{}"
+        msg = msg_tpl.format(self.txtStdOut.toPlainText(),
+                             self.line_str,
+                             self.process.readAllStandardOutput())
+
+        self.txtStdOut.setPlainText(msg)
         self.txtStdOut.moveCursor(QTextCursor.End)
 
     def on_read_error(self):
-        c = str(self.txtStdErr.toPlainText())
-        s = str(self.process.readAllStandardError())
+        """Stderr read event handler"""
 
-        ss = c + "\n" + self.line_str + "\n" + s
-        self.txtStdErr.setPlainText(ss)
+        msg_tpl = "{}\n{}\n{}"
+        msg = msg_tpl.format(self.txtStdErr.toPlainText(),
+                             self.line_str,
+                             self.process.readAllStandardError())
+
+        self.txtStdErr.setPlainText(msg)
         self.txtStdErr.moveCursor(QTextCursor.End)
 
     def on_finished(self):
+        """Execution finished event handler"""
+
         self.buttSudo.setDisabled(False)
         self.buttExecute.setDisabled(False)

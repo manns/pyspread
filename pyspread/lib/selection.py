@@ -400,9 +400,9 @@ class Selection(object):
 
         return ((bb_top, bb_left), (bb_bottom, bb_right))
 
-    def get_access_string(self, shape: Tuple[int, int, int],
-                          table: int) -> str:
-        """Get access string
+    def get_absolute_access_string(self, shape: Tuple[int, int, int],
+                                   table: int) -> str:
+        """Get access string for absolute addressing
 
         :param shape: Grid shape, for which the generated keys are valid
         :param table: Table for all returned keys. Must be valid table in shape
@@ -425,24 +425,85 @@ class Selection(object):
         string_list = []
 
         # Block selections
-        templ = "[(r, c, {}) for r in xrange({}, {}) for c in xrange({}, {})]"
+        templ = "[(r, c, {}) for r in range({}, {}) for c in range({}, {})]"
         for (top, left), (bottom, right) in zip(self.block_tl, self.block_br):
             string_list += [templ.format(table, top, bottom + 1,
                                          left, right + 1)]
 
         # Fully selected rows
-        template = "[({}, c, {}) for c in xrange({})]"
+        template = "[({}, c, {}) for c in range({})]"
         for row in self.rows:
             string_list += [template.format(row, table, columns)]
 
         # Fully selected columns
-        template = "[(r, {}, {}) for r in xrange({})]"
+        template = "[(r, {}, {}) for r in range({})]"
         for column in self.columns:
             string_list += [template.format(column, table, rows)]
 
         # Single cells
         for row, column in self.cells:
             string_list += [repr([(row, column, table)])]
+
+        key_string = " + ".join(string_list)
+
+        if len(string_list) == 0:
+            return ""
+
+        elif len(self.cells) == 1 and len(string_list) == 1:
+            return "S[{}]".format(string_list[0][1:-1])
+
+        else:
+            template = "[S[key] for key in {} if S[key] is not None]"
+            return template.format(key_string)
+
+    def get_relative_access_string(self, shape: Tuple[int, int, int],
+                                   current: Tuple[int, int, int]) -> str:
+        """Get access string relative to current cell
+
+        It is assumed that the selected cells are in the same table as the
+        current cell.
+
+        :param shape: Grid shape, for which the generated keys are valid
+        :param current: Current cell for relative addressing
+        :return: String, with which the selection can be accessed
+
+        """
+
+        rows, columns, tables = shape
+        crow, ccolumn, ctable = current
+
+        # Negative dimensions cannot be
+        if any(dim <= 0 for dim in shape):
+            raise Warning("Invalid shape {}".format(shape))
+            return
+
+        if any(dim < 0 for dim in current):
+            raise Warning("Invalid cell {}".format(current))
+            return
+
+        string_list = []
+
+        # Block selections
+        tpl = "[(X + dr, Y + dc, Z) for dr in range({}, {})" + \
+              " for dc in range({}, {})]"
+        for (top, left), (bottom, right) in zip(self.block_tl, self.block_br):
+            string_list += [tpl.format(top - crow, bottom - crow + 1,
+                                       left - ccolumn, right - ccolumn + 1)]
+
+        # Fully selected rows
+        template = "[(X + {}, c, Z) for c in range({})]"
+        for row in self.rows:
+            string_list += [template.format(row - crow, columns)]
+
+        # Fully selected columns
+        template = "[(r, {}, Z) for r in range({})]"
+        for column in self.columns:
+            string_list += [template.format(column - ccolumn, rows)]
+
+        # Single cells
+        for row, column in self.cells:
+            cell_str = "[X + {}, Y + {}, Z]".format(row-crow, column-ccolumn)
+            string_list.append(cell_str)
 
         key_string = " + ".join(string_list)
 

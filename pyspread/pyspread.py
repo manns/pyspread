@@ -38,8 +38,8 @@ import os
 import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
-from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QSplitter,
-                             QMessageBox, QDockWidget, QUndoStack,
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication,
+                             QMessageBox, QDockWidget, QUndoStack, QVBoxLayout,
                              QStyleOptionViewItem)
 try:
     from PyQt5.QtSvg import QSvgWidget
@@ -50,7 +50,7 @@ from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
 try:
     from pyspread.__init__ import VERSION, APP_NAME
-    from pyspread.cli import ArgumentParser
+    from pyspread.cli import PyspreadArgumentParser
     from pyspread.settings import Settings
     from pyspread.icons import Icon, IconPath
     from pyspread.grid import Grid
@@ -71,7 +71,7 @@ try:
     from pyspread.model.model import CellAttributes
 except ImportError:
     from __init__ import VERSION, APP_NAME
-    from cli import ArgumentParser
+    from cli import PyspreadArgumentParser
     from settings import Settings
     from icons import Icon, IconPath
     from grid import Grid
@@ -129,6 +129,9 @@ class MainWindow(QMainWindow):
         if self.settings.signature_key is None:
             self.settings.signature_key = genkey()
 
+        # Print area for print requests
+        self.print_area = None
+
         # Update recent files in the file menu
         self.menuBar().file_menu.history_submenu.update()
 
@@ -157,11 +160,25 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(Icon.pyspread)
 
-        self.safe_mode_widget = QSvgWidget(str(IconPath.warning), self)
+        # Safe mode widget
+        self.safe_mode_widget = QSvgWidget(str(IconPath.safe_mode),
+                                           self.statusBar())
         msg = "%s is in safe mode.\nExpressions are not evaluated." % APP_NAME
         self.safe_mode_widget.setToolTip(msg)
         self.statusBar().addPermanentWidget(self.safe_mode_widget)
         self.safe_mode_widget.hide()
+
+        # Selection mode widget
+        self.selection_mode_widget = QSvgWidget(str(IconPath.selection_mode),
+                                                self.statusBar())
+        msg = "Selection mode active. Cells cannot be edited.\n" + \
+              "Selecting cells adds relative references into the entry " + \
+              "line. Additionally pressing `Meta` switches to absolute " + \
+              "references.\nEnd selection mode by clicking into the entry " + \
+              "line or with `Esc` when focusing the grid."
+        self.selection_mode_widget.setToolTip(msg)
+        self.statusBar().addPermanentWidget(self.selection_mode_widget)
+        self.selection_mode_widget.hide()
 
         # Disable the approve fiel menu button
         self.main_window_actions.approve.setEnabled(False)
@@ -201,24 +218,37 @@ class MainWindow(QMainWindow):
 
         self.macro_panel = MacroPanel(self, self.grid.model.code_array)
 
-        self.main_splitter = QSplitter(Qt.Vertical, self)
-        self.setCentralWidget(self.main_splitter)
+        self.main_panel = QWidget(self)
 
-        self.main_splitter.addWidget(self.entry_line)
-        self.main_splitter.addWidget(self.grid)
-        self.main_splitter.addWidget(self.grid.table_choice)
-        self.main_splitter.setSizes([self.entry_line.minimumHeight(),
-                                     9999, 20])
+        self.entry_line_dock = QDockWidget("Entry Line", self)
+        self.entry_line_dock.setObjectName("Entry Line Panel")
+        self.entry_line_dock.setWidget(self.entry_line)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.entry_line_dock)
+        self.resizeDocks([self.entry_line_dock], [10], Qt.Horizontal)
 
         self.macro_dock = QDockWidget("Macros", self)
         self.macro_dock.setObjectName("Macro Panel")
         self.macro_dock.setWidget(self.macro_panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.macro_dock)
 
+        self._layout()
+
+        self.entry_line_dock.installEventFilter(self)
         self.macro_dock.installEventFilter(self)
 
+        QApplication.instance().focusChanged.connect(self.on_focus_changed)
         self.gui_update.connect(self.on_gui_update)
         self.refresh_timer.timeout.connect(self.on_refresh_timer)
+
+    def _layout(self):
+        """Layouts for main window"""
+
+        self.central_layout = QVBoxLayout(self.main_panel)
+        self.central_layout.addWidget(self.grid)
+        self.central_layout.addWidget(self.grid.table_choice)
+
+        self.main_panel.setLayout(self.central_layout)
+        self.setCentralWidget(self.main_panel)
 
     def eventFilter(self, source: QWidget, event: QEvent) -> bool:
         """Overloaded event filter for handling QDockWidget close events
@@ -230,10 +260,13 @@ class MainWindow(QMainWindow):
 
         """
 
-        if event.type() == QEvent.Close \
-           and isinstance(source, QDockWidget) \
-           and source.windowTitle() == "Macros":
-            self.main_window_actions.toggle_macro_panel.setChecked(False)
+        if event.type() == QEvent.Close and isinstance(source, QDockWidget):
+            if source.windowTitle() == "Macros":
+                self.main_window_actions.toggle_macro_dock.setChecked(False)
+            elif source.windowTitle() == "Entry Line":
+                self.main_window_actions.toggle_entry_line_dock.setChecked(
+                    False)
+
         return super().eventFilter(source, event)
 
     def _init_toolbars(self):
@@ -253,23 +286,25 @@ class MainWindow(QMainWindow):
     def update_action_toggles(self):
         """Updates the toggle menu check states"""
 
-        self.main_window_actions.toggle_main_toolbar.setChecked(
-                self.main_toolbar.isVisibleTo(self))
+        actions = self.main_window_actions
 
-        self.main_window_actions.toggle_macro_toolbar.setChecked(
-                self.macro_toolbar.isVisibleTo(self))
+        maintoolbar_visible = self.main_toolbar.isVisibleTo(self)
+        actions.toggle_main_toolbar.setChecked(maintoolbar_visible)
 
-        self.main_window_actions.toggle_format_toolbar.setChecked(
-                self.format_toolbar.isVisibleTo(self))
+        macrotoolbar_visible = self.macro_toolbar.isVisibleTo(self)
+        actions.toggle_macro_toolbar.setChecked(macrotoolbar_visible)
 
-        self.main_window_actions.toggle_find_toolbar.setChecked(
-                self.find_toolbar.isVisibleTo(self))
+        formattoolbar_visible = self.format_toolbar.isVisibleTo(self)
+        actions.toggle_format_toolbar.setChecked(formattoolbar_visible)
 
-        self.main_window_actions.toggle_entry_line.setChecked(
-                self.entry_line.isVisibleTo(self))
+        findtoolbar_visible = self.find_toolbar.isVisibleTo(self)
+        actions.toggle_find_toolbar.setChecked(findtoolbar_visible)
 
-        self.main_window_actions.toggle_macro_panel.setChecked(
-                self.macro_dock.isVisibleTo(self))
+        entryline_visible = self.entry_line_dock.isVisibleTo(self)
+        actions.toggle_entry_line_dock.setChecked(entryline_visible)
+
+        macrodock_visible = self.macro_dock.isVisibleTo(self)
+        actions.toggle_macro_dock.setChecked(macrodock_visible)
 
     @property
     def safe_mode(self) -> bool:
@@ -315,7 +350,8 @@ class MainWindow(QMainWindow):
         printer = QPrinter(mode=QPrinter.HighResolution)
 
         # Get print area
-        self.print_area = PrintAreaDialog(self, self.grid).area
+        self.print_area = PrintAreaDialog(self, self.grid,
+                                          title="Print area").area
         if self.print_area is None:
             return
 
@@ -331,7 +367,8 @@ class MainWindow(QMainWindow):
         printer = QPrinter(mode=QPrinter.HighResolution)
 
         # Get print area
-        self.print_area = PrintAreaDialog(self, self.grid).area
+        self.print_area = PrintAreaDialog(self, self.grid,
+                                          title="Print area").area
         if self.print_area is None:
             return
 
@@ -355,40 +392,57 @@ class MainWindow(QMainWindow):
 
         page_rect = printer.pageRect()
 
-        rows = list(self.workflows.get_paint_rows(self.print_area))
-        columns = list(self.workflows.get_paint_columns(self.print_area))
-        if not rows or not columns:
+        rows = list(self.workflows.get_paint_rows(self.print_area.top,
+                                                  self.print_area.bottom))
+        columns = list(self.workflows.get_paint_columns(self.print_area.left,
+                                                        self.print_area.right))
+        tables = list(self.workflows.get_paint_tables(self.print_area.first,
+                                                      self.print_area.last))
+        if not all((rows, columns, tables)):
             return
 
-        zeroidx = self.grid.model.index(0, 0)
-        zeroidx_rect = self.grid.visualRect(zeroidx)
+        old_table = self.grid.table
 
-        minidx = self.grid.model.index(min(rows), min(columns))
-        minidx_rect = self.grid.visualRect(minidx)
+        for i, table in enumerate(tables):
+            self.grid.table = table
 
-        maxidx = self.grid.model.index(max(rows), max(columns))
-        maxidx_rect = self.grid.visualRect(maxidx)
+            zeroidx = self.grid.model.index(0, 0)
+            zeroidx_rect = self.grid.visualRect(zeroidx)
 
-        grid_width = maxidx_rect.x() + maxidx_rect.width() - minidx_rect.x()
-        grid_height = maxidx_rect.y() + maxidx_rect.height() - minidx_rect.y()
-        grid_rect = QRectF(minidx_rect.x() - zeroidx_rect.x(),
-                           minidx_rect.y() - zeroidx_rect.y(),
-                           grid_width, grid_height)
+            minidx = self.grid.model.index(min(rows), min(columns))
+            minidx_rect = self.grid.visualRect(minidx)
 
-        self.settings.print_zoom = min(page_rect.width() / grid_width,
-                                       page_rect.height() / grid_height)
+            maxidx = self.grid.model.index(max(rows), max(columns))
+            maxidx_rect = self.grid.visualRect(maxidx)
 
-        with painter_save(painter):
-            painter.scale(self.settings.print_zoom, self.settings.print_zoom)
+            grid_width = maxidx_rect.x() + maxidx_rect.width() \
+                - minidx_rect.x()
+            grid_height = maxidx_rect.y() + maxidx_rect.height() \
+                - minidx_rect.y()
+            grid_rect = QRectF(minidx_rect.x() - zeroidx_rect.x(),
+                               minidx_rect.y() - zeroidx_rect.y(),
+                               grid_width, grid_height)
 
-            # Translate so that the grid starts at upper left paper edge
-            painter.translate(zeroidx_rect.x() - minidx_rect.x(),
-                              zeroidx_rect.y() - minidx_rect.y())
+            self.settings.print_zoom = min(page_rect.width() / grid_width,
+                                           page_rect.height() / grid_height)
 
-            # Draw grid cells
-            self.workflows.paint(painter, option, grid_rect, rows, columns)
+            with painter_save(painter):
+                painter.scale(self.settings.print_zoom,
+                              self.settings.print_zoom)
 
-        self.settings.print_zoom = None
+                # Translate so that the grid starts at upper left paper edge
+                painter.translate(zeroidx_rect.x() - minidx_rect.x(),
+                                  zeroidx_rect.y() - minidx_rect.y())
+
+                # Draw grid cells
+                self.workflows.paint(painter, option, grid_rect, rows, columns)
+
+            self.settings.print_zoom = None
+
+            if i != len(tables) - 1:
+                printer.newPage()
+
+        self.grid.table = old_table
 
     def on_fullscreen(self):
         """Fullscreen toggle event handler"""
@@ -527,23 +581,24 @@ class MainWindow(QMainWindow):
 
         self._toggle_widget(self.find_toolbar, "toggle_find_toolbar", toggled)
 
-    def on_toggle_entry_line(self, toggled: bool):
+    def on_toggle_entry_line_dock(self, toggled: bool):
         """Entryline toggle event handler
 
         :param toggled: Toggle state
 
         """
 
-        self._toggle_widget(self.entry_line, "toggle_entry_line", toggled)
+        self._toggle_widget(self.entry_line_dock, "toggle_entry_line_dock",
+                            toggled)
 
-    def on_toggle_macro_panel(self, toggled: bool):
+    def on_toggle_macro_dock(self, toggled: bool):
         """Macro panel toggle event handler
 
         :param toggled: Toggle state
 
         """
 
-        self._toggle_widget(self.macro_dock, "toggle_macro_panel", toggled)
+        self._toggle_widget(self.macro_dock, "toggle_macro_dock", toggled)
 
     def on_manual(self):
         """Show manual browser"""
@@ -576,10 +631,15 @@ class MainWindow(QMainWindow):
 
         doc_devs = "Martin Manns, Bosko Markovic, Pete Morgan"
 
-        about_msg = about_msg_template.format(
-                    version=VERSION, license=LICENSE,
-                    devs=devs, doc_devs=doc_devs)
+        about_msg = about_msg_template.format(version=VERSION, license=LICENSE,
+                                              devs=devs, doc_devs=doc_devs)
         QMessageBox.about(self, "About %s" % APP_NAME, about_msg)
+
+    def on_focus_changed(self, old: QWidget, now: QWidget):
+        """Handles grid clicks from entry line"""
+
+        if old == self.grid and now == self.entry_line:
+            self.grid.selection_mode = False
 
     def on_gui_update(self, attributes: CellAttributes):
         """GUI update that shall be called on each cell change
@@ -661,8 +721,10 @@ class MainWindow(QMainWindow):
 
 
 def main():
-    parser = ArgumentParser()
-    args = parser.parse_args()
+    """Pyspread main"""
+
+    parser = PyspreadArgumentParser()
+    args, unknown = parser.parse_known_args()
 
     app = QApplication(sys.argv)
     main_window = MainWindow(args.file, reset_settings=args.reset_settings)

@@ -61,7 +61,7 @@ class Settings:
     # Names of widgets with persistant states
     widget_names = ["main_window", "main_toolbar", "find_toolbar",
                     "format_toolbar", "macro_toolbar", "entry_line",
-                    "main_splitter"]
+                    "entry_line_dock"]
 
     # Shape of initial grid (rows, columns, tables)
     shape = 1000, 100, 3
@@ -127,7 +127,7 @@ class Settings:
 
     # Number of bytes for csv sniffer
     # sniff_size should be larger than 1st+2nd line
-    sniff_size = 65536  # TODO
+    sniff_size = 65536
 
     def __init__(self, parent: QWidget, reset_settings: bool = False):
         """
@@ -188,9 +188,6 @@ class Settings:
         if self.last_file_input_path is not None:
             settings.setValue("last_file_input_path",
                               self.last_file_input_path)
-        if self.last_file_output_path is not None:
-            settings.setValue("last_file_output_path",
-                              self.last_file_output_path)
         if self.last_file_import_path is not None:
             settings.setValue("last_file_import_path",
                               self.last_file_import_path)
@@ -233,7 +230,7 @@ class Settings:
                 settings.setValue(toolbar_visibility_name,
                                   [a.isVisible() for a in widget.actions()])
 
-            if widget_name == "entry_line":
+            if widget_name == "entry_line_dock":
                 settings.setValue("entry_line_isvisible", widget.isVisible())
 
         settings.sync()
@@ -264,7 +261,6 @@ class Settings:
         # Application state
 
         setting2attr("last_file_input_path")
-        setting2attr("last_file_output_path")
         setting2attr("last_file_import_path")
         setting2attr("last_file_export_path")
         setting2attr("max_file_history", mapper=int)
@@ -301,7 +297,7 @@ class Settings:
                 manager_button = widget.widgetForAction(widget.actions()[-1])
                 manager_button.menu().update_checked_states()
 
-            if widget_name == "entry_line" \
+            if widget_name == "entry_line_dock" \
                and settings.value("entry_line_isvisible") is not None:
                 visible = settings.value("entry_line_isvisible") in ['true',
                                                                      True]

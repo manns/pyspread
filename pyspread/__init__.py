@@ -3,4 +3,4 @@
 APP_NAME = "pyspread"
 
 # Current pyspread version
-VERSION = "1.99.2"
+VERSION = "1.99.5"

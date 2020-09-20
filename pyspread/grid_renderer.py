@@ -287,12 +287,8 @@ class CellEdgeRenderer:
                  QLineF(center.x(), center.y(), center.x(), borders.bottom_y)]
         self.lines = numpy.array(lines)
 
-    def paint(self, rect: QRectF):
-        """Paints the edge
-
-        :param rect: Cell rect of cell, for which edge is painted
-
-        """
+    def paint(self):
+        """Paints the edge"""
 
         darknesses = [-color.lightnessF() for color in self.colors]
 
@@ -311,8 +307,9 @@ class CellEdgeRenderer:
 class QColorCache(dict):
     """QColor cache that returns default color for None"""
 
-    def __init__(self, grid):
+    def __init__(self, grid, *args, **kwargs):
         self.grid = grid
+        super().__init__(*args, **kwargs)
 
     def __missing__(self, key):
         if key is None:
@@ -545,7 +542,7 @@ class CellRenderer:
                               left_x, right_x, top_y, bottom_y)
 
         renderer = CellEdgeRenderer(self.painter, center, borders)
-        renderer.paint(rect)
+        renderer.paint()
 
     def paint_top_right_edge(self, rect: QRectF):
         """Paints top right edge of the cell
@@ -588,7 +585,7 @@ class CellRenderer:
                               left_x, right_x, top_y, bottom_y)
 
         renderer = CellEdgeRenderer(self.painter, center, borders)
-        renderer.paint(rect)
+        renderer.paint()
 
     def paint_bottom_left_edge(self, rect: QRectF):
         """Paints bottom left edge of the cell
@@ -632,7 +629,7 @@ class CellRenderer:
                               left_x, right_x, top_y, bottom_y)
 
         renderer = CellEdgeRenderer(self.painter, center, borders)
-        renderer.paint(rect)
+        renderer.paint()
 
     def paint_bottom_right_edge(self, rect: QRectF):
         """Paints bottom right edge of the cell
@@ -675,7 +672,7 @@ class CellRenderer:
                               left_x, right_x, top_y, bottom_y)
 
         renderer = CellEdgeRenderer(self.painter, center, borders)
-        renderer.paint(rect)
+        renderer.paint()
 
     def paint_borders(self, rect):
         """Paint cell borders"""
