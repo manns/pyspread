@@ -5,7 +5,7 @@ from .dynqt import QtGui as _qt
 
 from .dynqt import qt as _qt_driver
 if _qt_driver.name() == 'PythonQt':
-    from .qimageview import QImage2ndarray as _temp
+    from .qimageview_python import QImage2ndarray as _temp
     _qimageview = _temp.qimageview
 else:
     from .qimageview_python import qimageview as _qimageview

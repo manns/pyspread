@@ -1,7 +1,7 @@
-model.model.*
+lib.test.test_selection.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: lib.test.test_selection
     :members:
     :undoc-members:
     :private-members:

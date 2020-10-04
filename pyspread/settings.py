@@ -58,58 +58,75 @@ class Settings:
     # Note that `safe_mode` is not listed here but inside
     # :class:`model.model.DataArray`
 
-    # Names of widgets with persistant states
+
     widget_names = ["main_window", "main_toolbar", "find_toolbar",
                     "format_toolbar", "macro_toolbar", "entry_line",
                     "entry_line_dock"]
 
-    # Shape of initial grid (rows, columns, tables)
+    """Names of widgets with persistant states"""
+
     shape = 1000, 100, 3
+    """Default shape of initial grid (rows, columns, tables)"""
 
-    # Maximum shape of the grid
+
     maxshape = 1000000, 100000, 100
+    """"Maximum shape of the grid"""
 
-    # If `True` then File actions trigger a dialog
+
     changed_since_save = False
+    """If `True` then File actions trigger a dialog"""
 
-    # Initial :class:`~pathlib.Path` for opening files
+
     last_file_input_path = Path.home()
+    """Initial :class:`~pathlib.Path` for opening files"""
 
-    # Initial :class:`~pathlib.Path` for saving files
+
     last_file_output_path = Path.home()
+    """Initial :class:`~pathlib.Path` for saving files"""
 
-    # Initial :class:`~pathlib.Path` for importing files
+
     last_file_import_path = Path.home()
+    """Initial :class:`~pathlib.Path` for importing files"""
 
-    # Initial :class:`~pathlib.Path` for exporting files
+
     last_file_export_path = Path.home()
+    """Initial :class:`~pathlib.Path` for exporting files"""
 
-    # Maximum number of files in file history
+
     max_file_history = 5
+    """Maximum number of files in file history"""
 
-    # Maximum number of files in file history
+
     file_history = []
+    """Files in file history"""
 
-    # List of default digest types for preprocessing values from CSV import
+
     digest_types = None
+    """List of default digest types for preprocessing values from CSV import"""
 
-    # Maximum length of code, for which the netry line enables highlighting
+
     highlighter_limit = 1000000
+    """Maximum length of code, for which the netry line enables highlighting"""
 
-    # The state of the border choice button
+
     border_choice = "All borders"
+    """The state of the border choice button"""
 
-    # Timeout for cell calculations in milliseconds
+
     timeout = 1000
+    """Timeout for cell calculations in milliseconds"""
 
-    # Timeout for frozen cell updates in milliseconds
+
     refresh_timeout = 1000
+    """Timeout for frozen cell updates in milliseconds"""
 
-    # Key for signing save files
+
     signature_key = None
+    """Key for signing save files"""
 
-    # Sizes
+
     font_sizes = (6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32)
+    """Sizes"""
 
     default_row_height = 30
     default_column_width = 100
@@ -119,15 +136,22 @@ class Settings:
 
     print_zoom = None
 
-    # If `True` then frozen cell background is striped
+
     show_frozen = False
+    """If `True` then frozen cell background is striped"""
 
-    # Find dialog state - needs to be stored when dialog is closed
+
     find_dialog_state = None
+    """Find dialog state - needs to be stored when dialog is closed"""
 
-    # Number of bytes for csv sniffer
-    # sniff_size should be larger than 1st+2nd line
+
     sniff_size = 65536
+    """Number of bytes for csv sniffer
+       sniff_size should be larger than 1st+2nd line
+    """
+
+    # Status bar cell result summation
+    show_statusbar_sum = True
 
     def __init__(self, parent: QWidget, reset_settings: bool = False):
         """

@@ -3,10 +3,10 @@ Dev Quick Start
 
 Below are quick tips and hints on how the plumbing kinda works (not definitive and WIP).
 
-Fundamental is python3 and the PyQt5 'bindings', so widget documentation is https://doc.qt.io/qt-5/qt5-intro.html
+- Fundamental is python3 and the PyQt5 'bindings'
+- so PyQt widget documentation is essentially upstream at https://doc.qt.io/qt-5/qt5-intro.html
 
-
-The app starts with a :class:`pyspread.MainWindow`.
+The app starts with the :class:`pyspread.MainWindow`.
 
 * It is also passed around to other widgets as argument for callback, values, etc.
 * On startup the main windows call a set of `_init_*` functions eg :class:`~pyspread.MainWindow._init_toolbars`

@@ -1,7 +1,7 @@
-model.model.*
+lib.test.test_string_helpers.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: lib.test.test_string_helpers
     :members:
     :undoc-members:
     :private-members:

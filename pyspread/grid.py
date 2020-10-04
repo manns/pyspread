@@ -94,9 +94,10 @@ except ImportError:
 class Grid(QTableView):
     """The main grid of pyspread"""
 
-    def __init__(self, main_window: QMainWindow):
+    def __init__(self, main_window: QMainWindow, model=None):
         """
         :param main_window: Application main window
+        :param model: GridTableModel for grid
 
         """
 
@@ -106,7 +107,11 @@ class Grid(QTableView):
 
         shape = main_window.settings.shape
 
-        self.model = GridTableModel(main_window, shape)
+        if model is None:
+            self.model = GridTableModel(main_window, shape)
+        else:
+            self.model = model
+
         self.setModel(self.model)
 
         self.table_choice = TableChoice(self, shape[2])
@@ -116,6 +121,8 @@ class Grid(QTableView):
         # Signals
         self.model.dataChanged.connect(self.on_data_changed)
         self.selectionModel().currentChanged.connect(self.on_current_changed)
+        self.selectionModel().selectionChanged.connect(
+            self.on_selection_changed)
 
         widgets = self.main_window.widgets
         widgets.text_color_button.colorChanged.connect(self.on_text_color)
@@ -154,7 +161,8 @@ class Grid(QTableView):
 
         self.setShowGrid(False)
 
-        self.delegate = GridCellDelegate(main_window, self.model.code_array)
+        self.delegate = GridCellDelegate(main_window, self,
+                                         self.model.code_array)
         self.setItemDelegate(self.delegate)
 
         # Select upper left cell because initial selection behaves strange
@@ -291,10 +299,10 @@ class Grid(QTableView):
 
         if len(self.selected_idx) == 1:
             # Return current cell selection to get accurate results
-            current = tuple(self.current[:2])
+            current = tuple(self.main_window.focused_grid.current[:2])
             return Selection([], [], [], [], [current])
 
-        selection = self.selectionModel().selection()
+        selection = self.main_window.focused_grid.selectionModel().selection()
 
         block_top_left = []
         block_bottom_right = []
@@ -320,7 +328,7 @@ class Grid(QTableView):
     def selected_idx(self) -> List[QModelIndex]:
         """Currently selected indices"""
 
-        return self.selectionModel().selectedIndexes()
+        return self.main_window.focused_grid.selectionModel().selectedIndexes()
 
     @property
     def zoom(self) -> float:
@@ -528,12 +536,8 @@ class Grid(QTableView):
             main_window_title = "* " + self.main_window.windowTitle()
             self.main_window.setWindowTitle(main_window_title)
 
-    def on_current_changed(self, current: Tuple[int, int, int], _: Any = None):
-        """Event handler for change of current cell
-
-        :param current: Key of current cell
-
-        """
+    def on_current_changed(self, *_: Any):
+        """Event handler for change of current cell"""
 
         if self.selection_mode_exiting:
             # Do not update entry_line to preserve selection
@@ -559,6 +563,35 @@ class Grid(QTableView):
             code = self.model.code_array(self.current)
             self.main_window.entry_line.setPlainText(code)
             self.gui_update()
+
+    def on_selection_changed(self):
+        """Selection changed event handler"""
+
+        try:
+            bbox = self.selection.get_bbox()
+        except AttributeError:
+            return
+
+        if bbox[0] != bbox[1]:
+            selected_cell_gen = self.selection.cell_generator(self.model.shape,
+                                                              self.table)
+            cell_list = list(selected_cell_gen)
+            msg = "Selection: {} cells".format(len(cell_list))
+
+            if self.main_window.settings.show_statusbar_sum:
+                res_gen = (self.model.code_array[key] for key in cell_list)
+                sum_list = [res for res in res_gen if res is not None]
+                msg_tpl = "     " + "     ".join(["Σ={}", "max={}", "min={}"])
+                if sum_list:
+                    try:
+                        msg += msg_tpl.format(sum(sum_list),
+                                              max(sum_list), min(sum_list))
+                    except Exception:
+                        pass
+
+            self.main_window.statusBar().showMessage(msg)
+        else:
+            self.main_window.statusBar().clearMessage()
 
     def on_row_resized(self, row: int, old_height: float, new_height: float):
         """Row resized event handler
@@ -1226,15 +1259,16 @@ class Grid(QTableView):
         if current_attr.frozen == toggled:
             return  # Something is wrong with the GUI update
 
+        cells = list(self.selection.cell_generator(shape=self.model.shape,
+                                                   table=self.table))
         if toggled:
             # We have an non-frozen cell that has to be frozen
-            description = "Freeze cell {}".format(self.current)
-            command = commands.FreezeCell(self.model, self.current,
-                                          description)
+            description = "Freeze cells {}".format(cells)
+            command = commands.FreezeCell(self.model, cells, description)
         else:
             # We have an frozen cell that has to be unfrozen
-            description = "Thaw cell {}".format(self.current)
-            command = commands.ThawCell(self.model, self.current, description)
+            description = "Thaw cells {}".format(cells)
+            command = commands.ThawCell(self.model, cells, description)
         self.main_window.undo_stack.push(command)
 
     def on_button_cell_pressed(self, toggled: bool):
@@ -1327,8 +1361,7 @@ class Grid(QTableView):
         no_rows = self.model.shape[0]
         rows = list(range(no_rows-count, no_rows+1))
         selection = Selection([], [], rows, [], [])
-        sel_cell_gen = selection.cell_generator(self.model.shape,
-                                                self.main_window.grid.table)
+        sel_cell_gen = selection.cell_generator(self.model.shape, self.table)
         return any(self.model.code_array(key) is not None
                    for key in sel_cell_gen)
 
@@ -1342,8 +1375,7 @@ class Grid(QTableView):
         no_columns = self.model.shape[1]
         columns = list(range(no_columns-count, no_columns+1))
         selection = Selection([], [], [], columns, [])
-        sel_cell_gen = selection.cell_generator(self.model.shape,
-                                                self.main_window.grid.table)
+        sel_cell_gen = selection.cell_generator(self.model.shape, self.table)
         return any(self.model.code_array(key) is not None
                    for key in sel_cell_gen)
 
@@ -1379,8 +1411,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Insert {} rows above row {}"
         description = description_tpl.format(count, top)
-        command = commands.InsertRows(self.main_window.grid, self.model,
-                                      index, top, count, description)
+        command = commands.InsertRows(self, self.model, index, top, count,
+                                      description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_rows(self):
@@ -1396,8 +1428,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Delete {} rows starting from row {}"
         description = description_tpl.format(count, top)
-        command = commands.DeleteRows(self.main_window.grid, self.model,
-                                      index, top, count, description)
+        command = commands.DeleteRows(self, self.model, index, top, count,
+                                      description)
         self.main_window.undo_stack.push(command)
 
     def on_insert_columns(self):
@@ -1420,8 +1452,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Insert {} columns left of column {}"
         description = description_tpl.format(count, self.column)
-        command = commands.InsertColumns(self.main_window.grid, self.model,
-                                         index, left, count, description)
+        command = commands.InsertColumns(self, self.model, index, left, count,
+                                         description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_columns(self):
@@ -1437,8 +1469,8 @@ class Grid(QTableView):
         index = self.currentIndex()
         description_tpl = "Delete {} columns starting from column {}"
         description = description_tpl.format(count, self.column)
-        command = commands.DeleteColumns(self.main_window.grid, self.model,
-                                         index, left, count, description)
+        command = commands.DeleteColumns(self, self.model, index, left, count,
+                                         description)
         self.main_window.undo_stack.push(command)
 
     def on_insert_table(self):
@@ -1452,16 +1484,16 @@ class Grid(QTableView):
                 return
 
         description = "Insert table in front of table {}".format(self.table)
-        command = commands.InsertTable(self.main_window.grid, self.model,
-                                       self.table, description)
+        command = commands.InsertTable(self, self.model, self.table,
+                                       description)
         self.main_window.undo_stack.push(command)
 
     def on_delete_table(self):
         """Delete table event handler"""
 
         description = "Delete table {}".format(self.table)
-        command = commands.DeleteTable(self.main_window.grid, self.model,
-                                       self.table, description)
+        command = commands.DeleteTable(self, self.model, self.table,
+                                       description)
         self.main_window.undo_stack.push(command)
 
 
@@ -1477,6 +1509,7 @@ class GridHeaderView(QHeaderView):
 
         super().__init__(orientation, grid)
         self.setSectionsClickable(True)
+        self.setHighlightSections(True)
         self.default_section_size = self.defaultSectionSize()
         self.grid = grid
 
@@ -1964,9 +1997,11 @@ class GridTableModel(QAbstractTableModel):
 class GridCellDelegate(QStyledItemDelegate):
     """QStyledItemDelegate for main grid QTableView"""
 
-    def __init__(self, main_window: QMainWindow, code_array: CodeArray):
+    def __init__(self, main_window: QMainWindow, grid: Grid,
+                 code_array: CodeArray):
         """
         :param main_window: Application main window
+        :param grid: Grid, i.e. QTableView instance
         :param code_array: Main backend model instance
 
         """
@@ -1974,14 +2009,9 @@ class GridCellDelegate(QStyledItemDelegate):
         super().__init__()
 
         self.main_window = main_window
+        self.grid = grid
         self.code_array = code_array
         self.cell_attributes = self.code_array.cell_attributes
-
-    @property
-    def grid(self) -> Grid:
-        """Returns mainwindow.grid"""
-
-        return self.main_window.grid
 
     def _get_render_text_document(self, rect: QRectF,
                                   option: QStyleOptionViewItem,
@@ -2518,23 +2548,25 @@ class TableChoice(QTabBar):
 
         """
 
-        self.grid.table_scrolls[self.last] = \
-            (self.grid.verticalScrollBar().value(),
-             self.grid.horizontalScrollBar().value())
+        for grid in self.grid.main_window.grids:
+            grid.table = current
+            grid.table_scrolls[self.last] = \
+                (grid.verticalScrollBar().value(),
+                 grid.horizontalScrollBar().value())
 
-        with self.grid.undo_resizing_row():
-            with self.grid.undo_resizing_column():
-                self.grid.update_cell_spans()
-                self.grid.update_zoom()
+            with grid.undo_resizing_row():
+                with grid.undo_resizing_column():
+                    grid.update_cell_spans()
+                    grid.update_zoom()
 
-        self.grid.update_index_widgets()
-        self.grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
-        self.grid.gui_update()
-        try:
-            v_pos, h_pos = self.grid.table_scrolls[current]
-        except KeyError:
-            v_pos = h_pos = 0
-        self.grid.verticalScrollBar().setValue(v_pos)
-        self.grid.horizontalScrollBar().setValue(h_pos)
+            grid.update_index_widgets()
+            grid.model.dataChanged.emit(QModelIndex(), QModelIndex())
+            grid.gui_update()
+            try:
+                v_pos, h_pos = grid.table_scrolls[current]
+            except KeyError:
+                v_pos = h_pos = 0
+            grid.verticalScrollBar().setValue(v_pos)
+            grid.horizontalScrollBar().setValue(h_pos)
 
         self.last = current

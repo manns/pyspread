@@ -1,7 +1,7 @@
-model.model.*
+__main__.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: __main__
     :members:
     :undoc-members:
     :private-members:

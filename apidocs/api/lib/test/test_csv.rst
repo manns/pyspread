@@ -1,7 +1,7 @@
-model.model.*
+lib.test.test_csv.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: lib.test.test_csv
     :members:
     :undoc-members:
     :private-members:

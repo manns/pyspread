@@ -1,7 +1,7 @@
-model.model.*
+model.test.test_model.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: model.test.test_model
     :members:
     :undoc-members:
     :private-members:

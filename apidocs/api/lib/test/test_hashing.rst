@@ -1,7 +1,7 @@
-model.model.*
+lib.test.test_hashing.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: lib.test.test_hashing
     :members:
     :undoc-members:
     :private-members:

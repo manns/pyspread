@@ -1,6 +1,9 @@
-######################
-lib.packaging.qt_driver.*
-######################
+lib.qimage2ndarray.qt_driver.*
+==========================================================
 
-.. automodule:: lib.packaging.qt_driver
+.. automodule:: lib.qimage2ndarray.qt_driver
     :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+

@@ -1,6 +1,5 @@
-######################
-packaging/
-######################
+lib.packaging/
+===================================
 
 .. toctree::
     :maxdepth: 1
@@ -8,3 +7,4 @@ packaging/
     _structures.rst
     _typing.rst
     version.rst
+

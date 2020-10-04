@@ -1,7 +1,7 @@
-model.model.*
+lib.qimage2ndarray.qimageview_python.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: lib.qimage2ndarray.qimageview_python
     :members:
     :undoc-members:
     :private-members:

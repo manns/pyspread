@@ -202,7 +202,7 @@ class DataEntryDialog(QDialog):
     def __init__(self, parent: QWidget, title: str, labels: Sequence[str],
                  initial_data: Sequence[str] = None,
                  groupbox_title: str = None,
-                 validators: Sequence[QValidator] = None):
+                 validators: Sequence[Union[QValidator, bool, None]] = None):
         """
         :param parent: Parent widget, e.g. main window
         :param title: Dialog title
@@ -256,7 +256,8 @@ class DataEntryDialog(QDialog):
         result = self.exec_()
 
         if result == QDialog.Accepted:
-            return tuple(editor.text() for editor in self.editors)
+            return tuple(editor.text() if isinstance(editor, QLineEdit)
+                         else editor.isChecked() for editor in self.editors)
 
     def create_form(self) -> QGroupBox:
         """Returns form inside a QGroupBox"""
@@ -269,9 +270,13 @@ class DataEntryDialog(QDialog):
         for label, initial_value, validator in zip(self.labels,
                                                    self.initial_data,
                                                    self.validators):
-            editor = QLineEdit(str(initial_value))
-            editor.setAlignment(Qt.AlignRight)
-            if validator:
+            if validator is bool:
+                editor = QCheckBox("")
+                editor.setChecked(initial_value)
+            else:
+                editor = QLineEdit(str(initial_value))
+                editor.setAlignment(Qt.AlignRight)
+            if validator and validator is not bool:
                 editor.setValidator(validator)
             form_layout.addRow(QLabel(label + " :"), editor)
             self.editors.append(editor)
@@ -486,14 +491,15 @@ class PreferencesDialog(DataEntryDialog):
         title = "Preferences"
         groupbox_title = "Global settings"
         labels = ["Signature key for files", "Cell calculation timeout [ms]",
-                  "Frozen cell refresh period [ms]", "Number of recent files"]
+                  "Frozen cell refresh period [ms]", "Number of recent files",
+                  "Show sum in statusbar"]
         self.keys = ["signature_key", "timeout", "refresh_timeout",
-                     "max_file_history"]
-        self.mappers = [str, int, int, int]
+                     "max_file_history", "show_statusbar_sum"]
+        self.mappers = [str, int, int, int, bool]
         data = [getattr(parent.settings, key) for key in self.keys]
         validator = QIntValidator()
         validator.setBottom(0)  # Do not allow negative values
-        validators = [None, validator, validator, validator]
+        validators = [None, validator, validator, validator, bool]
         super().__init__(parent, title, labels, data, groupbox_title,
                          validators)
 
@@ -1671,8 +1677,11 @@ class ManualDialog(TutorialDialog):
         self.setWindowTitle(self.window_title)
 
         layout = QHBoxLayout()
-        layout.addWidget(self.tabbar)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
+
+        layout.addWidget(self.tabbar)
+
 
 
 class PrintPreviewDialog(QPrintPreviewDialog):

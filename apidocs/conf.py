@@ -86,7 +86,7 @@ autodoc_default_flags = [
     'undoc-members',
     'private-members',
     #'special-members',
-    #'inherited-members',
+    'inherited-members',
     #"exclude-members ",
     'show-inheritance'
 ]

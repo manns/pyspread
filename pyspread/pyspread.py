@@ -40,7 +40,7 @@ import sys
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer, QRectF
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication,
                              QMessageBox, QDockWidget, QUndoStack, QVBoxLayout,
-                             QStyleOptionViewItem)
+                             QStyleOptionViewItem, QSplitter)
 try:
     from PyQt5.QtSvg import QSvgWidget
 except ImportError:
@@ -214,7 +214,18 @@ class MainWindow(QMainWindow):
         self.widgets = Widgets(self)
 
         self.entry_line = Entryline(self)
+
+        self.vsplitter = QSplitter(Qt.Vertical, self)
+        self.hsplitter_1 = QSplitter(Qt.Horizontal, self)
+        self.hsplitter_2 = QSplitter(Qt.Horizontal, self)
+
         self.grid = Grid(self)
+        # Further views of the grid
+        self.grid_2 = Grid(self, self.grid.model)
+        self.grid_3 = Grid(self, self.grid.model)
+        self.grid_4 = Grid(self, self.grid.model)
+
+        self.grids = [self.grid, self.grid_2, self.grid_3, self.grid_4]
 
         self.macro_panel = MacroPanel(self, self.grid.model.code_array)
 
@@ -244,8 +255,20 @@ class MainWindow(QMainWindow):
         """Layouts for main window"""
 
         self.central_layout = QVBoxLayout(self.main_panel)
-        self.central_layout.addWidget(self.grid)
+        self.central_layout.addWidget(self.vsplitter)
         self.central_layout.addWidget(self.grid.table_choice)
+
+        self.vsplitter.addWidget(self.hsplitter_1)
+        self.vsplitter.addWidget(self.hsplitter_2)
+
+        self.hsplitter_1.addWidget(self.grid)
+        self.hsplitter_1.addWidget(self.grid_2)
+        self.hsplitter_2.addWidget(self.grid_3)
+        self.hsplitter_2.addWidget(self.grid_4)
+
+        self.vsplitter.setSizes([1, 0])
+        self.hsplitter_1.setSizes([1, 0])
+        self.hsplitter_2.setSizes([1, 0])
 
         self.main_panel.setLayout(self.central_layout)
         self.setCentralWidget(self.main_panel)
@@ -305,6 +328,16 @@ class MainWindow(QMainWindow):
 
         macrodock_visible = self.macro_dock.isVisibleTo(self)
         actions.toggle_macro_dock.setChecked(macrodock_visible)
+
+    @property
+    def focused_grid(self):
+        """Returns grid with focus or self if none has focus"""
+
+        for grid in self.grids:
+            if grid.hasFocus():
+                return grid
+
+        return self.grid
 
     @property
     def safe_mode(self) -> bool:

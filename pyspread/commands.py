@@ -222,26 +222,28 @@ class SetRowsHeight(QUndoCommand):
     def redo(self):
         """Redo row height setting"""
 
-        for row in self.rows:
-            if self.new_height != self.default_size:
-                self.grid.model.code_array.row_heights[(row, self.table)] = \
-                    self.new_height / self.grid.zoom
-            if self.grid.rowHeight(row) != self.new_height:
-                with self.grid.undo_resizing_row():
-                    self.grid.setRowHeight(row, self.new_height)
+        for grid in self.grid.main_window.grids:
+            for row in self.rows:
+                if self.new_height != self.default_size:
+                    grid.model.code_array.row_heights[(row, self.table)] = \
+                        self.new_height / grid.zoom
+                if grid.rowHeight(row) != self.new_height:
+                    with grid.undo_resizing_row():
+                        grid.setRowHeight(row, self.new_height)
 
     def undo(self):
         """Undo row height setting"""
 
-        for row in self.rows:
-            if self.old_height == self.default_size:
-                self.grid.model.code_array.row_heights.pop((row, self.table))
-            else:
-                self.grid.model.code_array.row_heights[(row, self.table)] = \
-                    self.old_height / self.grid.zoom
-            if self.grid.rowHeight(row) != self.old_height:
-                with self.grid.undo_resizing_row():
-                    self.grid.setRowHeight(row, self.old_height)
+        for grid in self.grid.main_window.grids:
+            for row in self.rows:
+                if self.old_height == self.default_size:
+                    grid.model.code_array.row_heights.pop((row, self.table))
+                else:
+                    grid.model.code_array.row_heights[(row, self.table)] = \
+                        self.old_height / grid.zoom
+                if grid.rowHeight(row) != self.old_height:
+                    with grid.undo_resizing_row():
+                        grid.setRowHeight(row, self.old_height)
 
 
 class SetColumnsWidth(QUndoCommand):
@@ -289,26 +291,28 @@ class SetColumnsWidth(QUndoCommand):
     def redo(self):
         """Redo column width setting"""
 
-        for column in self.columns:
-            if self.new_width != self.default_size:
-                self.grid.model.code_array.col_widths[(column, self.table)] =\
-                    self.new_width / self.grid.zoom
-            if self.grid.columnWidth(column) != self.new_width:
-                with self.grid.undo_resizing_column():
-                    self.grid.setColumnWidth(column, self.new_width)
+        for grid in self.grid.main_window.grids:
+            for column in self.columns:
+                if self.new_width != self.default_size:
+                    grid.model.code_array.col_widths[(column, self.table)] = \
+                        self.new_width / grid.zoom
+                if grid.columnWidth(column) != self.new_width:
+                    with grid.undo_resizing_column():
+                        grid.setColumnWidth(column, self.new_width)
 
     def undo(self):
         """Undo column width setting"""
 
-        for column in self.columns:
-            if self.old_width == self.default_size:
-                self.grid.model.code_array.col_widths.pop((column, self.table))
-            else:
-                self.grid.model.code_array.col_widths[(column, self.table)] =\
-                    self.old_width / self.grid.zoom
-            if self.grid.columnWidth(column) != self.old_width:
-                with self.grid.undo_resizing_column():
-                    self.grid.setColumnWidth(column, self.old_width)
+        for grid in self.grid.main_window.grids:
+            for column in self.columns:
+                if self.old_width == self.default_size:
+                    grid.model.code_array.col_widths.pop((column, self.table))
+                else:
+                    grid.model.code_array.col_widths[(column, self.table)] = \
+                        self.old_width / grid.zoom
+                if grid.columnWidth(column) != self.old_width:
+                    with grid.undo_resizing_column():
+                        grid.setColumnWidth(column, self.old_width)
 
 
 class InsertRows(QUndoCommand):
@@ -710,7 +714,8 @@ class SetCellMerge(SetCellFormat):
         """Redo cell merging"""
 
         self.model.setData(self.selected_idx, self.attr, Qt.DecorationRole)
-        self.model.main_window.grid.update_cell_spans()
+        for grid in self.model.main_window.grids:
+            grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
@@ -721,7 +726,8 @@ class SetCellMerge(SetCellFormat):
         except IndexError as error:
             raise Warning(str(error))
             return
-        self.model.main_window.grid.update_cell_spans()
+        for grid in self.model.main_window.grids:
+            grid.update_cell_spans()
         self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
@@ -739,10 +745,10 @@ class FreezeCell(QUndoCommand):
     """Freezes cell in grid"""
 
     def __init__(self, model: QAbstractTableModel,
-                 current: Tuple[int, int, int], description: str):
+                 cells: List[Tuple[int, int, int]], description: str):
         """
         :param model: Model of the grid object
-        :param current: Index of the cell to be frozen
+        :param cells: List of indices of cells to be frozen
         :param description: Command description
 
         """
@@ -750,30 +756,32 @@ class FreezeCell(QUndoCommand):
         super().__init__(description)
 
         self.model = model
-        self.current = current
+        self.cells = cells
 
     def redo(self):
         """Redo cell freezing"""
 
-        row, column, table = self.current
+        for cell in self.cells:
+            row, column, table = cell
 
-        # Add frozen cache content
-        res_obj = self.model.code_array[self.current]
-        self.model.code_array.frozen_cache[repr(self.current)] = res_obj
+            # Add frozen cache content
+            res_obj = self.model.code_array[cell]
+            self.model.code_array.frozen_cache[repr(cell)] = res_obj
 
-        # Set the frozen state
-        selection = Selection([], [], [], [], [(row, column)])
-        attr_dict = AttrDict([("frozen", True)])
-        attr = CellAttribute(selection, table, attr_dict)
-        self.model.setData([], attr, Qt.DecorationRole)
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+            # Set the frozen state
+            selection = Selection([], [], [], [], [(row, column)])
+            attr_dict = AttrDict([("frozen", True)])
+            attr = CellAttribute(selection, table, attr_dict)
+            self.model.setData([], attr, Qt.DecorationRole)
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         """Undo cell freezing"""
 
-        self.model.code_array.frozen_cache.pop(repr(self.current))
-        self.model.code_array.cell_attributes.pop()
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        for cell in reversed(self.cells):
+            self.model.code_array.frozen_cache.pop(repr(cell))
+            self.model.code_array.cell_attributes.pop()
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class ThawCell(FreezeCell):
@@ -782,24 +790,30 @@ class ThawCell(FreezeCell):
     def redo(self):
         """Redo cell thawing"""
 
-        row, column, table = current = self.current
+        self.res_objs = []
 
-        # Remove and store frozen cache content
-        self.res_obj = self.model.code_array.frozen_cache.pop(repr(current))
+        for cell in self.cells:
+            row, column, table = cell
 
-        # Remove the frozen state
-        selection = Selection([], [], [], [], [(row, column)])
-        attr_dict = AttrDict([("frozen", False)])
-        attr = CellAttribute(selection, table, attr_dict)
-        self.model.setData([], attr, Qt.DecorationRole)
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+            # Remove and store frozen cache content
+            self.res_objs.append(
+                self.model.code_array.frozen_cache.pop(repr(cell)))
+
+            # Remove the frozen state
+            selection = Selection([], [], [], [], [(row, column)])
+            attr_dict = AttrDict([("frozen", False)])
+            attr = CellAttribute(selection, table, attr_dict)
+            self.model.setData([], attr, Qt.DecorationRole)
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
     def undo(self):
         """Undo cell thawing"""
 
-        self.model.code_array.frozen_cache[repr(self.current)] = self.res_obj
-        self.model.code_array.cell_attributes.pop()
-        self.model.dataChanged.emit(QModelIndex(), QModelIndex())
+        for cell, res_obj in zip(reversed(self.cells),
+                                 reversed(self.res_objs)):
+            self.model.code_array.frozen_cache[repr(cell)] = res_obj
+            self.model.code_array.cell_attributes.pop()
+            self.model.dataChanged.emit(QModelIndex(), QModelIndex())
 
 
 class SetCellRenderer(QUndoCommand):

@@ -17,15 +17,9 @@ test_debian_testing:
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - py.test-3
-
-test_debian_unstable:
-  image: debian:unstable
-  variables:
-    QT_QPA_PLATFORM: "offscreen"
-  script:
-  - mkdir -p /tmp/runtime-pyspreadci
-  - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
-  - py.test-3
+  only:
+  - master
+  - development
 
 test_debian_experimental:
   image: debian:experimental
@@ -35,7 +29,9 @@ test_debian_experimental:
   - mkdir -p /tmp/runtime-pyspreadci
   - export XDG_RUNTIME_DIR=/tmp/runtime-pyspreadci
   - py.test-3
-
+  only:
+  - master
+  - development
 
 ## Release to pypi
 deploy_pypi:
@@ -50,7 +46,6 @@ deploy_pypi:
     - python3 -m twine upload dist/*    
   only:
     - tags
-
 
 
 ## api.docs pages at pyspread.gitlab.io/pyspread

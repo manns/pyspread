@@ -1,7 +1,7 @@
-model.model.*
+__init__.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: __init__
     :members:
     :undoc-members:
     :private-members:

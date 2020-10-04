@@ -1,8 +1,8 @@
-model/
+model.test/
 ===================================
 
 .. toctree::
     :maxdepth: 1
 
-    model.rst
+    test_model.rst
 

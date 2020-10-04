@@ -1,7 +1,7 @@
-model.model.*
+lib.file_helpers.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: lib.file_helpers
     :members:
     :undoc-members:
     :private-members:

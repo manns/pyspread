@@ -1,7 +1,7 @@
-model.model.*
+grid_renderer.*
 ==========================================================
 
-.. automodule:: model.model
+.. automodule:: grid_renderer
     :members:
     :undoc-members:
     :private-members:
